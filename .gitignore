@@ -1,0 +1,24 @@
+# --- Rocq / Coq Compiled Objects ---
+*.vo
+*.vok
+*.vos
+*.glob
+*.aux
+.coq-native/
+.rocq-native/
+
+# --- Build System Files ---
+Makefile
+Makefile.conf
+.coq-deps/
+.rocq-deps/
+
+# --- OPAM and IDEs ---
+.opam/
+_opam/
+.vscode/
+.history/
+
+# --- OS Specific ---
+.DS_Store
+Thumbs.db
