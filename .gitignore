@@ -9,6 +9,7 @@
 
 # --- Build System Files ---
 Makefile
+.Makefile.d
 Makefile.conf
 .coq-deps/
 .rocq-deps/
