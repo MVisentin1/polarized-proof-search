@@ -1,1 +1,1 @@
-(*File for defining the syntax*)
+(* --- LJF Pure Logic Test (No External Imports) --- *)

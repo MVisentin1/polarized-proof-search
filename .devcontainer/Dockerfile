@@ -42,18 +42,11 @@ COPY .zshrc /home/$USERNAME/
 
 ## Run in usermode
 
-# [Optional] Set the default user. Omit if you want to keep the default as root.
 USER $USERNAME
 
-# Configure opam/ocaml
+# 1. Initialize OPAM (The SF way)
+# This creates the foundation but we stop here to avoid the "silent failure" of Docker layers
 RUN opam init -y --disable-sandboxing --compiler=5.3.0
-RUN opam switch 5.3.0
-RUN opam install -y num
-RUN opam repo add -y coq-released https://coq.inria.fr/opam/released
-RUN opam pin add -y coq 9.1.0
-RUN opam install -y coq-simple-io
-RUN opam install -y vscoq-language-server
-RUN opam update -y
-RUN opam upgrade -y
-RUN eval `opam config env`
-RUN opam install -y coq-hammer
+
+# Ensure the shell is ready for the user
+ENTRYPOINT [ "/bin/zsh" ]

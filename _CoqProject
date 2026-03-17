@@ -1,6 +1,7 @@
 -docroot LJF
--Q rocq-carve/src/ Carve
--Q rocq-carve/msl/ MSL
--Q . LJF
+-Q rocq-carve/src VST.src
+-Q rocq-carve/msl VST.msl
+-R src LJF
 
 src/LJF_Logic.v
+src/LJF_Test.v

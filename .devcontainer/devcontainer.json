@@ -3,14 +3,14 @@
 {
     "name": "Ubuntu",
     // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-    "build": { 
-	"dockerfile": "Dockerfile"
-    },
+    "build": {
+    "dockerfile": "Dockerfile"
+  },
 	// Setting this to your specific user prevents permission errors
-    "remoteUser": "cis5000",
+  "remoteUser": "cis5000",
 
     // This runs the shell script we talked about to handle submodules and make
-    "postCreateCommand": "bash .devcontainer/setup.sh",
+  "postCreateCommand": "bash .devcontainer/setup.sh",
     // Features to add to the dev container. More info: https://containers.dev/features.
     // "features": {},
 
@@ -21,34 +21,34 @@
     // "postCreateCommand": "uname -a",
 
     // Configure tool-specific properties.
-    "customizations": {
-	"vscode": {
-	    "extensions": [
-		"maximedenes.vscoq",
-		"rocq-prover.vsrocq"
-	    ],
-	    "settings": {
-		"coqtop.binPath" : "/home/cis5000/.opam/5.3.0/bin",
-		"files.exclude": {
-		    "**/*.aux": true,
-		    "**/*.glob": true,
-		    "**/*.vo": true,
-		    "**/*.vos": true,
-		    "**/*.vok": true,
-		    "**/*.html": true,
-		    "**/.*.report": true,
-		    "**/.*.cache": true
-		},
-		"coq.loadCoqProject": true,
-		"coq.coqProjectRoot": ".",
-		"[coq]": {
-		    "editor.tabSize": 2,
-		    "editor.insertSpaces": true
-		}
-	    }	    
-	}
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "rocq-prover.vsrocq",
+        "ocamllabs.ocaml-platform"
+      ],
+      "settings": {
+        "vsrocq.path": "/home/cis5000/.opam/5.3.0/bin/vsrocqtop",
+        "vscoq.path": "/home/cis5000/.opam/5.3.0/bin/vsrocqtop",
+        "coqtop.binPath": "/home/cis5000/.opam/5.3.0/bin",
+        "ocaml.lsp.path": "/home/cis5000/.opam/5.3.0/bin/ocamllsp",
+        "files.exclude": {
+          "**/*.aux": true,
+          "**/*.glob": true,
+          "**/*.vo": true,
+          "**/*.vos": true,
+          "**/*.vok": true,
+          "**/*.html": true,
+          "**/.*.report": true,
+          "**/.*.cache": true
+        },
+        "coq.loadCoqProject": true,
+        "coq.coqProjectRoot": ".",
+        "[coq]": {
+          "editor.tabSize": 2,
+          "editor.insertSpaces": true
+        }
+      }
     }
-
-    // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-    // "remoteUser": "root"
+  }
 }
