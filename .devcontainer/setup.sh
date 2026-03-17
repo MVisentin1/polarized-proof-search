@@ -6,11 +6,11 @@ echo "--- 1. Fixing Git Permissions & Ownership ---"
 git config --global --add safe.directory /workspaces/polarized-proof-search
 git config --global --add safe.directory /workspaces/polarized-proof-search/rocq-carve
 
-echo "--- 2. Setting Fallback Git Identity ---"
-if [ -z "$(git config --global user.email)" ]; then
-    git config --global user.email "research-team@mcgill.ca"
-    git config --global user.name "Research Team"
-fi
+#echo "--- 2. Setting Fallback Git Identity ---"
+#if [ -z "$(git config --global user.email)" ]; then
+#    git config --global user.email "research-team@mcgill.ca"
+#    git config --global user.name "Research Team"
+#fi
 
 echo "--- 3. Initializing Submodules ---"
 git submodule update --init --recursive
