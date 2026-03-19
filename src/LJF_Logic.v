@@ -45,11 +45,18 @@ Inductive ufc : ctx -> o -> bool -> Prop :=
 | ufc_L_False :
   forall {C: ctx} {R: o} {b: bool},
     ufc ((False, one) :: C) R b
-(* with lfc : ctx -> o -> o -> Prop :=
-| lfc_R_l :
+(*First o for focus, second o for R*)
+with lfc : ctx -> o -> o -> Prop :=
+(*| lfc_R_l :
 | lfc_I_l :
-| lfc_L_AndN :
-| lfc_L_Impl : *)
+| lfc_L_AndN : *)
+| lfc_L_Impl : 
+  forall {C: ctx} {A:o} {B : o} {R : o}, 
+    rfc C A ->
+    lfc C B R ->
+    lfc C (Impl A B) R
+
+
 with rfc : ctx -> o -> Prop :=
 (* | rfc_R_r :
 | rfc_I_r :
