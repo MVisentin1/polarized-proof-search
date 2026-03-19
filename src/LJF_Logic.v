@@ -1,5 +1,6 @@
 From Stdlib Require Import List.
 From CARVe Require Import contexts.list algebras.dill.
+From VST.msl Require Import sepalg.
 
 Inductive polarity : Type :=
 | Pos : polarity
@@ -28,6 +29,8 @@ Definition is_pos (A : o) : bool :=
 
 Definition ctx : Type := @lctx o mult.
 
+(* TODO use proper CARVe merge or update functions instead of cons *)
+
                       (* bool : is rhs bracketed? *)
 Inductive ufc : ctx -> o -> bool -> Prop :=
 (* | ufc_L_f : 
@@ -36,15 +39,22 @@ Inductive ufc : ctx -> o -> bool -> Prop :=
 | ufc_R_box : 
 | ufc_L_AndP :
 | ufc_R_AndN :
-| ufc_L_Or :
-| ufc_R_Impl : *)
+| ufc_L_Or : *)
+| ufc_R_Impl :
+  forall {C Co C1: ctx} {A: o} {R: o} {b: bool},
+    join ((A, omega) :: nil) C Co ->
+    join ((A, one) :: nil) C C1 ->
+    ufc Co R b ->
+    ufc C1 R b
 | ufc_L_True :
-  forall {C: ctx} {R: o} {b: bool},
+  forall {C C1: ctx} {R: o} {b: bool},
+    join ((True, one) :: nil) C C1 ->
     ufc C R b ->
-    ufc ((True, one) :: C) R b
+    ufc C1 R b
 | ufc_L_False :
-  forall {C: ctx} {R: o} {b: bool},
-    ufc ((False, one) :: C) R b
+  forall {C C1: ctx} {R: o} {b: bool},
+    join ((False, one) :: nil) C C1 ->
+    ufc C1 R b
 (*First o for focus, second o for R*)
 with lfc : ctx -> o -> o -> Prop :=
 (*| lfc_R_l :
@@ -58,12 +68,35 @@ with lfc : ctx -> o -> o -> Prop :=
 
 
 with rfc : ctx -> o -> Prop :=
-(* | rfc_R_r :
+| rfc_R_r :
+  forall {C: ctx} {N: o},
+    exh C ->
+    ufc C N false ->
+    rfc C N
 | rfc_I_r :
+  forall {C1 C: ctx} {P: o},
+    join ((P, omega) :: nil) C C1 ->
+    exh C1 ->
+    rfc C1 P
 | rfc_R_AndP :
-| rfc_R_Or : *)
+  forall {C: ctx} {A: o} {B: o},
+    exh C ->
+    rfc C A ->
+    rfc C B ->
+    rfc C (AndP A B)
+| rfc_R_Or_1 :
+  forall {C: ctx} {A: o} {B: o},
+    exh C ->
+    rfc C A ->
+    rfc C (Or A B)
+| rfc_R_Or_2 :
+  forall {C: ctx} {A: o} {B: o},
+    exh C ->
+    rfc C B ->
+    rfc C (Or A B)
 | rfc_R_True :
   forall {C: ctx},
-  rfc C True
+    exh C ->
+    rfc C True
 .
 
