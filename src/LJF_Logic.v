@@ -163,6 +163,8 @@ with rfc : ctx -> o -> Prop :=
 
 Lemma True_proveable: (rfc nil True).
   apply rfc_R_True.
+  simpl.
+  apply I.
 Qed.
 
 Print True_proveable.
