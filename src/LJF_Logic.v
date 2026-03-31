@@ -188,19 +188,19 @@ Qed.
 
 Ltac T_exh := 
   match goal with
-    | [|- exh ?C ] => simpl; 
+    | [|- exh ?C ] => solve [simpl; 
       repeat split; 
       try (apply halo); 
       try (apply halz); 
-      try (apply I)
+      try (apply I)]
     | _ => fail "Goal is not an exh predicate"
   end
 .
 
-(*Use when we know what we are looking for, not for making decisions*)
+(*Use when we know what we are looking  for, not for making decisions*)
 Ltac T_has_entry :=
   match goal with
-  | [|- has_entry ?C (?a, ?m)] => simpl; repeat ((left; reflexivity) || right)
+  | [|- has_entry ?C (?a, ?m)] => solve [simpl; repeat ((left; reflexivity) || right)]
   | _ => fail "Goal is not a entry lookup predicate"
   end
 .
@@ -212,11 +212,11 @@ Lemma Fibonnaci_forward_chaining : forall (x y z : nat),
   let C := (a, omega) :: (Impl a b, omega) :: (Impl b c, omega) :: nil in
   lfc C (Impl a b) c.
 Proof. 
-  intros x y z a b c C.
+  intros.
   apply lfc_L_Impl.
     - T_exh.
     - apply rfc_I_r. 
-      + T_exh.
+      + T_exh. 
       + T_has_entry.
       + constructor.
       + constructor. 
@@ -253,7 +253,7 @@ Lemma Fibonnaci_backward_chaining : forall (x y z : nat),
   let C := (a, omega) :: (Impl a b, omega) :: (Impl b c, omega) :: nil in
   lfc C (Impl b c) c.
 Proof. 
-  intros x y z a b c C.
+  intros.
   apply lfc_L_Impl.
     - T_exh.
     - apply rfc_R_r.
