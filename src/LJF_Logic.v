@@ -200,6 +200,26 @@ Ltac T_has_entry :=
   end
 .
 
+Ltac T_positive := match goal with
+  | [|- positive ?a ] => solve [
+      (apply Pos_atom ; apply Is_atom ) |
+      (apply Pos_true) |
+      (apply Pos_false) |
+      (apply Pos_and) |
+      (apply Pos_false)
+  ] || fail "Given predicate is not positive"
+  end
+.
+
+Ltac T_negative := match goal with
+  | [|- negative ?a ] => solve [
+      (apply Neg_atom ; apply Is_atom ) |
+      (apply Neg_and) |
+      (apply Neg_imp)
+  ] || fail "Given predicate is not negative"
+  end
+.
+
 Ltac T_permeable := match goal with
   | [|- permeable ?a ] => solve [
         (apply Permeable_pos_atom ; [> apply Is_atom | apply Pos_atom ]) |
@@ -215,3 +235,28 @@ Ltac T_bracketable := match goal with
     ] || fail "Given predicate is not bracketable"
   end
 .
+
+
+(* TODO : Maybe consider converting this in Ltac2, seems like exceptions can be treaten more cleanly *)
+Ltac rec T_lfc_async := match goal with
+  | [|- lfc ?C (Atom Neg ?n) ?K] => 
+    solve [apply lfc_I_l ; 
+      [>  T_exh | apply Neg_atom ; apply Is_atom | apply Is_atom ]] 
+      || fail "Proof search failure : Cannot use lfc_I_l"
+  | [|- lfc ?C (AndN ?B1 ?B2) ?K] => 
+    solve [apply lfc_L_AndN_1 ;
+      [>  T_exh | T_lfc_async ]] 
+    || solve [apply lfc_L_AndN_2 ;
+      [> T_exh | T_lfc_async ]]
+  | [|- lfc ?C (Impl ?B1 ?B2) ?K] => 
+    solve [apply lfc_L_Impl ;
+      [> T_exh | T_rfc_async | T_lfc_async]]
+  | [|- lfc ?C ?P ?K] => 
+    solve [apply lfc_R_l ;
+      [> T_exh | T_positive | T_ufc]]
+  end
+with T_rfc_async := idtac
+with T_ufc := idtac.
+
+
+  
