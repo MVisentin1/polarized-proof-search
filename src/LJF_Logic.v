@@ -183,66 +183,72 @@ with rfc : ctx -> o -> Prop :=
 
 
 Ltac T_exh := solve [
-  match goal with
-    | [|- exh _ ] => simpl; repeat split; try (apply halo); try (apply halz); try (apply I)
-  end] || fail "Context isn't exhausted or Goal is not an exh lookup predicate"
+  lazymatch goal with
+  | [|- exh _ ] => simpl; repeat split; try (apply halo); try (apply halz); try (apply I)
+  end] || fail "T_exh : context isn't exhausted or goal is not an exh lookup predicate"
 .
 
 (*Use when we know what we are looking  for, not for making decisions*)
 Ltac T_has_entry := solve [
-  match goal with
+  lazymatch goal with
   | [|- has_entry _ _] => simpl; repeat ((left; reflexivity) || right) 
-  end] || fail "Goal is not an entry lookup predicate"
+  end] || fail "T_has_entry : goal is not an entry lookup predicate"
+.
+
+Ltac T_upd_rel_ex := solve [
+  lazymatch goal with
+  | [|- upd_rel_ex _ _ _ _] => eexists; constructor
+  end]
 .
 
 Ltac T_positive := solve 
-  [match goal with
-  | [|- positive ?a] => let a' := (eval cbv delta in a) in
-    match a' with
+  [lazymatch goal with
+  | [|- positive ?a] => let a' := (eval hnf in a) in
+    lazymatch a' with
     | Atom Pos _ => apply Pos_atom
     | True => apply Pos_true
     | False => apply Pos_false
     | AndP _ _ => apply Pos_and
     | Or _ _ => apply Pos_or
     end
-  end] || fail "Goal is not a positive predicate, or require prooving positivity of a negative formula"
+  end] || fail "T_positive : goal is not a positive predicate, or require prooving positivity of a negative formula"
 .
 
 Ltac T_negative := solve
-  [match goal with
-  | [|- negative ?a] => let a' := (eval cbv delta in a) in
-    match a' with
+  [lazymatch goal with
+  | [|- negative ?a] => let a' := (eval hnf in a) in
+    lazymatch a' with
     | Atom Neg _ => apply Neg_atom
     | AndN _ _ => apply Neg_and
     | Impl _ _ => apply Neg_imp
     end
-  end] || fail "Goal is either not a negative predicate, or require prooving negativity of a positive formula"
+  end] || fail "T_negative : goal is either not a negative predicate, or require prooving negativity of a positive formula"
 .
 
 
 Ltac T_permeable := solve
-  [match goal with 
-  | [|- permeable ?a ] => let a' := (eval cbv delta in a) in
-    match a' with
+  [lazymatch goal with 
+  | [|- permeable ?a ] => let a' := (eval hnf in a) in
+    lazymatch a' with
     | Atom Pos _ => apply Permeable_pos_atom; [> apply Is_atom | apply Pos_atom]
     | _ => apply Permeable_neg; T_negative
     end
-  end] || fail "Goal is either not a permeable predicate, or require prooving permeability of a positive non-atom".
+  end] || fail "T_permeable : goal is either not a permeable predicate, or require prooving permeability of a positive non-atom".
 
 Ltac T_bracketable := solve
-  [match goal with
-  | [|- bracketable ?a ] => let a' := (eval cbv delta in a) in
-    match a' with
+  [lazymatch goal with
+  | [|- bracketable ?a ] => let a' := (eval hnf in a) in
+    lazymatch a' with
     | Atom Neg _ => apply Bracketable_neg_atom ; [> apply Is_atom | apply Neg_atom ]
     | _ => apply Bracketable_pos ; T_positive
     end
-  end] || fail "Goal is either not a bracketable predicate, or require prooving bracketability of a positive non-atom"
+  end] || fail "T_bracketable : goal is either not a bracketable predicate, or require prooving bracketability of a positive non-atom"
 .
 
 (*T_rfc goes through the Right focus phase. Leaves an ufc subgoal when the phase ends *)
 Ltac T_rfc := 
-  match goal with
-  | [|- rfc _ ?b] => let b' := (eval cbv delta in b) in
+  lazymatch goal with
+  | [|- rfc _ ?b] => let b' := (eval hnf in b) in
     lazymatch b' with
     (* Right focus on positive atom, must solve the branch*)
     | Atom Pos _ => solve [apply rfc_I_r ; [> T_exh | T_has_entry | apply Pos_atom | apply Is_atom]]
@@ -265,8 +271,8 @@ end
 
 (*T_lfc goes through the Left Focus phase. Leaves an ufc subgoal when the phase ends*)
 Ltac  T_lfc :=
-  match goal with 
-  | [|- lfc _ ?b _] => let b' := (eval cbv delta in b) in
+  lazymatch goal with 
+  | [|- lfc _ ?b _] => let b' := (eval hnf in b) in
     lazymatch b' with
     (* Left focus on negative atom, must solve the branch*)
     | Atom Neg _ => solve [apply lfc_I_l ; [>  T_exh | apply Neg_atom | apply Is_atom ]]
@@ -283,16 +289,62 @@ Ltac  T_lfc :=
   end
 .
 
-(*T_ufc_bracket goes through a bracketting phase. We start we an unbracketted ufc sequent, and get a bracketed ufc sequent.
+(*T_ufc_bracket goes through a bracketting phase. We start with an unbracketted ufc sequent, and get a bracketed ufc sequent.
 This will allow us to go through a emptying phase of the linear context after*)
 Ltac T_ufc_bracket :=
-  match goal with
+  lazymatch goal with
   | [|- ufc _ ?k Unbracketed] =>
-    let k' := (eval cbv delta in k) in
+    let k' := (eval hnf in k) in
     lazymatch k' with
     | AndN _ _ => apply ufc_R_AndN ; [> T_ufc_bracket | T_ufc_bracket]
     | Impl _ _ => apply ufc_R_Impl ; T_ufc_bracket
     | _ => apply ufc_R_box ; [> T_bracketable | idtac]
     end
+  end
+.
+
+(*T_ufc_empty goes through an emptying phase. We start a with an bracketted ufc sequent, and get a bracketed ufc sequent with no linear assumption.
+This will allow us to choose a focus for resuming the search*)
+Ltac T_ufc_empty context :=
+  lazymatch goal with
+  | [|- ufc ?c ?k Bracketed] => 
+    let context' := (eval hnf in context) in
+    lazymatch context' with
+    (*Linear context is empty, we have to make a decision*)
+    | nil => idtac
+
+    (*Linear assumption found in ctx, we use a left rule to remove it*)
+    | (?b, one) :: ?rest => 
+      let b' := (eval hnf in b) in
+      lazymatch b' with
+      (*Next linear assumption is True*)
+      | True => eapply ufc_L_True ; [> T_has_entry | T_upd_rel_ex | T_ufc_empty rest]
+
+      (*Next linear assumption is False, must solve the branch*)
+      | False => solve [eapply ufc_L_False ; T_has_entry]
+
+      (*Next linear assumption is a positive conjunction, we add the new assumptions to the list of linear assumption to process*)
+      | AndP ?B1 ?B2 => eapply ufc_L_AndP ; [> T_has_entry | T_upd_rel_ex | T_ufc_empty ((B1, one) :: (B2, one) :: rest)]
+
+      (*Next linear assumption is a disjunction, we add the new assumptions to the list of linear assumption to process*)
+      | Or ?B1 ?B2 => eapply ufc_L_Or ; [> T_has_entry | T_upd_rel_ex | T_ufc_empty ((B1, one) :: rest) | T_ufc_empty ((B2, one) :: rest)]
+
+      (*Next linear assumption is a positive atom or a negative formula. We place it in the structural context using ufc_L_box*)
+      | _ => eapply ufc_L_box ; [> T_upd_rel_ex | T_permeable | T_ufc_empty rest]
+      end
+
+    (*Next assumption in context is either strucutural or already used*)
+    | (?b, ?m) :: ?rest => T_ufc_empty rest
+
+    (*Sanity check : makes sure the input context is a context*)
+    | _ => fail "T_ufc_empty : argument is not a context"
+    end
+  end
+.
+
+(*T_ufc_empty_setup pattern matches on the goal to find the initial input to T_ifc_empty*)
+Ltac T_ufc_empty_setup :=
+  lazymatch goal with
+  | [|- ufc ?c _ Bracketed] => T_ufc_empty c
   end
 .
