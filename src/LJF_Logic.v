@@ -266,9 +266,9 @@ Ltac T_bracketable := solve
 
 (*Stubs for circular dependencies*)
 Ltac T_ufc_bracket := fail "T_ufc_bracket: not yet defined".
-Ltac T_ufc_empty_setup := fail "T_ufc_empty_setup: not yet defined".
+Ltac T_ufc_empty := fail "T_ufc_empty: not yet defined".
 Ltac T_ufc_decide_right := fail "T_ufc_decide_right: not yet defined".
-Ltac T_ufc_decide_left_setup := fail "T_ufc_decide_left_setup: not yet defined".
+Ltac T_ufc_decide_left := fail "T_ufc_decide_left: not yet defined".
 Ltac T_lfc := fail "T_lfc: not yet defined".
 Ltac T_rfc := fail "T_rfc: not yet defined".
 
@@ -312,7 +312,7 @@ Ltac  T_lfc ::=
     | Impl _ _ => apply lfc_L_Impl ; [> T_exh | T_rfc | T_lfc]
 
     (* Left focus on a positive formula, ends left-focus phase, leaves a ufc subgoal*)
-    | _ => apply lfc_R_l ; [> T_exh | T_positive | T_ufc_empty_setup ]
+    | _ => apply lfc_R_l ; [> T_exh | T_positive | T_ufc_empty ]
     end
   end
 .
@@ -326,56 +326,54 @@ Ltac T_ufc_bracket ::=
     lazymatch k' with
     | AndN _ _ => apply ufc_R_AndN ; [> T_ufc_bracket | T_ufc_bracket]
     | Impl _ _ => apply ufc_R_Impl ; T_ufc_bracket
-    | _ => apply ufc_R_box ; [> T_bracketable | T_ufc_empty_setup]
+    | _ => apply ufc_R_box ; [> T_bracketable | T_ufc_empty]
     end
   end
 .
 
 (*T_ufc_empty goes through an emptying phase. We start a with an bracketted ufc sequent, and get a bracketed ufc sequent with exhausted context.
 This will allow us to choose a focus for resuming the search*)
+
 (*The input argument context serves as a list of all unprocessed assumptions of the goal context, since we cannot remove elements from contexts in CARVe,
 this is required to be able to iterate through the context*)
-Ltac T_ufc_empty context :=
-  lazymatch goal with
-  | [|- ufc ?c ?k Bracketed] => 
-    let context' := (eval hnf in context) in
-    lazymatch context' with
-    (*Linear context is empty, we have to make a decision*)
-    | nil => T_ufc_decide_right
+Ltac T_ufc_empty_private context :=
+  let context' := (eval hnf in context) in
+  lazymatch context' with
+  (*Linear context is empty, we have to make a decision*)
+  | nil => T_ufc_decide_right
 
-    (*Linear assumption found in ctx, we use a left rule to remove it*)
-    | (?b, one) :: ?rest => 
-      let b' := (eval hnf in b) in
-      lazymatch b' with
-      (*Next linear assumption is True*)
-      | True => eapply ufc_L_True ; [> T_has_entry | T_upd_rel_ex | T_ufc_empty rest]
+  (*Linear assumption found in ctx, we use a left rule to remove it*)
+  | (?b, one) :: ?rest => 
+    let b' := (eval hnf in b) in
+    lazymatch b' with
+    (*Next linear assumption is True*)
+    | True => eapply ufc_L_True ; [> T_has_entry | T_upd_rel_ex | T_ufc_empty_private rest]
 
-      (*Next linear assumption is False, must solve the branch*)
-      | False => solve [eapply ufc_L_False ; T_has_entry]
+    (*Next linear assumption is False, must solve the branch*)
+    | False => solve [eapply ufc_L_False ; T_has_entry]
 
-      (*Next linear assumption is a positive conjunction, we add the new assumptions to the list of linear assumption to process*)
-      | AndP ?B1 ?B2 => eapply ufc_L_AndP ; [> T_has_entry | T_upd_rel_ex | T_ufc_empty ((B1, one) :: (B2, one) :: rest)]
+    (*Next linear assumption is a positive conjunction, we add the new assumptions to the list of linear assumption to process*)
+    | AndP ?B1 ?B2 => eapply ufc_L_AndP ; [> T_has_entry | T_upd_rel_ex | T_ufc_empty_private ((B1, one) :: (B2, one) :: rest)]
 
-      (*Next linear assumption is a disjunction, we add the new assumptions to the list of linear assumption to process*)
-      | Or ?B1 ?B2 => eapply ufc_L_Or ; [> T_has_entry | T_upd_rel_ex | T_ufc_empty ((B1, one) :: rest) | T_ufc_empty ((B2, one) :: rest)]
+    (*Next linear assumption is a disjunction, we add the new assumptions to the list of linear assumption to process*)
+    | Or ?B1 ?B2 => eapply ufc_L_Or ; [> T_has_entry | T_upd_rel_ex | T_ufc_empty_private ((B1, one) :: rest) | T_ufc_empty_private ((B2, one) :: rest)]
 
-      (*Next linear assumption is a positive atom or a negative formula. We place it in the structural context using ufc_L_box*)
-      | _ => eapply ufc_L_box ; [> T_upd_rel_ex | T_permeable | T_ufc_empty rest]
-      end
-
-    (*Next assumption in context is either strucutural or already used*)
-    | (?b, ?m) :: ?rest => T_ufc_empty rest
-
-    (*Sanity check : makes sure the input context is a context*)
-    | _ => fail "T_ufc_empty : argument is not a context"
+    (*Next linear assumption is a positive atom or a negative formula. We place it in the structural context using ufc_L_box*)
+    | _ => eapply ufc_L_box ; [> T_upd_rel_ex | T_permeable | T_ufc_empty_private rest]
     end
+
+  (*Next assumption in context is either strucutural or already used*)
+  | (?b, ?m) :: ?rest => T_ufc_empty_private rest
+
+  (*Sanity check : makes sure the input context is a context*)
+  | _ => fail "T_ufc_empty_private : argument is not a context"
   end
 .
 
-(*T_ufc_empty_setup pattern matches on the goal to find the initial input to T_ifc_empty*)
-Ltac T_ufc_empty_setup ::=
+(*T_ufc_empty pattern matches on the goal to find the initial input to T_ifc_empty*)
+Ltac T_ufc_empty ::=
   lazymatch goal with
-  | [|- ufc ?c _ Bracketed] => T_ufc_empty c
+  | [|- ufc ?c _ Bracketed] => T_ufc_empty_private c
   end
 .
 
@@ -386,44 +384,42 @@ Ltac T_ufc_decide_right ::=
     let k' := (eval hnf in k) in
     (*If k is positive, we right focus*)
     (*If k is negative, or right focusing fails, we left focus*)
-    solve [T_is_positive k' ; apply ufc_R_f ; [> T_exh | T_positive | T_rfc]] || T_ufc_decide_left_setup
+    solve [T_is_positive k' ; apply ufc_R_f ; [> T_exh | T_positive | T_rfc]] || T_ufc_decide_left
   end
 .
 
 (*T_ufc_decide_left tries left focusing on a bracketed ufc sequent with exhausted context. We assume here that we already tried / check if we could right
 focus. At the end of this tactic, we get a left focus sequent*)
+
 (*The argument context serves to iterate through the goal context in order to pick a negative formula to left focus on*)
-Ltac T_ufc_decide_left context := 
-  lazymatch goal with
-    | [|- ufc ?c _ Bracketed] => 
-    let context' := (eval hnf in context) in
-    lazymatch context' with
+Ltac T_ufc_decide_left_private context := 
+  let context' := (eval hnf in context) in
+  lazymatch context' with
 
-      (*On empty context*)
-      | nil => fail "T_ufc_decide_left : ran out of assumption to focus on, search didnt work"
+    (*On empty context*)
+    | nil => fail "T_ufc_decide_left : ran out of assumption to focus on, search didnt work"
 
-      (*On structural entry*)
-      (*If b is negative, we left focus on it*)
-      (*If b is positive, or left focusing on b fail, we go to next entry*)
-      | (?b, omega) :: ?rest => let b' := (eval hnf in b) in
-      solve [T_is_negative b' ; eapply (@ufc_L_f _ b' _) ; [> T_exh | T_has_entry | T_negative | T_lfc]] || T_ufc_decide_left rest 
-      
-      (*On removed entry, we go to next entry*)
-      | (_, zero) :: ?rest => T_ufc_decide_left rest
+    (*On structural entry*)
+    (*If b is negative, we left focus on it*)
+    (*If b is positive, or left focusing on b fail, we go to next entry*)
+    | (?b, omega) :: ?rest => let b' := (eval hnf in b) in
+    solve [T_is_negative b' ; eapply (@ufc_L_f _ b' _) ; [> T_exh | T_has_entry | T_negative | T_lfc]] || T_ufc_decide_left_private rest 
+    
+    (*On removed entry, we go to next entry*)
+    | (_, zero) :: ?rest => T_ufc_decide_left_private rest
 
-      (*FAIL ON LINEAR ENTRY*)
-      | (_, one) :: ?rest => fail "FATAL : context should be exhausted at this point"
+    (*FAIL ON LINEAR ENTRY*)
+    | (_, one) :: ?rest => fail "FATAL : context should be exhausted at this point"
 
-      (*Sanity check*)
-      | _ => fail "T_ufc_decide_left : argument is not a context"
-    end
+    (*Sanity check*)
+    | _ => fail "T_ufc_decide_left : argument is not a context"
   end
 .
 
-(*T_ufc_decide_left_setup pattern matches on the goal to find initial input to T_ufc_decide_left*)
-Ltac T_ufc_decide_left_setup ::=
+(*T_ufc_decide_left pattern matches on the goal to find initial input to T_ufc_decide_left_private*)
+Ltac T_ufc_decide_left ::=
   lazymatch goal with
-  | [|- ufc ?c _ Bracketed] => T_ufc_decide_left c
+  | [|- ufc ?c _ Bracketed] => T_ufc_decide_left_private c
   end
 .
 
@@ -433,7 +429,7 @@ Ltac T_solve :=
   | [|- lfc _ _ _] => T_lfc
   | [|- rfc _ _] => T_rfc
   | [|- ufc _ _ Unbracketed] => T_ufc_bracket
-  | [|- ufc _ _ Bracketed] => T_ufc_empty_setup
+  | [|- ufc _ _ Bracketed] => T_ufc_empty
   | _ => fail "T_solve : goal is not a LFJ sequent"
   end
 .

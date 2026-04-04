@@ -36,5 +36,3 @@ Lemma Fibonnaci : forall (x y z : nat),
   let C := (a, omega) :: (Impl a b, omega) :: (Impl b c, omega) :: nil in
   ufc C (c) Unbracketed.
 Proof. T_solve. Qed.
-
-
