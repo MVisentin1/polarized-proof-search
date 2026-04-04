@@ -4,6 +4,7 @@ From CARVe Require Import contexts.list algebras.dill.
 From VST.msl Require Import sepalg.
 
 From LJF Require Import LJF_Logic.
+From LJF Require Import LJF_Prover.
 
 
 Lemma True_proveable: (rfc nil True).
