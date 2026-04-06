@@ -4,5 +4,6 @@
 -R src LJF
 
 src/LJF_Logic.v
-src/LJF_Test.v
 src/LJF_Prover.v
+src/LJF_Test.v
+src/LJF_Hand.v
