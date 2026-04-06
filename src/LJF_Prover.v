@@ -9,20 +9,20 @@ From LJF Require Import LJF_Logic.
 Ltac T_exh := solve [
   lazymatch goal with
   | [|- exh _ ] => simpl; repeat split; try (apply halo); try (apply halz); try (apply I)
-  end] || fail "T_exh : context isn't exhausted or goal is not an exh lookup predicate"
+  end] || fail "T_exh : context is not exhausted, or goal is not an exh lookup predicate"
 .
 
 (*Use when we know what we are looking  for, not for making decisions*)
 Ltac T_has_entry := solve [
   lazymatch goal with
   | [|- has_entry _ _] => simpl; repeat ((left; reflexivity) || right) 
-  end] || fail "T_has_entry : goal is not an entry lookup predicate"
+  end] || fail "T_has_entry : context does not contain entry, or goal is not an entry lookup predicate"
 .
 
 Ltac T_upd_rel_ex := solve [
   lazymatch goal with
   | [|- upd_rel_ex _ _ _ _] => eexists; constructor
-  end] || fail "T_upd_rel_ex : could not solve upd_rel_ex goal"
+  end] || fail "T_upd_rel_ex : context could not be updated, or goal is not a context update predicate"
 .
 
 
@@ -34,7 +34,6 @@ lazymatch path with
     | con =>
         lazymatch formula' with
         | formula =>
-            (* idtac "loop detected"; *)
             fail "T_noloop: attempted to left focus on repeated formula and context"
         | _ => T_noloop con formula rest
         end
@@ -52,7 +51,7 @@ Ltac T_positive := solve
     | AndP _ _ => apply Pos_and
     | Or _ _ => apply Pos_or
     end
-  end] || fail "T_positive : goal is not a positive predicate, or require prooving positivity of a negative formula"
+  end] || fail "T_positive: formula is not positive, or goal is not a positivity predicate"
 .
 
 Ltac T_is_positive k := 
@@ -62,7 +61,7 @@ Ltac T_is_positive k :=
     | Or _ _   => idtac
     | True => idtac
     | False => idtac
-    | _          => fail
+    | _ => fail
   end
 .
 
@@ -74,7 +73,7 @@ Ltac T_negative := solve
     | AndN _ _ => apply Neg_and
     | Impl _ _ => apply Neg_imp
     end
-  end] || fail "T_negative : goal is either not a negative predicate, or require prooving negativity of a positive formula"
+  end] || fail "T_negative: formula is not negative, or goal is not a negativity predicate,"
 .
 
 Ltac T_is_negative k:= 
@@ -93,7 +92,7 @@ Ltac T_permeable := solve
     | Atom Pos _ => apply Permeable_pos_atom; [> apply Is_atom | apply Pos_atom]
     | _ => apply Permeable_neg; T_negative
     end
-  end] || fail "T_permeable : goal is either not a permeable predicate, or require prooving permeability of a positive non-atom".
+  end] || fail "T_permeable: formula is not permeable, or goal is either not a permeability predicate".
 
 Ltac T_bracketable := solve
   [lazymatch goal with
@@ -102,7 +101,7 @@ Ltac T_bracketable := solve
     | Atom Neg _ => apply Bracketable_neg_atom ; [> apply Is_atom | apply Neg_atom ]
     | _ => apply Bracketable_pos ; T_positive
     end
-  end] || fail "T_bracketable : goal is either not a bracketable predicate, or require prooving bracketability of a positive non-atom"
+  end] || fail "T_bracketable: formula is not bracketable, or goal is either not a bracketability predicate"
 .
 
 (*Stubs for circular dependencies*)
@@ -207,7 +206,7 @@ Ltac T_ufc_empty_private context path :=
   | (?b, ?m) :: ?rest => T_ufc_empty_private rest path
 
   (*Sanity check : makes sure the input context is a context*)
-  | _ => fail "T_ufc_empty_private : argument is not a context"
+  | _ => fail "T_ufc_empty_private: argument is not a context"
   end
 .
 
@@ -225,7 +224,7 @@ Ltac T_ufc_decide_right path ::=
     let k' := (eval hnf in k) in
     (*If k is positive, we right focus*)
     (*If k is negative, or right focusing fails, we left focus*)
-    solve [T_is_positive k' ; apply ufc_R_f ; [> T_exh | T_positive | T_rfc]] || T_ufc_decide_left path
+    solve [T_is_positive k' ; apply ufc_R_f ; [> T_exh | T_positive | T_rfc path]] || T_ufc_decide_left path
   end
 .
 
@@ -238,7 +237,7 @@ Ltac T_ufc_decide_left_private context path :=
   lazymatch context' with
 
     (*On empty context*)
-    | nil => fail "T_ufc_decide_left : ran out of assumption to focus on, search didnt work"
+    | nil => fail "T_ufc_decide_left: ran out of assumption to focus on"
 
     (*On structural entry*)
     (*If b is negative, we left focus on it*)
@@ -251,10 +250,10 @@ Ltac T_ufc_decide_left_private context path :=
     | (_, zero) :: ?rest => T_ufc_decide_left_private rest path
 
     (*FAIL ON LINEAR ENTRY*)
-    | (_, one) :: ?rest => fail "FATAL : context should be exhausted at this point"
+    | (_, one) :: ?rest => fail "T_ufc_decide_left: context is not exhausted"
 
     (*Sanity check*)
-    | _ => fail "T_ufc_decide_left : argument is not a context"
+    | _ => fail "T_ufc_decide_left: argument is not a context"
   end
 .
 
@@ -273,6 +272,6 @@ Ltac T_solve :=
   | [|- rfc _ _] => T_rfc path
   | [|- ufc _ _ Unbracketed] => T_ufc_bracket path
   | [|- ufc _ _ Bracketed] => T_ufc_empty path
-  | _ => fail "T_solve : goal is not a LFJ sequent"
+  | _ => fail "T_solve: goal is not a LFJ sequent"
   end
 .
