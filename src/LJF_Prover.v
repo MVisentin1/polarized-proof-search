@@ -4,7 +4,7 @@ From Ltac2 Require Import Ltac2 Message Control.
 From CARVe Require Import contexts.list algebras.dill.
 From VST.msl Require Import sepalg.
 
-From LJF Require Import LJF_Logic. 
+From LJF Require Import LJF_Logic.
 
 Ltac T_exh := solve [
   lazymatch goal with
@@ -15,7 +15,7 @@ Ltac T_exh := solve [
 (*Use when we know what we are looking  for, not for making decisions*)
 Ltac T_has_entry := solve [
   lazymatch goal with
-  | [|- has_entry _ _] => simpl; repeat ((left; reflexivity) || right) 
+  | [|- has_entry _ _] => simpl; repeat ((left; reflexivity) || right)
   end] || fail "T_has_entry : context does not contain entry, or goal is not an entry lookup predicate"
 .
 
@@ -41,7 +41,7 @@ lazymatch path with
     end
 end.
 
-Ltac T_positive := solve 
+Ltac T_positive := solve
   [lazymatch goal with
   | [|- positive ?a] => let a' := (eval hnf in a) in
     lazymatch a' with
@@ -54,7 +54,7 @@ Ltac T_positive := solve
   end] || fail "T_positive: formula is not positive, or goal is not a positivity predicate"
 .
 
-Ltac T_is_positive k := 
+Ltac T_is_positive k :=
   match k with
     | Atom Pos _ => idtac
     | AndP _ _   => idtac
@@ -76,7 +76,7 @@ Ltac T_negative := solve
   end] || fail "T_negative: formula is not negative, or goal is not a negativity predicate,"
 .
 
-Ltac T_is_negative k:= 
+Ltac T_is_negative k:=
   match k with
     | Atom Neg _ => idtac
     | AndN _ _   => idtac
@@ -86,7 +86,7 @@ Ltac T_is_negative k:=
 .
 
 Ltac T_permeable := solve
-  [lazymatch goal with 
+  [lazymatch goal with
   | [|- permeable ?a ] => let a' := (eval hnf in a) in
     lazymatch a' with
     | Atom Pos _ => apply Permeable_pos_atom; [> apply Is_atom | apply Pos_atom]
@@ -114,7 +114,7 @@ Ltac T_rfc path := fail "T_rfc: not yet defined".
 
 
 (*T_rfc goes through the Right focus phase. Leaves an ufc subgoal when the phase ends *)
-Ltac T_rfc path ::= 
+Ltac T_rfc path ::=
   lazymatch goal with
   | [|- rfc _ ?b] => let b' := (eval hnf in b) in
     lazymatch b' with
@@ -139,7 +139,7 @@ end
 
 (*T_lfc goes through the Left Focus phase. Leaves an ufc subgoal when the phase ends*)
 Ltac  T_lfc path ::=
-  lazymatch goal with 
+  lazymatch goal with
   | [|- lfc _ ?b _] => let b' := (eval hnf in b) in
     lazymatch b' with
     (* Left focus on negative atom, must solve the branch*)
@@ -183,7 +183,7 @@ Ltac T_ufc_empty_private context path :=
   | nil => T_ufc_decide_right path
 
   (*Linear assumption found in ctx, we use a left rule to remove it*)
-  | (?b, one) :: ?rest => 
+  | (?b, one) :: ?rest =>
     let b' := (eval hnf in b) in
     lazymatch b' with
     (*Next linear assumption is True*)
@@ -220,7 +220,7 @@ Ltac T_ufc_empty path ::=
 (*T_ufc_decide_right tries right focusing on a bracketed ufc sequent with exhausted context, if it fails or we cannot, we left focus instead*)
 Ltac T_ufc_decide_right path ::=
   lazymatch goal with
-  | [|- ufc ?c ?k Bracketed] => 
+  | [|- ufc ?c ?k Bracketed] =>
     let k' := (eval hnf in k) in
     (*If k is positive, we right focus*)
     (*If k is negative, or right focusing fails, we left focus*)
@@ -232,7 +232,7 @@ Ltac T_ufc_decide_right path ::=
 focus. At the end of this tactic, we get a left focus sequent*)
 
 (*The argument context serves to iterate through the goal context in order to pick a negative formula to left focus on*)
-Ltac T_ufc_decide_left_private context path := 
+Ltac T_ufc_decide_left_private context path :=
   let context' := (eval hnf in context) in
   lazymatch context' with
 
@@ -245,7 +245,7 @@ Ltac T_ufc_decide_left_private context path :=
     | (?b, omega) :: ?rest => let b' := (eval hnf in b) in
     let npath := constr:((context', b) :: path) in
     solve [T_is_negative b' ; T_noloop context' b path; eapply (@ufc_L_f _ b' _) ; [> T_exh | T_has_entry | T_negative | T_lfc npath]] || T_ufc_decide_left_private rest path
-    
+
     (*On removed entry, we go to next entry*)
     | (_, zero) :: ?rest => T_ufc_decide_left_private rest path
 
@@ -264,7 +264,7 @@ Ltac T_ufc_decide_left path ::=
   end
 .
 
-Ltac T_solve := 
+Ltac T_solve :=
   intros ;
   let path := constr:(@nil (list (o * mult) * o)) in
   lazymatch goal with

@@ -10,18 +10,18 @@ Inductive polarity : Type :=
 
 Inductive o : Type :=
 | Atom  : polarity -> nat -> o          (* Atoms must have a polarity*)
-| True  : o                   
-| False : o                   
-| AndP  : o -> o -> o 
+| True  : o
+| False : o
+| AndP  : o -> o -> o
 | AndN  : o -> o -> o
-| Or    : o -> o -> o 
+| Or    : o -> o -> o
 | Impl  : o -> o -> o.
 
 Inductive atomic : o -> Prop :=
   | Is_atom : forall p n, atomic (Atom p n)
 .
 
-Inductive positive : o -> Prop := 
+Inductive positive : o -> Prop :=
   | Pos_atom : forall n, positive (Atom Pos n)
   | Pos_true : positive True
   | Pos_false : positive False
@@ -38,7 +38,7 @@ Inductive negative : o -> Prop :=
 (*bracketable corresponds to formulae that can be put in brackets,
  is either positive formula or negative atoms,
  used in rule ufc_R_box*)
-Inductive bracketable : o -> Prop := 
+Inductive bracketable : o -> Prop :=
   | Bracketable_pos : forall D, positive D -> bracketable D
   | Bracketable_neg_atom : forall D, atomic D -> negative D -> bracketable D
 .
@@ -46,13 +46,13 @@ Inductive bracketable : o -> Prop :=
 (*permeable corresponds to formulae that can be switched from linear context to structural,
 is either negative formula or positive atom,
 used in rule ufc_L_box*)
-Inductive permeable : o -> Prop := 
+Inductive permeable : o -> Prop :=
   | Permeable_neg : forall C, negative C -> permeable C
   | Permeable_pos_atom : forall C, atomic C -> positive C -> permeable C
 .
 
 Inductive state : Type :=
-  | Bracketed : state 
+  | Bracketed : state
   | Unbracketed : state.
 
 Definition ctx : Type := @lctx o mult.
@@ -85,7 +85,7 @@ Inductive ufc : ctx -> o -> state -> Prop :=
 | ufc_L_AndP :
   forall {C C1: ctx} {B1 B2 : o} {K: o} {s : state},
     has_entry C ((AndP B1 B2), one) ->
-    upd_rel_ex C ((AndP B1 B2), one) ((AndP B1 B2), zero) C1 ->  
+    upd_rel_ex C ((AndP B1 B2), one) ((AndP B1 B2), zero) C1 ->
     ufc ((B1, one) :: (B2, one) :: C1) K s ->
     ufc C K s
 | ufc_R_AndN :
@@ -93,7 +93,7 @@ Inductive ufc : ctx -> o -> state -> Prop :=
     ufc C B1 Unbracketed ->
     ufc C B2 Unbracketed->
     ufc C (AndN B1 B2) Unbracketed
-| ufc_L_Or : 
+| ufc_L_Or :
   forall {C C1: ctx} {B1 B2 : o}  {K: o} {s: state},
     has_entry C ((Or B1 B2), one) ->
     upd_rel_ex C ((Or B1 B2), one) ((Or B1 B2), zero) C1 ->
@@ -130,26 +130,26 @@ with lfc : ctx -> o -> o -> Prop :=
     lfc C N N
 | lfc_L_AndN_1 :
   forall {C: ctx} {B1 B2 : o}  {K : o},
-    exh C -> 
+    exh C ->
     lfc C B1 K ->
     lfc C (AndN B1 B2) K
 | lfc_L_AndN_2 :
   forall {C: ctx} {B1 B2 : o}  {K : o},
-    exh C -> 
+    exh C ->
     lfc C B2 K ->
     lfc C (AndN B1 B2) K
-| lfc_L_Impl : 
-  forall {C: ctx} {B1 B2 : o}  {K : o}, 
+| lfc_L_Impl :
+  forall {C: ctx} {B1 B2 : o}  {K : o},
     exh C ->
     rfc C B1 ->
     lfc C B2 K ->
     lfc C (Impl B1 B2) K
-   
+
 with rfc : ctx -> o -> Prop :=
 | rfc_R_r :
   forall {C: ctx} {N: o},
     exh C ->
-    negative N -> 
+    negative N ->
     ufc C N Unbracketed ->
     rfc C N
 | rfc_I_r :
@@ -163,7 +163,7 @@ with rfc : ctx -> o -> Prop :=
   forall {C: ctx} {B1 B2: o},
     exh C ->
     rfc C B1 ->
-    rfc C B2 ->   
+    rfc C B2 ->
     rfc C (AndP B1 B2)
 | rfc_R_Or_1 :
   forall {C: ctx} {B1 B2: o},

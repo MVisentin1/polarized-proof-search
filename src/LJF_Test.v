@@ -6,10 +6,10 @@ From VST.msl Require Import sepalg.
 From LJF Require Import LJF_Logic LJF_Prover.
 
 
-Lemma True_proveable: (rfc nil True).
-  apply rfc_R_True.
-  T_exh.
-Qed.
+Lemma True_proveable: (ufc nil True Unbracketed).
+Proof. T_solve. Qed.
+
+Print True_proveable.
 
 
 Lemma Impl_trans_backward_chaining_example : forall (x y z : nat),
