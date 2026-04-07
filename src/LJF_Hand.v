@@ -3,7 +3,7 @@ From Stdlib Require Import List.
 From CARVe Require Import contexts.list algebras.dill.
 From VST.msl Require Import sepalg.
 
-From LJF Require Import LJF_Logic LJF_Prover.
+From LJF Require Import LJF4_Rules LJF4_Prover LJF_SharedLogic.
 
 Lemma True_proveable: (ufc nil True Unbracketed).
 Proof.

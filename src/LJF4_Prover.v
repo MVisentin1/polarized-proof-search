@@ -4,7 +4,7 @@ From Ltac2 Require Import Ltac2 Message Control.
 From CARVe Require Import contexts.list algebras.dill.
 From VST.msl Require Import sepalg.
 
-From LJF Require Import LJF_Logic.
+From LJF Require Import LJF4_Rules LJF_SharedLogic.
 
 Ltac T_exh := solve [
   lazymatch goal with

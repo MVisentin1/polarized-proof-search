@@ -4,58 +4,7 @@ From VST.msl Require Import sepalg.
 
 Global Arguments upd_rel_ex  {R A} _ _ _ _.
 
-Inductive polarity : Type :=
-| Pos : polarity
-| Neg : polarity.
-
-Inductive o : Type :=
-| Atom  : polarity -> nat -> o          (* Atoms must have a polarity*)
-| True  : o
-| False : o
-| AndP  : o -> o -> o
-| AndN  : o -> o -> o
-| Or    : o -> o -> o
-| Impl  : o -> o -> o.
-
-Inductive atomic : o -> Prop :=
-  | Is_atom : forall p n, atomic (Atom p n)
-.
-
-Inductive positive : o -> Prop :=
-  | Pos_atom : forall n, positive (Atom Pos n)
-  | Pos_true : positive True
-  | Pos_false : positive False
-  | Pos_and : forall A B, positive (AndP A B)
-  | Pos_or : forall A B, positive (Or A B)
-.
-
-Inductive negative : o -> Prop :=
-  | Neg_atom : forall n, negative (Atom Neg n)
-  | Neg_and : forall A B, negative (AndN A B)
-  | Neg_imp : forall A B, negative (Impl A B)
-.
-
-(*bracketable corresponds to formulae that can be put in brackets,
- is either positive formula or negative atoms,
- used in rule ufc_R_box*)
-Inductive bracketable : o -> Prop :=
-  | Bracketable_pos : forall D, positive D -> bracketable D
-  | Bracketable_neg_atom : forall D, atomic D -> negative D -> bracketable D
-.
-
-(*permeable corresponds to formulae that can be switched from linear context to structural,
-is either negative formula or positive atom,
-used in rule ufc_L_box*)
-Inductive permeable : o -> Prop :=
-  | Permeable_neg : forall C, negative C -> permeable C
-  | Permeable_pos_atom : forall C, atomic C -> positive C -> permeable C
-.
-
-Inductive state : Type :=
-  | Bracketed : state
-  | Unbracketed : state.
-
-Definition ctx : Type := @lctx o mult.
+From LJF Require Import LJF_SharedLogic. 
 
 Inductive ufc : ctx -> o -> state -> Prop :=
 | ufc_L_f :
@@ -72,48 +21,48 @@ Inductive ufc : ctx -> o -> state -> Prop :=
     rfc C P ->
     ufc C P Bracketed
 | ufc_L_box :
-  forall {C C1 : ctx} {B : o} {K : o} {s : state},
+  forall {C C1 : ctx} {B : o} {K : o},
     upd_rel_ex C (B, one) (B, omega) C1 ->
     permeable B ->
-    ufc C1 K s ->
-    ufc C K s
+    ufc C1 K Bracketed ->
+    ufc C K Bracketed
 | ufc_R_box :
   forall {C: ctx} {D: o},
     bracketable D ->
     ufc C D Bracketed ->
     ufc C D Unbracketed
 | ufc_L_AndP :
-  forall {C C1: ctx} {B1 B2 : o} {K: o} {s : state},
+  forall {C C1: ctx} {B1 B2 : o} {K: o},
     has_entry C ((AndP B1 B2), one) ->
     upd_rel_ex C ((AndP B1 B2), one) ((AndP B1 B2), zero) C1 ->
-    ufc ((B1, one) :: (B2, one) :: C1) K s ->
-    ufc C K s
+    ufc ((B1, one) :: (B2, one) :: C1) K Bracketed ->
+    ufc C K Bracketed
 | ufc_R_AndN :
   forall {C: ctx} {B1 B2: o},
     ufc C B1 Unbracketed ->
     ufc C B2 Unbracketed->
     ufc C (AndN B1 B2) Unbracketed
 | ufc_L_Or :
-  forall {C C1: ctx} {B1 B2 : o}  {K: o} {s: state},
+  forall {C C1: ctx} {B1 B2 : o}  {K: o},
     has_entry C ((Or B1 B2), one) ->
     upd_rel_ex C ((Or B1 B2), one) ((Or B1 B2), zero) C1 ->
-    ufc ((B1, one) :: C1) K s ->
-    ufc ((B2, one) :: C1) K s ->
-    ufc C K s
+    ufc ((B1, one) :: C1) K Bracketed ->
+    ufc ((B2, one) :: C1) K Bracketed ->
+    ufc C K Bracketed
 | ufc_R_Impl :
   forall {C : ctx} {B1 B2: o},
     ufc ((B1, one) :: C) B2 Unbracketed ->
     ufc C (Impl B1 B2) Unbracketed
 | ufc_L_True :
-  forall {C C1: ctx}  {K: o} {s: state},
+  forall {C C1: ctx}  {K: o},
     has_entry C (True, one) ->
     upd_rel_ex C (True, one) (True, zero) C1 ->
-    ufc C1 K s ->
-    ufc C K s
+    ufc C1 K Bracketed ->
+    ufc C K Bracketed
 | ufc_L_False :
-  forall {C: ctx}  {K: o} {s: state},
+  forall {C: ctx}  {K: o},
     has_entry C (False, one) ->
-    ufc C K s
+    ufc C K Bracketed
 (*First o for focus, second o for K*)
 with lfc : ctx -> o -> o -> Prop :=
 | lfc_R_l :
