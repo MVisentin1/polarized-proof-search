@@ -176,9 +176,9 @@ This will allow us to choose a focus for resuming the search*)
 
 (*The input argument context serves as a list of all unprocessed assumptions of the goal context, since we cannot remove elements from contexts in CARVe,
 this is required to be able to iterate through the context*)
-Ltac T_ufc_empty_private context path :=
-  let context' := (eval hnf in context) in
-  lazymatch context' with
+Ltac T_ufc_empty_private ctex path :=
+  let ctex' := (eval hnf in ctex) in
+  lazymatch ctex' with
   (*Linear context is empty, we have to make a decision*)
   | nil => T_ufc_decide_right path
 
@@ -232,9 +232,9 @@ Ltac T_ufc_decide_right path ::=
 focus. At the end of this tactic, we get a left focus sequent*)
 
 (*The argument context serves to iterate through the goal context in order to pick a negative formula to left focus on*)
-Ltac T_ufc_decide_left_private context path :=
-  let context' := (eval hnf in context) in
-  lazymatch context' with
+Ltac T_ufc_decide_left_private ctex path :=
+  let ctex' := (eval hnf in ctex) in
+  lazymatch ctex' with
 
     (*On empty context*)
     | nil => fail "T_ufc_decide_left: ran out of assumption to focus on"
@@ -243,8 +243,8 @@ Ltac T_ufc_decide_left_private context path :=
     (*If b is negative, we left focus on it*)
     (*If b is positive, or left focusing on b fail, we go to next entry*)
     | (?b, omega) :: ?rest => let b' := (eval hnf in b) in
-    let npath := constr:((context', b) :: path) in
-    solve [T_is_negative b' ; T_noloop context' b path; eapply (@ufc_L_f _ b' _) ; [> T_exh | T_has_entry | T_negative | T_lfc npath]] || T_ufc_decide_left_private rest path
+    let npath := constr:((ctex', b) :: path) in
+    solve [T_is_negative b' ; T_noloop ctex' b path; eapply (@ufc_L_f _ b' _) ; [> T_exh | T_has_entry | T_negative | T_lfc npath]] || T_ufc_decide_left_private rest path
 
     (*On removed entry, we go to next entry*)
     | (_, zero) :: ?rest => T_ufc_decide_left_private rest path
