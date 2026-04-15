@@ -9,7 +9,7 @@ Variant polarity : Type :=
 | Neg : polarity.
 
 Inductive o : Type :=
-| Atom  : polarity -> nat -> o          (* Atoms must have a polarity*)
+| Atom  : polarity -> nat -> o          (* Atoms must have a polarity *)
 | True  : o
 | False : o
 | AndP  : o -> o -> o

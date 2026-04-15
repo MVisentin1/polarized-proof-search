@@ -61,7 +61,8 @@ Inductive ufcLJF : ctx -> o -> state -> Prop :=
   forall {C: ctx}  {K: o} {s: state},
     has_entry C (False, one) ->
     ufcLJF C K s
-(*First o for focus, second o for K*)
+
+    (* First o for focused assumption, second o for conclusion K *)
 with lfcLJF : ctx -> o -> o -> Prop :=
 | lfcLJF_R_l :
   forall {C : ctx} {P : o}  {K : o},
