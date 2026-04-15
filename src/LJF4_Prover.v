@@ -1,8 +1,6 @@
 From Stdlib Require Import List.
-From Ltac2 Require Import Ltac2 Message Control.
 
 From CARVe Require Import contexts.list algebras.dill.
-From VST.msl Require Import sepalg.
 
 From LJF Require Import LJF4_Rules LJF_SharedLogic.
 
@@ -248,8 +246,8 @@ Ltac T_ufc_decide_left_private context path :=
     (* If b is negative, we left focus on it *)
     (* If b is positive, or left focusing on b fail, we go to next entry *)
     | (?b, omega) :: ?rest => let b' := (eval hnf in b) in
-    let npath := constr:((context', b) :: path) in
-    (T_is_negative b' ; T_noloop context' b path; eapply (@ufc_b_L_f _ b' _) ; [> T_exh | T_has_entry | T_negative | T_lfc npath])
+      let npath := constr:((context', b) :: path) in
+      (T_is_negative b' ; T_noloop context' b path; eapply (@ufc_b_L_f _ b' _) ; [> T_exh | T_has_entry | T_negative | T_lfc npath])
       || T_ufc_decide_left_private rest path
 
     (* On removed entry, we go to next entry *)

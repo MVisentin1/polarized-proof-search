@@ -1,6 +1,6 @@
 From Stdlib Require Import List.
+
 From CARVe Require Import contexts.list algebras.dill.
-From VST.msl Require Import sepalg.
 
 Global Arguments upd_rel_ex  {R A} _ _ _ _.
 
