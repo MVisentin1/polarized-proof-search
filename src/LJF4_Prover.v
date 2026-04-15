@@ -107,7 +107,7 @@ Ltac T_bracketable := lazymatch goal with
 .
 
 (* Stubs for circular dependencies *)
-Ltac T_ufc_bracket path := fail "T_ufc_bracket: not yet defined".
+Ltac T_ufc_ub path := fail "T_ufc_ub: not yet defined".
 Ltac T_ufc_empty path := fail "T_ufc_empty: not yet defined".
 Ltac T_ufc_decide_right path := fail "T_ufc_decide_right: not yet defined".
 Ltac T_ufc_decide_left path := fail "T_ufc_decide_left: not yet defined".
@@ -134,7 +134,7 @@ Ltac T_rfc path ::=
       || (apply rfc_R_Or_2 ; [> T_exh | T_rfc path])
 
     (* Right focus on negative formula, ends right-focus phase, leaves a ufc subgoal *)
-    | _ => apply rfc_R_r ; [> T_exh | T_negative | T_ufc_bracket path]
+    | _ => apply rfc_R_r ; [> T_exh | T_negative | T_ufc_ub path]
   end
 end
 .
@@ -161,15 +161,15 @@ Ltac  T_lfc path ::=
   end
 .
 
-(* T_ufc_bracket goes through a bracketting phase. We start with an unbracketted ufc sequent, and get a bracketed ufc sequent.
+(* T_ufc_ub goes through a bracketing phase. We start with an unbracketted ufc sequent, and get a bracketed ufc sequent.
 This will allow us to go through a emptying phase of the linear context after *)
-Ltac T_ufc_bracket path ::=
+Ltac T_ufc_ub path ::=
   lazymatch goal with
   | [|- ufc_ub _ ?k ] =>
     let k' := (eval hnf in k) in
     lazymatch k' with
-    | AndN _ _ => apply ufc_ub_R_AndN ; [> T_ufc_bracket path | T_ufc_bracket path]
-    | Impl _ _ => apply ufc_ub_R_Impl ; T_ufc_bracket path
+    | AndN _ _ => apply ufc_ub_R_AndN ; [> T_ufc_ub path | T_ufc_ub path]
+    | Impl _ _ => apply ufc_ub_R_Impl ; T_ufc_ub path
     | _ => apply ufc_ub_R_box ; [> T_bracketable | T_ufc_empty path]
     end
   end
@@ -276,7 +276,7 @@ Ltac T_solve :=
   lazymatch goal with
   | [|- lfc _ _ _] => T_lfc path
   | [|- rfc _ _] => T_rfc path
-  | [|- ufc_ub _ _] => T_ufc_bracket path
+  | [|- ufc_ub _ _] => T_ufc_ub path
   | [|- ufc_b _ _] => T_ufc_empty path
   | _ => fail "T_solve: goal is not a LFJ sequent"
   end
