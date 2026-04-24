@@ -4,6 +4,11 @@ From CARVe Require Import contexts.list algebras.dill.
 
 From LJF Require Import LJF_SharedLogic.
 
+Variant state : Type :=
+  | Bracketed : state
+  | Unbracketed : state
+.
+
 Inductive ufcLJF : ctx -> o -> state -> Prop :=
 | ufcLJF_L_f :
   forall {C: ctx} {N : o} {K : o},
