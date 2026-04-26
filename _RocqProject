@@ -3,9 +3,9 @@
 -Q rocq-carve/msl VST.msl
 -R src LJF
 
-src/SharedLogic.v
-src/LJF_Rules.v
-src/LJF4_Rules.v
+src/rules/SharedLogic.v
+src/rules/LJF_Rules.v
+src/rules/LJF4_Rules.v
 src/LJF4_Prover.v
-src/examples_LJF4/LJF4_Test.v
-src/examples_LJF4/LJF4_Hand.v
+src/examples/LJF4_Test.v
+src/examples/LJF4_Hand.v

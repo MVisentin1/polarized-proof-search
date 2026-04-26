@@ -2,7 +2,7 @@ From Stdlib Require Import List.
 
 From CARVe Require Import contexts.list algebras.dill.
 
-From LJF Require Import LJF_SharedLogic.
+From LJF Require Import SharedLogic.
 
 Variant state : Type :=
   | Bracketed : state
@@ -58,13 +58,13 @@ Inductive ufcLJF : ctx -> o -> state -> Prop :=
     ufcLJF C (Impl B1 B2) Unbracketed
 | ufcLJF_L_True :
   forall {C C1: ctx}  {K: o} {s: state},
-    has_entry C (True, one) ->
-    upd_rel_ex C (True, one) (True, zero) C1 ->
+    has_entry C (TT, one) ->
+    upd_rel_ex C (TT, one) (TT, zero) C1 ->
     ufcLJF C1 K s ->
     ufcLJF C K s
 | ufcLJF_L_False :
   forall {C: ctx}  {K: o} {s: state},
-    has_entry C (False, one) ->
+    has_entry C (FF, one) ->
     ufcLJF C K s
 
     (* First o for focused assumption, second o for conclusion K *)
@@ -131,5 +131,5 @@ with rfcLJF : ctx -> o -> Prop :=
 | rfcLJF_R_True :
   forall {C: ctx},
     exh C ->
-    rfcLJF C True
+    rfcLJF C TT
 .

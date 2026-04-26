@@ -10,8 +10,8 @@ Variant polarity : Type :=
 
 Inductive o : Type :=
 | Atom  : polarity -> nat -> o          (* Atoms must have a polarity *)
-| True  : o
-| False : o
+| TT  : o
+| FF : o
 | AndP  : o -> o -> o
 | AndN  : o -> o -> o
 | Or    : o -> o -> o
@@ -23,8 +23,8 @@ Variant atomic : o -> Prop :=
 
 Inductive positive : o -> Prop :=
   | Pos_atom : forall n, positive (Atom Pos n)
-  | Pos_true : positive True
-  | Pos_false : positive False
+  | Pos_true : positive TT
+  | Pos_false : positive FF
   | Pos_and : forall A B, positive (AndP A B)
   | Pos_or : forall A B, positive (Or A B)
 .
@@ -50,9 +50,5 @@ Variant permeable : o -> Prop :=
   | Permeable_neg : forall C, negative C -> permeable C
   | Permeable_pos_atom : forall C, atomic C -> positive C -> permeable C
 .
-
-Variant state : Type :=
-  | Bracketed : state
-  | Unbracketed : state.
 
 Definition ctx : Type := @lctx o mult.

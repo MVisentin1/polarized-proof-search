@@ -2,13 +2,13 @@ From Stdlib Require Import List.
 
 From CARVe Require Import contexts.list algebras.dill.
 
-From LJF Require Import LJF4_Rules LJF4_Prover LJF_SharedLogic.
+From LJF Require Import LJF4_Rules SharedLogic LJF4_Prover.
 
-Lemma True_proveable: ufc_ub nil True.
+Lemma True_proveable: bct nil TT.
 Proof.
-  apply ufc_ub_R_box.
+  apply bct_R_box.
   T_bracketable.
-  apply ufc_b_R_f.
+  apply ept_R_f.
   T_exh.
   T_positive.
   apply rfc_R_True.
@@ -33,10 +33,10 @@ Proof.
     - apply lfc_R_l.
       + T_exh.
       + T_positive.
-      + eapply ufc_b_L_box.
+      + eapply ept_L_box.
         -- eexists. constructor.
         -- T_permeable.
-        -- eapply ufc_b_L_f.
+        -- eapply ept_L_f.
           ++ T_exh.
           ++ simpl. right. right. right. left. reflexivity.
           ++ T_negative.
@@ -67,9 +67,9 @@ Proof.
     - apply rfc_R_r.
       + T_exh.
       + constructor.
-      + apply ufc_ub_R_box.
+      + apply bct_R_box.
         -- T_bracketable.
-        -- eapply ufc_b_L_f.
+        -- eapply ept_L_f.
           ++ T_exh.
           ++ simpl. right. left. reflexivity.
           ++ constructor.

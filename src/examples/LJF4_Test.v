@@ -2,10 +2,10 @@ From Stdlib Require Import List.
 
 From CARVe Require Import contexts.list algebras.dill.
 
-From LJF Require Import LJF4_Rules LJF4_Prover LJF_SharedLogic.
+From LJF Require Import LJF4_Rules LJF4_Prover SharedLogic.
 
 
-Lemma True_proveable: ufc_ub nil True.
+Lemma True_proveable: bct nil TT.
 Proof. T_solve. Qed.
 
 
@@ -31,5 +31,5 @@ Lemma Impl_trans : forall (x y z : nat),
   let b := Atom Neg y in
   let c := Atom Neg z in
   let C := (a, omega) :: (Impl a b, omega) :: (Impl b c, omega) :: nil in
-  ufc_ub C c.
+  bct C c.
 Proof. T_solve. Qed.

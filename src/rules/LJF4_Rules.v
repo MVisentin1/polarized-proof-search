@@ -4,67 +4,67 @@ From CARVe Require Import contexts.list algebras.dill.
 
 Global Arguments upd_rel_ex  {R A} _ _ _ _.
 
-From LJF Require Import LJF_SharedLogic. 
+From LJF Require Import SharedLogic. 
 
-Inductive ufc_ub : ctx -> o -> Prop :=
-| ufc_ub_R_box :
+Inductive bct : ctx -> o -> Prop :=
+| bct_R_box :
   forall {C: ctx} {D: o},
     bracketable D ->
-    ufc_b C D ->
-    ufc_ub C D
-| ufc_ub_R_AndN :
+    ept C D ->
+    bct C D
+| bct_R_AndN :
   forall {C: ctx} {B1 B2: o},
-    ufc_ub C B1 ->
-    ufc_ub C B2 ->
-    ufc_ub C (AndN B1 B2)
-| ufc_ub_R_Impl :
+    bct C B1 ->
+    bct C B2 ->
+    bct C (AndN B1 B2)
+| bct_R_Impl :
   forall {C : ctx} {B1 B2: o},
-    ufc_ub ((B1, one) :: C) B2 ->
-    ufc_ub C (Impl B1 B2)
+    bct ((B1, one) :: C) B2 ->
+    bct C (Impl B1 B2)
 
-with ufc_b : ctx -> o -> Prop :=
-| ufc_b_L_f :
+with ept : ctx -> o -> Prop :=
+| ept_L_f :
   forall {C: ctx} {N : o} {K : o},
     exh C ->
     has_entry C (N, omega) ->
     negative N ->
     lfc C N K ->
-    ufc_b C K
-| ufc_b_R_f :
+    ept C K
+| ept_R_f :
   forall {C: ctx} {P: o},
     exh C ->
     positive P ->
     rfc C P ->
-    ufc_b C P
-| ufc_b_L_box :
+    ept C P
+| ept_L_box :
   forall {C C1 : ctx} {B : o} {K : o},
     upd_rel_ex C (B, one) (B, omega) C1 ->
     permeable B ->
-    ufc_b C1 K ->
-    ufc_b C K
-| ufc_b_L_AndP :
+    ept C1 K ->
+    ept C K
+| ept_L_AndP :
   forall {C C1: ctx} {B1 B2 : o} {K: o},
     has_entry C ((AndP B1 B2), one) ->
     upd_rel_ex C ((AndP B1 B2), one) ((AndP B1 B2), zero) C1 ->
-    ufc_b ((B1, one) :: (B2, one) :: C1) K ->
-    ufc_b C K
-| ufc_b_L_Or :
+    ept ((B1, one) :: (B2, one) :: C1) K ->
+    ept C K
+| ept_L_Or :
   forall {C C1: ctx} {B1 B2 : o}  {K: o},
     has_entry C ((Or B1 B2), one) ->
     upd_rel_ex C ((Or B1 B2), one) ((Or B1 B2), zero) C1 ->
-    ufc_b ((B1, one) :: C1) K ->
-    ufc_b ((B2, one) :: C1) K ->
-    ufc_b C K
-| ufc_b_L_True :
+    ept ((B1, one) :: C1) K ->
+    ept ((B2, one) :: C1) K ->
+    ept C K
+| ept_L_True :
   forall {C C1: ctx}  {K: o},
-    has_entry C (True, one) ->
-    upd_rel_ex C (True, one) (True, zero) C1 ->
-    ufc_b C1 K ->
-    ufc_b C K
-| ufc_b_L_False :
+    has_entry C (TT, one) ->
+    upd_rel_ex C (TT, one) (TT, zero) C1 ->
+    ept C1 K ->
+    ept C K
+| ept_L_False :
   forall {C: ctx}  {K: o},
-    has_entry C (False, one) ->
-    ufc_b C K
+    has_entry C (FF, one) ->
+    ept C K
 
 (* First o for focused assumption, second o for conclusion K *)
 with lfc : ctx -> o -> o -> Prop :=
@@ -72,7 +72,7 @@ with lfc : ctx -> o -> o -> Prop :=
   forall {C : ctx} {P : o}  {K : o},
     exh C ->
     positive P ->
-    ufc_b ((P, one) :: C) K ->
+    ept ((P, one) :: C) K ->
     lfc C P K
 | lfc_I_l :
   forall {C: ctx} {N : o},
@@ -102,7 +102,7 @@ with rfc : ctx -> o -> Prop :=
   forall {C: ctx} {N: o},
     exh C ->
     negative N ->
-    ufc_ub C N ->
+    bct C N ->
     rfc C N
 | rfc_I_r :
   forall {C: ctx} {P: o},
@@ -130,5 +130,5 @@ with rfc : ctx -> o -> Prop :=
 | rfc_R_True :
   forall {C: ctx},
     exh C ->
-    rfc C True
+    rfc C TT
 .
