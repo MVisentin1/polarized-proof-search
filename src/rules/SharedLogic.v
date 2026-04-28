@@ -1,8 +1,8 @@
 From Stdlib Require Import List.
+From CARVe Require Import contexts.list.   
+From CARVe Require algebras.dill algebras.structural.   
 
-From CARVe Require Import contexts.list algebras.dill.
-
-Global Arguments upd_rel_ex  {R A} _ _ _ _.
+Global Arguments upd_rel_ex {R A} _ _ _ _.
 
 Variant polarity : Type :=
 | Pos : polarity
@@ -21,7 +21,7 @@ Variant atomic : o -> Prop :=
   | Is_atom : forall p n, atomic (Atom p n)
 .
 
-Inductive positive : o -> Prop :=
+Variant positive : o -> Prop :=
   | Pos_atom : forall n, positive (Atom Pos n)
   | Pos_true : positive TT
   | Pos_false : positive FF
@@ -29,7 +29,7 @@ Inductive positive : o -> Prop :=
   | Pos_or : forall A B, positive (Or A B)
 .
 
-Inductive negative : o -> Prop :=
+Variant negative : o -> Prop :=
   | Neg_atom : forall n, negative (Atom Neg n)
   | Neg_and : forall A B, negative (AndN A B)
   | Neg_imp : forall A B, negative (Impl A B)
@@ -51,4 +51,6 @@ Variant permeable : o -> Prop :=
   | Permeable_pos_atom : forall C, atomic C -> positive C -> permeable C
 .
 
-Definition ctx : Type := @lctx o mult.
+Definition sctx : Type := @lctx o structural.mult.
+Definition dctx : Type := @lctx o dill.mult.
+Definition octx : Type := list o.

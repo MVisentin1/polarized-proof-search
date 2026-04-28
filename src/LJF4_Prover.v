@@ -1,6 +1,7 @@
 From Stdlib Require Import List.
 
-From CARVe Require Import contexts.list algebras.dill.
+From CARVe Require Import contexts.list.
+From CARVe Require Import algebras.dill.
 
 From LJF Require Import LJF4_Rules SharedLogic.
 
@@ -12,9 +13,10 @@ Ltac T_exh := lazymatch goal with
 
 (* Use when we know what we are looking  for, not for making decisions *)
 Ltac T_has_entry := lazymatch goal with
-  | [|- has_entry _ _] => simpl; repeat ((left; reflexivity) || right)
+  | [|- has_entry _ _] =>
+      solve [repeat (apply in_eq || apply in_cons)]
   end
-  || fail "T_has_entry : context does not contain entry, or goal is not an entry lookup predicate"
+  || fail "T_has_entry: context does not contain entry, or goal is not an entry lookup predicate"
 .
 
 Ltac T_upd_rel_ex :=
@@ -105,70 +107,70 @@ Ltac T_bracketable := lazymatch goal with
 .
 
 (* Stubs for circular dependencies *)
-Ltac T_bct path := fail "T_bct: not yet defined".
+Ltac T_bctLJF4 path := fail "T_bctLJF4: not yet defined".
 Ltac T_ufc_empty path := fail "T_ufc_empty: not yet defined".
 Ltac T_ufc_decide_right path := fail "T_ufc_decide_right: not yet defined".
 Ltac T_ufc_decide_left path := fail "T_ufc_decide_left: not yet defined".
-Ltac T_lfc path := fail "T_lfc: not yet defined".
-Ltac T_rfc path := fail "T_rfc: not yet defined".
+Ltac T_lfcLJF4 path := fail "T_lfcLJF4: not yet defined".
+Ltac T_rfcLJF4 path := fail "T_rfcLJF4: not yet defined".
 
 
-(* T_rfc goes through the Right focus phase. Leaves an ufc subgoal when the phase ends *)
-Ltac T_rfc path ::=
+(* T_rfcLJF4 goes through the Right focus phase. Leaves an ufc subgoal when the phase ends *)
+Ltac T_rfcLJF4 path ::=
   lazymatch goal with
-  | [|- rfc _ ?b] => let b' := (eval hnf in b) in
+  | [|- rfcLJF4 _ ?b] => let b' := (eval hnf in b) in
     lazymatch b' with
     (* Right focus on positive atom, must solve the branch *)
-    | Atom Pos _ => apply rfc_I_r ; [> T_exh | T_has_entry | apply Pos_atom | apply Is_atom]
+    | Atom Pos _ => apply rfcLJF4_I_r ; [> T_exh | T_has_entry | apply Pos_atom | apply Is_atom]
 
     (* Right focus on True, must solve the branch *)
-    | TT => apply rfc_R_True ; T_exh
+    | TT => apply rfcLJF4_R_True ; T_exh
 
     (* Right focus on positive conjunction *)
-    | AndP _ _ => apply rfc_R_AndP ; [> T_exh | T_rfc path | T_rfc path]
+    | AndP _ _ => apply rfcLJF4_R_AndP ; [> T_exh | T_rfcLJF4 path | T_rfcLJF4 path]
 
     (* Right focus on disjunction. Try proving B1, if it fails, try proving B2 *)
-    | Or _ _ => (apply rfc_R_Or_1 ; [> T_exh | T_rfc path])
-      || (apply rfc_R_Or_2 ; [> T_exh | T_rfc path])
+    | Or _ _ => (apply rfcLJF4_R_Or_1 ; [> T_exh | T_rfcLJF4 path])
+      || (apply rfcLJF4_R_Or_2 ; [> T_exh | T_rfcLJF4 path])
 
     (* Right focus on negative formula, ends right-focus phase, leaves a ufc subgoal *)
-    | _ => apply rfc_R_r ; [> T_exh | T_negative | T_bct path]
+    | _ => apply rfcLJF4_R_r ; [> T_exh | T_negative | T_bctLJF4 path]
   end
 end
 .
 
 
-(* T_lfc goes through the Left Focus phase. Leaves an ufc subgoal when the phase ends *)
-Ltac  T_lfc path ::=
+(* T_lfcLJF4 goes through the Left Focus phase. Leaves an ufc subgoal when the phase ends *)
+Ltac  T_lfcLJF4 path ::=
   lazymatch goal with
-  | [|- lfc _ ?b _] => let b' := (eval hnf in b) in
+  | [|- lfcLJF4 _ ?b _] => let b' := (eval hnf in b) in
     lazymatch b' with
     (* Left focus on negative atom, must solve the branch *)
-    | Atom Neg _ => apply lfc_I_l ; [>  T_exh | apply Neg_atom | apply Is_atom ]
+    | Atom Neg _ => apply lfcLJF4_I_l ; [>  T_exh | apply Neg_atom | apply Is_atom ]
 
     (* Left focus on negative conjunction. Try proving B1, if it fails, try proving B2 *)
-    | AndN _ _ => (apply lfc_L_AndN_1 ; [>  T_exh | T_lfc path ])
-      || (apply lfc_L_AndN_2 ; [> T_exh | T_lfc path ])
+    | AndN _ _ => (apply lfcLJF4_L_AndN_1 ; [>  T_exh | T_lfcLJF4 path ])
+      || (apply lfcLJF4_L_AndN_2 ; [> T_exh | T_lfcLJF4 path ])
 
     (* Left focus on implication *)
-    | Impl _ _ => apply lfc_L_Impl ; [> T_exh | T_rfc path | T_lfc path]
+    | Impl _ _ => apply lfcLJF4_L_Impl ; [> T_exh | T_rfcLJF4 path | T_lfcLJF4 path]
 
     (* Left focus on a positive formula, ends left-focus phase, leaves a ufc subgoal *)
-    | _ => apply lfc_R_l ; [> T_exh | T_positive | T_ufc_empty path ]
+    | _ => apply lfcLJF4_R_l ; [> T_exh | T_positive | T_ufc_empty path ]
     end
   end
 .
 
-(* T_bct goes through a bracketing phase. We start with an unbracketted ufc sequent, and get a bracketed ufc sequent.
+(* T_bctLJF4 goes through a bracketing phase. We start with an unbracketted ufc sequent, and get a bracketed ufc sequent.
 This will allow us to go through a emptying phase of the linear context after *)
-Ltac T_bct path ::=
+Ltac T_bctLJF4 path ::=
   lazymatch goal with
-  | [|- bct _ ?k ] =>
+  | [|- bctLJF4 _ ?k ] =>
     let k' := (eval hnf in k) in
     lazymatch k' with
-    | AndN _ _ => apply bct_R_AndN ; [> T_bct path | T_bct path]
-    | Impl _ _ => apply bct_R_Impl ; T_bct path
-    | _ => apply bct_R_box ; [> T_bracketable | T_ufc_empty path]
+    | AndN _ _ => apply bctLJF4_R_AndN ; [> T_bctLJF4 path | T_bctLJF4 path]
+    | Impl _ _ => apply bctLJF4_R_Impl ; T_bctLJF4 path
+    | _ => apply bctLJF4_R_box ; [> T_bracketable | T_ufc_empty path]
     end
   end
 .
@@ -189,19 +191,19 @@ Ltac T_ufc_empty_private context path :=
     let b' := (eval hnf in b) in
     lazymatch b' with
     (* Next linear assumption is True *)
-    | TT => eapply ept_L_True ; [> T_has_entry | T_upd_rel_ex | T_ufc_empty_private rest path]
+    | TT => eapply eptLJF4_L_True ; [> T_has_entry | T_upd_rel_ex | T_ufc_empty_private rest path]
 
     (* Next linear assumption is False, must solve the branch *)
-    | FF => eapply ept_L_False ; T_has_entry
+    | FF => eapply eptLJF4_L_False ; T_has_entry
 
     (* Next linear assumption is a positive conjunction, we add the new assumptions to the list of linear assumption to process *)
-    | AndP ?B1 ?B2 => eapply ept_L_AndP ; [> T_has_entry | T_upd_rel_ex | T_ufc_empty_private ((B1, one) :: (B2, one) :: rest) path]
+    | AndP ?B1 ?B2 => eapply eptLJF4_L_AndP ; [> T_has_entry | T_upd_rel_ex | T_ufc_empty_private ((B1, one) :: (B2, one) :: rest) path]
 
     (* Next linear assumption is a disjunction, we add the new assumptions to the list of linear assumption to process *)
-    | Or ?B1 ?B2 => eapply ept_L_Or ; [> T_has_entry | T_upd_rel_ex | T_ufc_empty_private ((B1, one) :: rest) path | T_ufc_empty_private ((B2, one) :: rest) path]
+    | Or ?B1 ?B2 => eapply eptLJF4_L_Or ; [> T_has_entry | T_upd_rel_ex | T_ufc_empty_private ((B1, one) :: rest) path | T_ufc_empty_private ((B2, one) :: rest) path]
 
-    (* Next linear assumption is a positive atom or a negative formula. We place it in the structural context using bct_L_box *)
-    | _ => eapply ept_L_box ; [> T_upd_rel_ex | T_permeable | T_ufc_empty_private rest path]
+    (* Next linear assumption is a positive atom or a negative formula. We place it in the structural context using bctLJF4_L_box *)
+    | _ => eapply eptLJF4_L_box ; [> T_has_entry | T_upd_rel_ex | T_permeable | T_ufc_empty_private rest path]
     end
 
   (* Next assumption in context is either strucutural or already used *)
@@ -215,18 +217,18 @@ Ltac T_ufc_empty_private context path :=
 (* T_ufc_empty pattern matches on the goal to find the initial input to T_ifc_empty *)
 Ltac T_ufc_empty path ::=
   lazymatch goal with
-  | [|- ept ?c _] => T_ufc_empty_private c path
+  | [|- eptLJF4 ?c _] => T_ufc_empty_private c path
   end
 .
 
 (* T_ufc_decide_right tries right focusing on a bracketed ufc sequent with exhausted context, if it fails or we cannot, we left focus instead *)
 Ltac T_ufc_decide_right path ::=
   lazymatch goal with
-  | [|- ept ?c ?k] =>
+  | [|- eptLJF4 ?c ?k] =>
     let k' := (eval hnf in k) in
     (* If k is positive, we right focus *)
     (* If k is negative, or right focusing fails, we left focus *)
-    (T_is_positive k' ; apply ept_R_f ; [> T_exh | T_positive | T_rfc path])
+    (T_is_positive k' ; apply eptLJF4_R_f ; [> T_exh | T_positive | T_rfcLJF4 path])
       || T_ufc_decide_left path
   end
 .
@@ -247,7 +249,7 @@ Ltac T_ufc_decide_left_private context path :=
     (* If b is positive, or left focusing on b fail, we go to next entry *)
     | (?b, omega) :: ?rest => let b' := (eval hnf in b) in
       let npath := constr:((context', b) :: path) in
-      (T_is_negative b' ; T_noloop context' b path; eapply (@ept_L_f _ b' _) ; [> T_exh | T_has_entry | T_negative | T_lfc npath])
+      (T_is_negative b' ; T_noloop context' b path; eapply (@eptLJF4_L_f _ b' _) ; [> T_exh | T_has_entry | T_negative | T_lfcLJF4 npath])
       || T_ufc_decide_left_private rest path
 
     (* On removed entry, we go to next entry *)
@@ -264,7 +266,7 @@ Ltac T_ufc_decide_left_private context path :=
 (* T_ufc_decide_left pattern matches on the goal to find initial input to T_ufc_decide_left_private *)
 Ltac T_ufc_decide_left path ::=
   lazymatch goal with
-  | [|- ept ?c _] => T_ufc_decide_left_private c path
+  | [|- eptLJF4 ?c _] => T_ufc_decide_left_private c path
   end
 .
 
@@ -272,10 +274,10 @@ Ltac T_solve :=
   intros ;
   let path := constr:(@nil (list (o * mult) * o)) in
   lazymatch goal with
-  | [|- lfc _ _ _] => T_lfc path
-  | [|- rfc _ _] => T_rfc path
-  | [|- bct _ _] => T_bct path
-  | [|- ept _ _] => T_ufc_empty path
+  | [|- lfcLJF4 _ _ _] => T_lfcLJF4 path
+  | [|- rfcLJF4 _ _] => T_rfcLJF4 path
+  | [|- bctLJF4 _ _] => T_bctLJF4 path
+  | [|- eptLJF4 _ _] => T_ufc_empty path
   | _ => fail "T_solve: goal is not a LFJ sequent"
   end
 .
