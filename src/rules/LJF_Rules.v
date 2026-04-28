@@ -6,17 +6,17 @@ From CARVe Require Import algebras.dill.
 
 From LJF Require Import SharedLogic.
 
-
 Variant state : Type :=
   | Bracketed : state
   | Unbracketed : state
 .
-
+(*DILL context -> right side formula -> bracket state*)
 Inductive ufcLJF : dctx -> o -> state -> Prop :=
 | ufcLJF_L_f :
-  forall {C: dctx} {N : o} {K : o},
+  forall {C: dctx} (N : o) {K : o},
     exh C ->
     has_entry C (N, omega) ->
+    bracketable K ->
     negative N ->
     lfcLJF C N K ->
     ufcLJF C K Bracketed
@@ -27,54 +27,88 @@ Inductive ufcLJF : dctx -> o -> state -> Prop :=
     rfcLJF C P ->
     ufcLJF C P Bracketed
 | ufcLJF_L_box :
-  forall {C C1 : dctx} {B : o} {K : o} {s : state},
+  forall {C C1: dctx} (B : o) {K : o},
+    upd_rel_ex C (B, one) (B, omega) C1 ->
+    bracketable K ->
+    permeable B ->
+    ufcLJF C1 K Bracketed ->
+    ufcLJF C K Bracketed
+| ufcLJF_L_box_star :
+  forall {C C1: dctx} (B : o) {K : o},
     upd_rel_ex C (B, one) (B, omega) C1 ->
     permeable B ->
-    ufcLJF C1 K s ->
-    ufcLJF C K s
+    ufcLJF C1 K Unbracketed ->
+    ufcLJF C K Unbracketed
 | ufcLJF_R_box :
   forall {C: dctx} {D: o},
     bracketable D ->
     ufcLJF C D Bracketed ->
     ufcLJF C D Unbracketed
 | ufcLJF_L_AndP :
-  forall {C C1: dctx} {B1 B2 : o} {K: o} {s : state},
+  forall {C C1: dctx} (B1 B2 : o) {K: o},
     has_entry C ((AndP B1 B2), one) ->
     upd_rel_ex C ((AndP B1 B2), one) ((AndP B1 B2), zero) C1 ->
-    ufcLJF ((B1, one) :: (B2, one) :: C1) K s ->
-    ufcLJF C K s
+    bracketable K ->
+    ufcLJF ((B2, one) :: (B1, one) :: C1) K Bracketed ->
+    ufcLJF C K Bracketed
+| ufcLJF_L_AndP_star :
+  forall {C C1: dctx} (B1 B2 : o) {K: o},
+    has_entry C ((AndP B1 B2), one) ->
+    upd_rel_ex C ((AndP B1 B2), one) ((AndP B1 B2), zero) C1 ->
+    ufcLJF ((B2, one) :: (B1, one) :: C1) K Unbracketed->
+    ufcLJF C K Unbracketed
 | ufcLJF_R_AndN :
   forall {C: dctx} {B1 B2: o},
     ufcLJF C B1 Unbracketed ->
     ufcLJF C B2 Unbracketed->
     ufcLJF C (AndN B1 B2) Unbracketed
 | ufcLJF_L_Or :
-  forall {C C1: dctx} {B1 B2 : o}  {K: o} {s: state},
+  forall {C C1: dctx} (B1 B2 : o)  {K: o},
     has_entry C ((Or B1 B2), one) ->
     upd_rel_ex C ((Or B1 B2), one) ((Or B1 B2), zero) C1 ->
-    ufcLJF ((B1, one) :: C1) K s ->
-    ufcLJF ((B2, one) :: C1) K s ->
-    ufcLJF C K s
+    bracketable K ->
+    ufcLJF ((B1, one) :: C1) K Bracketed ->
+    ufcLJF ((B2, one) :: C1) K Bracketed ->
+    ufcLJF C K Bracketed
+| ufcLJF_L_Or_star :
+  forall {C C1: dctx} (B1 B2 : o)  {K: o},
+    has_entry C ((Or B1 B2), one) ->
+    upd_rel_ex C ((Or B1 B2), one) ((Or B1 B2), zero) C1 ->
+    ufcLJF ((B1, one) :: C1) K Unbracketed ->
+    ufcLJF ((B2, one) :: C1) K Unbracketed ->
+    ufcLJF C K Unbracketed
 | ufcLJF_R_Impl :
-  forall {C : dctx} {B1 B2: o},
+  forall {C: dctx} {B1 B2: o},
     ufcLJF ((B1, one) :: C) B2 Unbracketed ->
     ufcLJF C (Impl B1 B2) Unbracketed
 | ufcLJF_L_True :
-  forall {C C1: dctx}  {K: o} {s: state},
+  forall {C C1: dctx} {K: o},
     has_entry C (TT, one) ->
     upd_rel_ex C (TT, one) (TT, zero) C1 ->
-    ufcLJF C1 K s ->
-    ufcLJF C K s
+    bracketable K ->
+    ufcLJF C1 K Bracketed ->
+    ufcLJF C K Bracketed
+| ufcLJF_L_True_star :
+  forall {C C1: dctx} {K: o},
+    has_entry C (TT, one) ->
+    upd_rel_ex C (TT, one) (TT, zero) C1 ->
+    ufcLJF C1 K Unbracketed ->
+    ufcLJF C K Unbracketed
 | ufcLJF_L_False :
-  forall {C: dctx}  {K: o} {s: state},
+  forall {C: dctx} {K: o},
     has_entry C (FF, one) ->
-    ufcLJF C K s
-
-    (* First o for focused assumption, second o for conclusion K *)
+    bracketable K ->
+    ufcLJF C K Bracketed
+| ufcLJF_L_False_star :
+  forall {C: dctx} {K: o},
+    has_entry C (FF, one) ->
+    ufcLJF C K Unbracketed
+(* DILL context -> focused formula -> right side formula*)
 with lfcLJF : dctx -> o -> o -> Prop :=
 | lfcLJF_R_l :
   forall {C : dctx} {P : o}  {K : o},
     exh C ->
+    bracketable K ->
     positive P ->
     ufcLJF ((P, one) :: C) K Bracketed ->
     lfcLJF C P K
@@ -87,20 +121,23 @@ with lfcLJF : dctx -> o -> o -> Prop :=
 | lfcLJF_L_AndN_1 :
   forall {C: dctx} {B1 B2 : o}  {K : o},
     exh C ->
+    bracketable K ->
     lfcLJF C B1 K ->
     lfcLJF C (AndN B1 B2) K
 | lfcLJF_L_AndN_2 :
   forall {C: dctx} {B1 B2 : o}  {K : o},
     exh C ->
+    bracketable K ->
     lfcLJF C B2 K ->
     lfcLJF C (AndN B1 B2) K
 | lfcLJF_L_Impl :
   forall {C: dctx} {B1 B2 : o}  {K : o},
     exh C ->
+    bracketable K ->
     rfcLJF C B1 ->
     lfcLJF C B2 K ->
     lfcLJF C (Impl B1 B2) K
-
+(*DILL context -> focused formula*)
 with rfcLJF : dctx -> o -> Prop :=
 | rfcLJF_R_r :
   forall {C: dctx} {N: o},

@@ -27,8 +27,8 @@ with ept : sctx -> octx -> o -> Prop :=
 | ept_L_f :
   forall {S: sctx} (N: o) {K: o},
     bracketable K ->
-    has_entry S (N, tt) ->
     negative N ->
+    has_entry S (N, tt) ->
     lfc S N K ->
     ept S nil K
 | ept_R_f :
