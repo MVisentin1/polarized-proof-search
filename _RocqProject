@@ -7,6 +7,3 @@ src/rules/SharedLogic.v
 src/rules/LJF_Rules.v
 src/rules/LJF4_Rules.v
 src/rules/LJFPS_Rules.v
-src/LJF4_Prover.v
-src/examples/LJF4_Test.v
-src/metatheory/LJF4_Completeness.v

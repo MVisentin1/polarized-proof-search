@@ -6,129 +6,141 @@ From CARVe Require Import algebras.dill.
 
 From LJF Require Import SharedLogic. 
 
-Inductive bctLJF4 : dctx -> o -> Prop :=
-| bctLJF4_R_box :
+(* DILL context -> right side formula*)
+Inductive bct4 : dctx -> o -> Prop :=
+| bct4_R_box :
   forall {C: dctx} {D: o},
     bracketable D ->
-    eptLJF4 C D ->
-    bctLJF4 C D
-| bctLJF4_R_AndN :
+    ept4 C D ->
+    bct4 C D
+| bct4_R_AndN :
   forall {C: dctx} {B1 B2: o},
-    bctLJF4 C B1 ->
-    bctLJF4 C B2 ->
-    bctLJF4 C (AndN B1 B2)
-| bctLJF4_R_Impl :
+    bct4 C B1 ->
+    bct4 C B2 ->
+    bct4 C (AndN B1 B2)
+| bct4_R_Impl :
   forall {C : dctx} {B1 B2: o},
-    bctLJF4 ((B1, one) :: C) B2 ->
-    bctLJF4 C (Impl B1 B2)
-with eptLJF4 : dctx -> o -> Prop :=
-| eptLJF4_L_f :
-  forall {C: dctx} {N : o} {K : o},
+    bct4 ((B1, one) :: C) B2 ->
+    bct4 C (Impl B1 B2)
+(* DILL context -> right side formula*)
+with ept4 : dctx -> o -> Prop :=
+| ept4_L_f :
+  forall {C: dctx} (N : o) {K : o},
     exh C ->
     has_entry C (N, omega) ->
+    bracketable K ->
     negative N ->
-    lfcLJF4 C N K ->
-    eptLJF4 C K
-| eptLJF4_R_f :
+    lfc4 C N K ->
+    ept4 C K
+| ept4_R_f :
   forall {C: dctx} {P: o},
     exh C ->
     positive P ->
-    rfcLJF4 C P ->
-    eptLJF4 C P
-| eptLJF4_L_box :
-  forall {C C1 : dctx} {B : o} {K : o},
+    rfc4 C P ->
+    ept4 C P
+| ept4_L_box :
+  forall {C C1 : dctx} (B : o) {K : o},
     has_entry C (B, one) ->
     upd_rel_ex C (B, one) (B, omega) C1 ->
+    bracketable K ->
     permeable B ->
-    eptLJF4 C1 K ->
-    eptLJF4 C K
-| eptLJF4_L_AndP :
-  forall {C C1: dctx} {B1 B2 : o} {K: o},
+    ept4 C1 K ->
+    ept4 C K
+| ept4_L_AndP :
+  forall {C C1: dctx} (B1 B2 : o) {K: o},
     has_entry C ((AndP B1 B2), one) ->
     upd_rel_ex C ((AndP B1 B2), one) ((AndP B1 B2), zero) C1 ->
-    eptLJF4 ((B1, one) :: (B2, one) :: C1) K ->
-    eptLJF4 C K
-| eptLJF4_L_Or :
-  forall {C C1: dctx} {B1 B2 : o}  {K: o},
+    bracketable K -> 
+    ept4 ((B2, one) :: (B1, one) :: C1) K ->
+    ept4 C K
+| ept4_L_Or :
+  forall {C C1: dctx} (B1 B2 : o)  {K: o},
     has_entry C ((Or B1 B2), one) ->
     upd_rel_ex C ((Or B1 B2), one) ((Or B1 B2), zero) C1 ->
-    eptLJF4 ((B1, one) :: C1) K ->
-    eptLJF4 ((B2, one) :: C1) K ->
-    eptLJF4 C K
-| eptLJF4_L_True :
-  forall {C C1: dctx}  {K: o},
+    bracketable K ->
+    ept4 ((B1, one) :: C1) K ->
+    ept4 ((B2, one) :: C1) K ->
+    ept4 C K
+| ept4_L_True :
+  forall {C C1: dctx} {K: o},
     has_entry C (TT, one) ->
     upd_rel_ex C (TT, one) (TT, zero) C1 ->
-    eptLJF4 C1 K ->
-    eptLJF4 C K
-| eptLJF4_L_False :
+    bracketable K ->
+    ept4 C1 K ->
+    ept4 C K
+| ept4_L_False :
   forall {C: dctx}  {K: o},
     has_entry C (FF, one) ->
-    eptLJF4 C K
+    bracketable K -> 
+    ept4 C K
 
-(* First o for focused assumption, second o for conclusion K *)
-with lfcLJF4 : dctx -> o -> o -> Prop :=
-| lfcLJF4_R_l :
+(* DILL context -> focused formula -> right side formula *)
+with lfc4 : dctx -> o -> o -> Prop :=
+| lfc4_R_l :
   forall {C : dctx} {P : o}  {K : o},
     exh C ->
+    bracketable K ->
     positive P ->
-    eptLJF4 ((P, one) :: C) K ->
-    lfcLJF4 C P K
-| lfcLJF4_I_l :
+    ept4 ((P, one) :: C) K ->
+    lfc4 C P K
+| lfc4_I_l :
   forall {C: dctx} {N : o},
     exh C ->
     negative N ->
     atomic N ->
-    lfcLJF4 C N N
-| lfcLJF4_L_AndN_1 :
+    lfc4 C N N
+| lfc4_L_AndN_1 :
   forall {C: dctx} {B1 B2 : o}  {K : o},
     exh C ->
-    lfcLJF4 C B1 K ->
-    lfcLJF4 C (AndN B1 B2) K
-| lfcLJF4_L_AndN_2 :
+    bracketable K ->
+    lfc4 C B1 K ->
+    lfc4 C (AndN B1 B2) K
+| lfc4_L_AndN_2 :
   forall {C: dctx} {B1 B2 : o}  {K : o},
     exh C ->
-    lfcLJF4 C B2 K ->
-    lfcLJF4 C (AndN B1 B2) K
-| lfcLJF4_L_Impl :
+    bracketable K ->
+    lfc4 C B2 K ->
+    lfc4 C (AndN B1 B2) K
+| lfc4_L_Impl :
   forall {C: dctx} {B1 B2 : o}  {K : o},
     exh C ->
-    rfcLJF4 C B1 ->
-    lfcLJF4 C B2 K ->
-    lfcLJF4 C (Impl B1 B2) K
-
-with rfcLJF4 : dctx -> o -> Prop :=
-| rfcLJF4_R_r :
+    bracketable K ->
+    rfc4 C B1 ->
+    lfc4 C B2 K ->
+    lfc4 C (Impl B1 B2) K
+(* DILL context -> focused formula*)
+with rfc4 : dctx -> o -> Prop :=
+| rfc4_R_r :
   forall {C: dctx} {N: o},
     exh C ->
     negative N ->
-    bctLJF4 C N ->
-    rfcLJF4 C N
-| rfcLJF4_I_r :
+    bct4 C N ->
+    rfc4 C N
+| rfc4_I_r :
   forall {C: dctx} {P: o},
     exh C ->
     has_entry C (P, omega) ->
     positive P ->
     atomic P ->
-    rfcLJF4 C P
-| rfcLJF4_R_AndP :
+    rfc4 C P
+| rfc4_R_AndP :
   forall {C: dctx} {B1 B2: o},
     exh C ->
-    rfcLJF4 C B1 ->
-    rfcLJF4 C B2 ->
-    rfcLJF4 C (AndP B1 B2)
-| rfcLJF4_R_Or_1 :
+    rfc4 C B1 ->
+    rfc4 C B2 ->
+    rfc4 C (AndP B1 B2)
+| rfc4_R_Or_1 :
   forall {C: dctx} {B1 B2: o},
     exh C ->
-    rfcLJF4 C B1 ->
-    rfcLJF4 C (Or B1 B2)
-| rfcLJF4_R_Or_2 :
+    rfc4 C B1 ->
+    rfc4 C (Or B1 B2)
+| rfc4_R_Or_2 :
   forall {C: dctx} {B1 B2: o},
     exh C ->
-    rfcLJF4 C B2 ->
-    rfcLJF4 C (Or B1 B2)
-| rfcLJF4_R_True :
+    rfc4 C B2 ->
+    rfc4 C (Or B1 B2)
+| rfc4_R_True :
   forall {C: dctx},
     exh C ->
-    rfcLJF4 C TT
+    rfc4 C TT
 .
