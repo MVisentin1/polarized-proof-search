@@ -28,6 +28,7 @@ Inductive ufcLJF : dctx -> o -> state -> Prop :=
     ufcLJF C P Bracketed
 | ufcLJF_L_box :
   forall {C C1: dctx} (B : o) {K : o},
+    has_entry C (B, one) ->
     upd_rel_ex C (B, one) (B, omega) C1 ->
     bracketable K ->
     permeable B ->
@@ -35,6 +36,7 @@ Inductive ufcLJF : dctx -> o -> state -> Prop :=
     ufcLJF C K Bracketed
 | ufcLJF_L_box_star :
   forall {C C1: dctx} (B : o) {K : o},
+    has_entry C (B, one) ->
     upd_rel_ex C (B, one) (B, omega) C1 ->
     permeable B ->
     ufcLJF C1 K Unbracketed ->

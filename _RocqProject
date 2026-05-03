@@ -6,5 +6,7 @@
 src/rules/SharedLogic.v
 src/rules/LJF_Rules.v
 src/rules/LJF4_Rules.v
+src/metatheory/LJF4_Exchange.v
 src/rules/LJFPS_Rules.v
 src/tactics/LJFPS_Prover.v
+

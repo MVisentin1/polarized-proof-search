@@ -2,8 +2,6 @@ From Stdlib Require Import List.
 From CARVe Require Import contexts.list.   
 From CARVe Require algebras.dill algebras.structural.   
 
-Global Arguments upd_rel_ex {R A} _ _ _ _.
-
 Variant polarity : Type :=
 | Pos : polarity
 | Neg : polarity.

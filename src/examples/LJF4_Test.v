@@ -1,6 +1,6 @@
 From Stdlib Require Import List.
 From CARVe Require Import contexts.list algebras.dill.
-From LJF Require Import LJF4_Rules LJF4_Prover SharedLogic.
+From LJF Require Import LJF4_Rules LJFPS_Prover SharedLogic.
 
 
 Lemma True_proveable: bctLJF4 nil TT.

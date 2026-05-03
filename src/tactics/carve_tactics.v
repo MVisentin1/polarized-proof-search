@@ -3,7 +3,7 @@ From Stdlib Require Import List.
 From CARVe Require Import contexts.list.
 From CARVe Require Import algebras.dill.
 
-From LJF Require Import LJF4_Rules SharedLogic.
+From LJF Require Import SharedLogic.
 
 Ltac T_exh := solve [
     lazymatch goal with
