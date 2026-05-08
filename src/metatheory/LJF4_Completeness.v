@@ -79,5 +79,4 @@ Proof. intros C1 B1 B2 K H. remember ((B2, one) :: (B1, one) :: C1) as L eqn:HL.
     - apply bct4_R_AndN. 
         + eapply IHbct4_1. exact HL. apply H2. apply H3.
         + eapply IHbct4_2. exact HL. apply H2. apply H3.
-    - apply bct4_R_Impl.
-Qed.
+    -

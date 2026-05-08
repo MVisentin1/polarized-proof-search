@@ -52,3 +52,17 @@ Variant permeable : o -> Prop :=
 Definition sctx : Type := @lctx o structural.mult.
 Definition dctx : Type := @lctx o dill.mult.
 Definition octx : Type := list o.
+
+Fixpoint osize (A : o) : nat :=
+  match A with
+  | Atom _ _ | TT | FF => 1
+  | AndP A B | AndN A B | Or A B | Impl A B => 1 + osize A + osize B
+  end
+.
+
+Fixpoint octx_size (O : octx) : nat :=
+  match O with
+  | nil => 0
+  | A :: O' => osize A + octx_size O'
+  end
+.

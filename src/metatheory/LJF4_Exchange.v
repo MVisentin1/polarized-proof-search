@@ -12,11 +12,11 @@ Scheme bct4_mut := Induction for bct4 Sort Prop
 Combined Scheme LJF4_mutind from bct4_mut, ept4_mut, lfc4_mut, rfc4_mut.
 
 Lemma LJF4_exchange_perm :
-  (forall C K, bct4 C K -> forall C', Permutation C C' -> bct4 C' K) /\
-  (forall C K, ept4 C K -> forall C', Permutation C C' -> ept4 C' K) /\
-  (forall C N K, lfc4 C N K -> forall C', Permutation C C' -> lfc4 C' N K) /\
-  (forall C P, rfc4 C P -> forall C', Permutation C C' -> rfc4 C' P).
-Proof.  apply LJF4_mutind ; intros.
+  (forall {C: dctx} {K: o}, bct4 C K -> forall C', Permutation C C' -> bct4 C' K) /\
+  (forall {C: dctx} {K: o}, ept4 C K -> forall C', Permutation C C' -> ept4 C' K) /\
+  (forall {C: dctx} {N K: o}, lfc4 C N K -> forall C', Permutation C C' -> lfc4 C' N K) /\
+  (forall {C: dctx} {P: o}, rfc4 C P -> forall C', Permutation C C' -> rfc4 C' P).
+Proof. apply LJF4_mutind ; intros.
     - apply bct4_R_box. apply b. apply H. apply H0.
     - apply bct4_R_AndN.
         + apply H. apply H1.
