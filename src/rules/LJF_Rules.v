@@ -1,177 +1,150 @@
 From Stdlib Require Import List.
 
-From CARVe Require Import contexts.list.
-From CARVe Require Import algebras.dill.
-
-
 From LJF Require Import SharedLogic.
 
 Variant state : Type :=
   | Bracketed : state
   | Unbracketed : state
 .
-(*DILL context -> right side formula -> bracket state*)
-Inductive ufcLJF : dctx -> o -> state -> Prop :=
-| ufcLJF_L_f :
-  forall {C: dctx} (N : o) {K : o},
-    exh C ->
-    has_entry C (N, omega) ->
+
+Inductive ufcL : sctx -> octx -> o -> state -> Prop :=
+| ufcL_Lf :
+  forall {C: sctx} (N : o) {K : o},
+    In N C ->
     bracketable K ->
     negative N ->
-    lfcLJF C N K ->
-    ufcLJF C K Bracketed
-| ufcLJF_R_f :
-  forall {C: dctx} {P: o},
-    exh C ->
+    lfcL C N K ->
+    ufcL C nil K Bracketed
+| ufcL_Rf :
+  forall {C: sctx} {P: o},
     positive P ->
-    rfcLJF C P ->
-    ufcLJF C P Bracketed
-| ufcLJF_L_box :
-  forall {C C1: dctx} (B : o) {K : o},
-    has_entry C (B, one) ->
-    upd_rel_ex C (B, one) (B, omega) C1 ->
+    rfcL C P ->
+    ufcL C nil P Bracketed
+| ufcL_boxL :
+  forall {C: sctx} {L: lctx} (B: o) {K: o},
+    In B L ->
     bracketable K ->
     permeable B ->
-    ufcLJF C1 K Bracketed ->
-    ufcLJF C K Bracketed
-| ufcLJF_L_box_star :
-  forall {C C1: dctx} (B : o) {K : o},
-    has_entry C (B, one) ->
-    upd_rel_ex C (B, one) (B, omega) C1 ->
+    ufcL (B :: C) (remove_first B L) K Bracketed ->
+    ufcL C L K Bracketed
+| ufcL_boxL_star :
+  forall {C: sctx} {L: lctx} (B: o) {K: o},
+    In B L ->
     permeable B ->
-    ufcLJF C1 K Unbracketed ->
-    ufcLJF C K Unbracketed
-| ufcLJF_R_box :
-  forall {C: dctx} {D: o},
+    ufcL (B :: C) (remove_first B L) K Unbracketed ->
+    ufcL C L K Unbracketed
+| ufcL_boxR :
+  forall {C: sctx} {L: lctx} {D: o},
     bracketable D ->
-    ufcLJF C D Bracketed ->
-    ufcLJF C D Unbracketed
-| ufcLJF_L_AndP :
-  forall {C C1: dctx} (B1 B2 : o) {K: o},
-    has_entry C ((AndP B1 B2), one) ->
-    upd_rel_ex C ((AndP B1 B2), one) ((AndP B1 B2), zero) C1 ->
+    ufcL C L D Bracketed ->
+    ufcL C L D Unbracketed
+| ufcL_AndPL :
+  forall {C: sctx} {L: lctx} (B1 B2 : o) {K: o},
+    In (AndP B1 B2) L ->
     bracketable K ->
-    ufcLJF ((B2, one) :: (B1, one) :: C1) K Bracketed ->
-    ufcLJF C K Bracketed
-| ufcLJF_L_AndP_star :
-  forall {C C1: dctx} (B1 B2 : o) {K: o},
-    has_entry C ((AndP B1 B2), one) ->
-    upd_rel_ex C ((AndP B1 B2), one) ((AndP B1 B2), zero) C1 ->
-    ufcLJF ((B2, one) :: (B1, one) :: C1) K Unbracketed->
-    ufcLJF C K Unbracketed
-| ufcLJF_R_AndN :
-  forall {C: dctx} {B1 B2: o},
-    ufcLJF C B1 Unbracketed ->
-    ufcLJF C B2 Unbracketed->
-    ufcLJF C (AndN B1 B2) Unbracketed
-| ufcLJF_L_Or :
-  forall {C C1: dctx} (B1 B2 : o)  {K: o},
-    has_entry C ((Or B1 B2), one) ->
-    upd_rel_ex C ((Or B1 B2), one) ((Or B1 B2), zero) C1 ->
+    ufcL C (B2 :: B1 :: (remove_first (AndP B1 B2) L)) K Bracketed ->
+    ufcL C L K Bracketed
+| ufcL_AndPL_star :
+  forall {C: sctx} {L: lctx} (B1 B2 : o) {K: o},
+    In (AndP B1 B2) L ->
+    ufcL C (B2 :: B1 :: (remove_first (AndP B1 B2) L)) K Unbracketed ->
+    ufcL C L K Unbracketed
+| ufcL_AndNR :
+  forall {C: sctx} {L: lctx} {B1 B2: o},
+    ufcL C L B1 Unbracketed ->
+    ufcL C L B2 Unbracketed->
+    ufcL C L (AndN B1 B2) Unbracketed
+| ufcL_OrL :
+  forall {C: sctx} {L: lctx} (B1 B2 : o)  {K: o},
+    In (Or B1 B2) L ->
     bracketable K ->
-    ufcLJF ((B1, one) :: C1) K Bracketed ->
-    ufcLJF ((B2, one) :: C1) K Bracketed ->
-    ufcLJF C K Bracketed
-| ufcLJF_L_Or_star :
-  forall {C C1: dctx} (B1 B2 : o)  {K: o},
-    has_entry C ((Or B1 B2), one) ->
-    upd_rel_ex C ((Or B1 B2), one) ((Or B1 B2), zero) C1 ->
-    ufcLJF ((B1, one) :: C1) K Unbracketed ->
-    ufcLJF ((B2, one) :: C1) K Unbracketed ->
-    ufcLJF C K Unbracketed
-| ufcLJF_R_Impl :
-  forall {C: dctx} {B1 B2: o},
-    ufcLJF ((B1, one) :: C) B2 Unbracketed ->
-    ufcLJF C (Impl B1 B2) Unbracketed
-| ufcLJF_L_True :
-  forall {C C1: dctx} {K: o},
-    has_entry C (TT, one) ->
-    upd_rel_ex C (TT, one) (TT, zero) C1 ->
+    ufcL C (B1 :: (remove_first (Or B1 B2) L)) K Bracketed ->
+    ufcL C (B2 :: (remove_first (Or B1 B2) L)) K Bracketed ->
+    ufcL C L K Bracketed
+| ufcL_OrL_star :
+  forall {C: sctx} {L: lctx} (B1 B2 : o)  {K: o},
+    In (Or B1 B2) L ->
+    ufcL C (B1 :: (remove_first (Or B1 B2) L)) K Unbracketed ->
+    ufcL C (B2 :: (remove_first (Or B1 B2) L)) K Unbracketed ->
+    ufcL C L K Unbracketed
+| ufcL_ImpR :
+  forall {C: sctx} {L: lctx} {B1 B2: o},
+    ufcL C (B1 :: L) B2 Unbracketed ->
+    ufcL C L (Imp B1 B2) Unbracketed
+| ufcL_TrueL :
+  forall {C: sctx} {L: lctx} {K: o},
+    In TT L ->
     bracketable K ->
-    ufcLJF C1 K Bracketed ->
-    ufcLJF C K Bracketed
-| ufcLJF_L_True_star :
-  forall {C C1: dctx} {K: o},
-    has_entry C (TT, one) ->
-    upd_rel_ex C (TT, one) (TT, zero) C1 ->
-    ufcLJF C1 K Unbracketed ->
-    ufcLJF C K Unbracketed
-| ufcLJF_L_False :
-  forall {C: dctx} {K: o},
-    has_entry C (FF, one) ->
+    ufcL C (remove_first TT L) K Bracketed ->
+    ufcL C L K Bracketed
+| ufcL_TrueL_star :
+  forall {C: sctx} {L: lctx} {K: o},
+    In TT L ->
+    ufcL C (remove_first TT L) K Unbracketed ->
+    ufcL C L K Unbracketed
+| ufcL_FalseL :
+  forall {C: sctx} {L: lctx} {K: o},
+    In FF L ->
     bracketable K ->
-    ufcLJF C K Bracketed
-| ufcLJF_L_False_star :
-  forall {C: dctx} {K: o},
-    has_entry C (FF, one) ->
-    ufcLJF C K Unbracketed
-(* DILL context -> focused formula -> right side formula*)
-with lfcLJF : dctx -> o -> o -> Prop :=
-| lfcLJF_R_l :
-  forall {C : dctx} {P : o}  {K : o},
-    exh C ->
+    ufcL C L K Bracketed
+| ufcL_FalseL_star :
+  forall {C: sctx} {L: lctx} {K: o},
+    In FF L ->
+    ufcL C L K Unbracketed
+with lfcL : sctx -> o -> o -> Prop :=
+| lfcL_Rl :
+  forall {C : sctx} {P : o}  {K : o},
     bracketable K ->
     positive P ->
-    ufcLJF ((P, one) :: C) K Bracketed ->
-    lfcLJF C P K
-| lfcLJF_I_l :
-  forall {C: dctx} {N : o},
-    exh C ->
+    ufcL C (P :: nil) K Bracketed ->
+    lfcL C P K
+| lfcL_Il :
+  forall {C: sctx} {N : o},
     negative N ->
     atomic N ->
-    lfcLJF C N N
-| lfcLJF_L_AndN_1 :
-  forall {C: dctx} {B1 B2 : o}  {K : o},
-    exh C ->
+    lfcL C N N
+| lfcL_AndNL_1 :
+  forall {C: sctx} {B1 B2 : o}  {K : o},
     bracketable K ->
-    lfcLJF C B1 K ->
-    lfcLJF C (AndN B1 B2) K
-| lfcLJF_L_AndN_2 :
-  forall {C: dctx} {B1 B2 : o}  {K : o},
-    exh C ->
+    lfcL C B1 K ->
+    lfcL C (AndN B1 B2) K
+| lfcL_AndNL_2 :
+  forall {C: sctx} {B1 B2 : o}  {K : o},
     bracketable K ->
-    lfcLJF C B2 K ->
-    lfcLJF C (AndN B1 B2) K
-| lfcLJF_L_Impl :
-  forall {C: dctx} {B1 B2 : o}  {K : o},
-    exh C ->
+    lfcL C B2 K ->
+    lfcL C (AndN B1 B2) K
+| lfcL_ImpL :
+  forall {C: sctx} {B1 B2 : o}  {K : o},
     bracketable K ->
-    rfcLJF C B1 ->
-    lfcLJF C B2 K ->
-    lfcLJF C (Impl B1 B2) K
-(*DILL context -> focused formula*)
-with rfcLJF : dctx -> o -> Prop :=
-| rfcLJF_R_r :
-  forall {C: dctx} {N: o},
-    exh C ->
+    rfcL C B1 ->
+    lfcL C B2 K ->
+    lfcL C (Imp B1 B2) K
+with rfcL : sctx -> o -> Prop :=
+| rfcL_Rr :
+  forall {C: sctx} {N: o},
     negative N ->
-    ufcLJF C N Unbracketed ->
-    rfcLJF C N
-| rfcLJF_I_r :
-  forall {C: dctx} {P: o},
-    exh C ->
-    has_entry C (P, omega) ->
+    ufcL C nil N Unbracketed ->
+    rfcL C N
+| rfcL_Ir :
+  forall {C: sctx} {P: o},
+    In P C ->
     positive P ->
     atomic P ->
-    rfcLJF C P
-| rfcLJF_R_AndP :
-  forall {C: dctx} {B1 B2: o},
-    exh C ->
-    rfcLJF C B1 ->
-    rfcLJF C B2 ->
-    rfcLJF C (AndP B1 B2)
-| rfcLJF_R_Or_1 :
-  forall {C: dctx} {B1 B2: o},
-    exh C ->
-    rfcLJF C B1 ->
-    rfcLJF C (Or B1 B2)
-| rfcLJF_R_Or_2 :
-  forall {C: dctx} {B1 B2: o},
-    exh C ->
-    rfcLJF C B2 ->
-    rfcLJF C (Or B1 B2)
-| rfcLJF_R_True :
-  forall {C: dctx},
-    exh C ->
-    rfcLJF C TT
+    rfcL C P
+| rfcL_AndPR :
+  forall {C: sctx} {B1 B2: o},
+    rfcL C B1 ->
+    rfcL C B2 ->
+    rfcL C (AndP B1 B2)
+| rfcL_OrR_1 :
+  forall {C: sctx} {B1 B2: o},
+    rfcL C B1 ->
+    rfcL C (Or B1 B2)
+| rfcL_OrR_2 :
+  forall {C: sctx} {B1 B2: o},
+    rfcL C B2 ->
+    rfcL C (Or B1 B2)
+| rfcL_TrueR :
+  forall {C: sctx},
+    rfcL C TT
 .
