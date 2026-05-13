@@ -5,7 +5,7 @@ Variant polarity : Type :=
 | Neg : polarity.
 
 Inductive o : Type :=
-| Atom  : polarity -> nat -> o          (* Atoms must have a polarity *)
+| Atom  : polarity -> nat -> o   
 | TT  : o
 | FF : o
 | AndP  : o -> o -> o
@@ -50,3 +50,12 @@ Variant permeable : o -> Prop :=
 Definition sctx : Type := list o.
 Definition lctx : Type := list o.
 Definition octx : Type := list o.
+
+Fixpoint remove_first  
+  (eq_dec : forall x y : o, {x = y} + {x <> y}) (x : o) (l : list o) : list o := 
+    match l with
+    | nil => nil
+    | y :: tl => 
+      if (eq_dec x y) then tl else y :: remove_first eq_dec x tl 
+    end
+.
