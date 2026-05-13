@@ -1,6 +1,4 @@
 From Stdlib Require Import List.
-From CARVe Require Import contexts.list.   
-From CARVe Require algebras.dill algebras.structural.   
 
 Variant polarity : Type :=
 | Pos : polarity
@@ -49,20 +47,6 @@ Variant permeable : o -> Prop :=
   | Permeable_pos_atom : forall C, atomic C -> positive C -> permeable C
 .
 
-Definition sctx : Type := @lctx o structural.mult.
-Definition dctx : Type := @lctx o dill.mult.
+Definition sctx : Type := list o.
+Definition lctx : Type := list o.
 Definition octx : Type := list o.
-
-Fixpoint osize (A : o) : nat :=
-  match A with
-  | Atom _ _ | TT | FF => 1
-  | AndP A B | AndN A B | Or A B | Impl A B => 1 + osize A + osize B
-  end
-.
-
-Fixpoint octx_size (O : octx) : nat :=
-  match O with
-  | nil => 0
-  | A :: O' => osize A + octx_size O'
-  end
-.

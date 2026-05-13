@@ -1,13 +1,5 @@
 -docroot LJF
--Q rocq-carve/src CARVe
--Q rocq-carve/msl VST.msl
 -R src LJF
 
 src/rules/SharedLogic.v
-src/rules/LJF_Rules.v
-src/rules/LJF4_Rules.v
-src/metatheory/LJF4_Exchange.v
-src/rules/LJFPS_Rules.v
-src/tactics/LJFPS_Prover.v
-
 
