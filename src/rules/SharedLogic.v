@@ -1,4 +1,5 @@
 From Stdlib Require Import List.
+From Equations Require Import Equations.
 
 Variant polarity : Type :=
 | Pos : polarity
@@ -11,7 +12,7 @@ Inductive o : Type :=
 | AndP  : o -> o -> o
 | AndN  : o -> o -> o
 | Or    : o -> o -> o
-| Impl  : o -> o -> o.
+| Imp  : o -> o -> o.
 
 Variant atomic : o -> Prop :=
   | Is_atom : forall p n, atomic (Atom p n)
@@ -28,7 +29,7 @@ Variant positive : o -> Prop :=
 Variant negative : o -> Prop :=
   | Neg_atom : forall n, negative (Atom Neg n)
   | Neg_and : forall A B, negative (AndN A B)
-  | Neg_imp : forall A B, negative (Impl A B)
+  | Neg_imp : forall A B, negative (Imp A B)
 .
 
 (* bracketable corresponds to formulae that can be put in brackets,
@@ -50,12 +51,3 @@ Variant permeable : o -> Prop :=
 Definition sctx : Type := list o.
 Definition lctx : Type := list o.
 Definition octx : Type := list o.
-
-Fixpoint remove_first  
-  (eq_dec : forall x y : o, {x = y} + {x <> y}) (x : o) (l : list o) : list o := 
-    match l with
-    | nil => nil
-    | y :: tl => 
-      if (eq_dec x y) then tl else y :: remove_first eq_dec x tl 
-    end
-.

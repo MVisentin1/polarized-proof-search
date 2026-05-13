@@ -1,146 +1,121 @@
-From Stdlib Require Import List.
+From Stdlib Require Import List Permutation.
 
-From CARVe Require Import contexts.list.
-From CARVe Require Import algebras.dill.
+From LJF Require Import SharedLogic.
 
 
-From LJF Require Import SharedLogic. 
-
-(* DILL context -> right side formula*)
-Inductive bct4 : dctx -> o -> Prop :=
-| bct4_R_box :
-  forall {C: dctx} {D: o},
+Inductive bct4 : sctx -> octx -> o -> Prop :=
+| bct4_boxR :
+  forall {C: sctx} {L: lctx} {D: o},
     bracketable D ->
-    ept4 C D ->
-    bct4 C D
-| bct4_R_AndN :
-  forall {C: dctx} {B1 B2: o},
-    bct4 C B1 ->
-    bct4 C B2 ->
-    bct4 C (AndN B1 B2)
-| bct4_R_Impl :
-  forall {C : dctx} {B1 B2: o},
-    bct4 ((B1, one) :: C) B2 ->
-    bct4 C (Impl B1 B2)
-(* DILL context -> right side formula*)
-with ept4 : dctx -> o -> Prop :=
-| ept4_L_f :
-  forall {C: dctx} (N : o) {K : o},
-    exh C ->
-    has_entry C (N, omega) ->
+    ept4 C L D ->
+    bct4 C L D
+| bct4_AndNR :
+  forall {C: sctx} {L: lctx} {B1 B2: o},
+    bct4 C L B1 ->
+    bct4 C L B2 ->
+    bct4 C L (AndN B1 B2)
+| bct4_ImpR :
+  forall {C: sctx} {L: lctx} {B1 B2: o},
+    bct4 C (B1 :: L) B2 ->
+    bct4 C L (Imp B1 B2) 
+with ept4 : sctx -> octx -> o -> Prop :=
+| ept4_Lf :
+  forall {C: sctx} (N : o) {K : o},
+    In N C ->
     bracketable K ->
     negative N ->
     lfc4 C N K ->
-    ept4 C K
-| ept4_R_f :
-  forall {C: dctx} {P: o},
-    exh C ->
+    ept4 C nil K
+| ept4_Rf :
+  forall {C: sctx} {P: o},
     positive P ->
     rfc4 C P ->
-    ept4 C P
-| ept4_L_box :
-  forall {C C1 : dctx} (B : o) {K : o},
-    has_entry C (B, one) ->
-    upd_rel_ex C (B, one) (B, omega) C1 ->
+    ept4 C nil P 
+| ept4_boxL :
+  forall {C: sctx} {L L1: lctx} (B: o) {K: o},
+    Permutation L (B :: L1) ->
     bracketable K ->
     permeable B ->
-    ept4 C1 K ->
-    ept4 C K
-| ept4_L_AndP :
-  forall {C C1: dctx} (B1 B2 : o) {K: o},
-    has_entry C ((AndP B1 B2), one) ->
-    upd_rel_ex C ((AndP B1 B2), one) ((AndP B1 B2), zero) C1 ->
-    bracketable K -> 
-    ept4 ((B2, one) :: (B1, one) :: C1) K ->
-    ept4 C K
-| ept4_L_Or :
-  forall {C C1: dctx} (B1 B2 : o)  {K: o},
-    has_entry C ((Or B1 B2), one) ->
-    upd_rel_ex C ((Or B1 B2), one) ((Or B1 B2), zero) C1 ->
+    ept4 (B :: C) L1 K ->
+    ept4 C L K 
+| ept4_AndPL :
+  forall {C: sctx} {L L1: lctx} (B1 B2 : o) {K: o},
+    Permutation L ((AndP B1 B2) :: L1) ->
     bracketable K ->
-    ept4 ((B1, one) :: C1) K ->
-    ept4 ((B2, one) :: C1) K ->
-    ept4 C K
-| ept4_L_True :
-  forall {C C1: dctx} {K: o},
-    has_entry C (TT, one) ->
-    upd_rel_ex C (TT, one) (TT, zero) C1 ->
+    ept4 C (B2 :: B1 :: L1) K ->
+    ept4 C L K 
+| ept4_OrL :
+  forall {C: sctx} {L L1: lctx} (B1 B2 : o)  {K: o},
+    Permutation L ((Or B1 B2) :: L1) ->
     bracketable K ->
-    ept4 C1 K ->
-    ept4 C K
-| ept4_L_False :
-  forall {C: dctx}  {K: o},
-    has_entry C (FF, one) ->
-    bracketable K -> 
-    ept4 C K
-
-(* DILL context -> focused formula -> right side formula *)
-with lfc4 : dctx -> o -> o -> Prop :=
-| lfc4_R_l :
-  forall {C : dctx} {P : o}  {K : o},
-    exh C ->
+    ept4 C (B1 :: L1) K ->
+    ept4 C (B2 :: L1) K ->
+    ept4 C L K 
+| ept4_TrueL :
+  forall {C: sctx} {L L1: lctx} {K: o},
+    Permutation L (TT :: L1) ->
+    bracketable K ->
+    ept4 C L1 K ->
+    ept4 C L K 
+| ept4_FalseL :
+  forall {C: sctx} {L: lctx} {K: o},
+    In FF L ->
+    bracketable K ->
+    ept4 C L K 
+with lfc4 : sctx -> o -> o -> Prop :=
+| lfc4_Rl :
+  forall {C : sctx} {P : o}  {K : o},
     bracketable K ->
     positive P ->
-    ept4 ((P, one) :: C) K ->
+    ept4 C (P :: nil) K ->
     lfc4 C P K
-| lfc4_I_l :
-  forall {C: dctx} {N : o},
-    exh C ->
+| lfc4_Il :
+  forall {C: sctx} {N : o},
     negative N ->
     atomic N ->
     lfc4 C N N
-| lfc4_L_AndN_1 :
-  forall {C: dctx} {B1 B2 : o}  {K : o},
-    exh C ->
+| lfc4_AndNL_1 :
+  forall {C: sctx} {B1 B2 : o}  {K : o},
     bracketable K ->
     lfc4 C B1 K ->
     lfc4 C (AndN B1 B2) K
-| lfc4_L_AndN_2 :
-  forall {C: dctx} {B1 B2 : o}  {K : o},
-    exh C ->
+| lfc4_AndNL_2 :
+  forall {C: sctx} {B1 B2 : o}  {K : o},
     bracketable K ->
     lfc4 C B2 K ->
     lfc4 C (AndN B1 B2) K
-| lfc4_L_Impl :
-  forall {C: dctx} {B1 B2 : o}  {K : o},
-    exh C ->
+| lfc4_ImpL :
+  forall {C: sctx} {B1 B2 : o}  {K : o},
     bracketable K ->
     rfc4 C B1 ->
     lfc4 C B2 K ->
-    lfc4 C (Impl B1 B2) K
-(* DILL context -> focused formula*)
-with rfc4 : dctx -> o -> Prop :=
-| rfc4_R_r :
-  forall {C: dctx} {N: o},
-    exh C ->
+    lfc4 C (Imp B1 B2) K
+with rfc4 : sctx -> o -> Prop :=
+| rfc4_Rr :
+  forall {C: sctx} {N: o},
     negative N ->
-    bct4 C N ->
+    bct4 C nil N ->
     rfc4 C N
-| rfc4_I_r :
-  forall {C: dctx} {P: o},
-    exh C ->
-    has_entry C (P, omega) ->
+| rfc4_Ir :
+  forall {C: sctx} {P: o},
+    In P C ->
     positive P ->
     atomic P ->
     rfc4 C P
-| rfc4_R_AndP :
-  forall {C: dctx} {B1 B2: o},
-    exh C ->
+| rfc4_AndPR :
+  forall {C: sctx} {B1 B2: o},
     rfc4 C B1 ->
     rfc4 C B2 ->
     rfc4 C (AndP B1 B2)
-| rfc4_R_Or_1 :
-  forall {C: dctx} {B1 B2: o},
-    exh C ->
+| rfc4_OrR_1 :
+  forall {C: sctx} {B1 B2: o},
     rfc4 C B1 ->
     rfc4 C (Or B1 B2)
-| rfc4_R_Or_2 :
-  forall {C: dctx} {B1 B2: o},
-    exh C ->
+| rfc4_OrR_2 :
+  forall {C: sctx} {B1 B2: o},
     rfc4 C B2 ->
     rfc4 C (Or B1 B2)
-| rfc4_R_True :
-  forall {C: dctx},
-    exh C ->
+| rfc4_TrueR :
+  forall {C: sctx},
     rfc4 C TT
 .
