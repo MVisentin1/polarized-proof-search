@@ -22,13 +22,13 @@ Proof.
         - apply bct_ImpR. apply H.
         - eapply ept_Lf. apply i. apply b. apply n. apply H.
         - apply ept_Rf. apply p. apply H.
-        - eapply LJFPS_exchange_ordered_perm_ept. 2: apply Permutation_sym. 2: apply p.
+        - eapply LJFPS_exchange_ordered_ept. 2: apply Permutation_sym. 2: apply p.
             apply ept_boxL. apply b. apply p0. apply H.
-        - eapply LJFPS_exchange_ordered_perm_ept. 2: apply Permutation_sym. 2: apply p.
+        - eapply LJFPS_exchange_ordered_ept. 2: apply Permutation_sym. 2: apply p.
             apply ept_AndPL. apply b. apply H.
-        - eapply LJFPS_exchange_ordered_perm_ept. 2: apply Permutation_sym. 2: apply p.
+        - eapply LJFPS_exchange_ordered_ept. 2: apply Permutation_sym. 2: apply p.
             apply ept_OrL. apply b. apply H. apply H0.
-        - eapply LJFPS_exchange_ordered_perm_ept. 2: apply Permutation_sym. 2: apply p.
+        - eapply LJFPS_exchange_ordered_ept. 2: apply Permutation_sym. 2: apply p.
             apply ept_TrueL. apply b. apply H.
         - apply eager_FalseL. apply b. apply i.
         - apply lfc_Rl. apply b. apply p. apply H.

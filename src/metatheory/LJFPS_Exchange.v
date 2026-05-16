@@ -65,18 +65,6 @@ Proof.
   destruct LJFPS_exchange_structural. destruct H0. destruct H1. apply H2.
 Qed.
 
-Lemma Permutation_singleton : 
-  forall {B: o} {C: octx},
-    Permutation (B :: nil) C -> C = (B :: nil).
-Proof.
-  intros B C H. remember (B :: nil) as b. induction H.
-    - reflexivity.
-    - inversion Heqb. subst. apply Permutation_nil in H. subst. reflexivity. 
-    - exfalso. inversion Heqb.
-    - transitivity l'. apply IHPermutation2. symmetry. transitivity l. symmetry. apply Heqb.
-      symmetry. apply IHPermutation1. apply Heqb. apply IHPermutation1. apply Heqb.
-Qed.
-
 Lemma eager_boxL :
   forall {C0: sctx} {L: octx} {B: o} {K: o},
     bracketable K ->
@@ -356,7 +344,7 @@ Scheme bct_mut_async := Induction for bct Sort Prop
   with ept_mut_async := Induction for ept Sort Prop.
 Combined Scheme LJFPS_mutind_async from bct_mut_async, ept_mut_async.
 
-Lemma LJFPS_exchange_ordered_perm :
+Lemma LJFPS_exchange_ordered :
   (forall {C: sctx} {L: octx} {K: o}, bct C L K -> forall {L': octx}, Permutation L L' -> bct C L' K) /\
   (forall {C: sctx} {L: octx} {K: o}, ept C L K -> forall {L': octx}, Permutation L L' -> ept C L' K).
 Proof.
@@ -387,15 +375,15 @@ Proof.
         apply H. apply in_eq.
 Qed.
 
-Lemma LJFPS_exchange_ordered_perm_bct :
+Lemma LJFPS_exchange_ordered_bct :
   forall {C: sctx} {L: octx} {K: o}, bct C L K -> forall {L': octx}, Permutation L L' -> bct C L' K.
 Proof.
-  destruct LJFPS_exchange_ordered_perm. apply H.
+  destruct LJFPS_exchange_ordered. apply H.
 Qed.
 
-Lemma LJFPS_exchange_ordered_perm_ept :
+Lemma LJFPS_exchange_ordered_ept :
   forall {C: sctx} {L: octx} {K: o}, ept C L K -> forall {L': octx}, Permutation L L' -> ept C L' K.
 Proof.
-  destruct LJFPS_exchange_ordered_perm. apply H0.
+  destruct LJFPS_exchange_ordered. apply H0.
 Qed.
 
