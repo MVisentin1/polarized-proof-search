@@ -67,7 +67,7 @@ Scheme bct4_mut_async := Induction for bct4 Sort Prop
   with ept4_mut_async := Induction for ept4 Sort Prop.
 Combined Scheme LJF4_mutind_async from bct4_mut_async, ept4_mut_async.
 
-Lemma LJF4_exchange_ordered :
+Lemma LJF4_exchange_linear :
   (forall {C: sctx} {L: lctx} {K: o}, bct4 C L K -> forall L1, Permutation L L1 -> bct4 C L1 K) /\
   (forall {C: sctx} {L: lctx} {K: o}, ept4 C L K -> forall L1, Permutation L L1 -> ept4 C L1 K).
 Proof.
@@ -94,15 +94,15 @@ Proof.
     - eapply ept4_FalseL. eapply Permutation_in in i. 2: apply H. apply i. apply b.
 Qed.
 
-Lemma LJF4_exchange_ordered_bct4 :
+Lemma LJF4_exchange_linear_bct4 :
   forall {C: sctx} {L: lctx} {K: o}, bct4 C L K -> forall {L1: octx}, Permutation L L1 -> bct4 C L1 K.
 Proof.
-  destruct LJF4_exchange_ordered. apply H.
+  destruct LJF4_exchange_linear. apply H.
 Qed.
 
-Lemma LJF4_exchange_ordered_ept4 :
+Lemma LJF4_exchange_linear_ept4 :
   forall {C: sctx} {L: lctx} {K: o}, ept4 C L K -> forall {L1: octx}, Permutation L L1 -> ept4 C L1 K.
 Proof.
-  destruct LJF4_exchange_ordered. apply H0.
+  destruct LJF4_exchange_linear. apply H0.
 Qed.
 

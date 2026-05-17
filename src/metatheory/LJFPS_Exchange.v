@@ -344,7 +344,7 @@ Scheme bct_mut_async := Induction for bct Sort Prop
   with ept_mut_async := Induction for ept Sort Prop.
 Combined Scheme LJFPS_mutind_async from bct_mut_async, ept_mut_async.
 
-Lemma LJFPS_exchange_ordered :
+Theorem LJFPS_exchange_ordered :
   (forall {C: sctx} {L: octx} {K: o}, bct C L K -> forall {L': octx}, Permutation L L' -> bct C L' K) /\
   (forall {C: sctx} {L: octx} {K: o}, ept C L K -> forall {L': octx}, Permutation L L' -> ept C L' K).
 Proof.

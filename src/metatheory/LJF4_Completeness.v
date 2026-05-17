@@ -1,82 +1,144 @@
-From Stdlib Require Import List.
-From CARVe Require Import contexts.list.
-From CARVe Require Import algebras.dill.
-From LJF Require Import LJF_Rules LJF4_Rules SharedLogic LJFPS_Prover LJF4_Exchange.
+From Stdlib Require Import List Permutation.
+From LJF Require Import SharedLogic LJF_Rules LJF4_Rules LJF4_Exchange.
 
-Lemma admissibility_L_false_star : forall {K: o} {C: dctx}, 
-    has_entry C (FF, one) -> 
-    bct4 C K.
-Proof. 
-    induction K ; intros.
-        - apply bct4_R_box.
-            + destruct p. T_bracketable. T_bracketable.
-            + apply ept4_L_False. apply H. destruct p. T_bracketable. T_bracketable.
-        - apply bct4_R_box.
-            + T_bracketable. 
-            + apply ept4_L_False. apply H. T_bracketable.
-        - apply bct4_R_box.
-            + T_bracketable.
-            + apply ept4_L_False. apply H. T_bracketable.
-        - apply bct4_R_box.
-            + T_bracketable.
-            + apply ept4_L_False. apply H. T_bracketable.
-        - apply bct4_R_AndN.
-            + apply IHK1. apply H.
-            + apply IHK2. apply H.  
-        - apply bct4_R_box.
-            + T_bracketable.
-            + apply ept4_L_False. apply H. T_bracketable.
-        - apply bct4_R_Impl. apply IHK2. apply in_cons. apply H.
-Qed.
-
-
-Lemma admissibility_L_box_star :
-  forall (B : o), permeable B ->
-  forall {C1 : dctx} {K : o}, bct4 C1 K ->
-  forall {C : dctx},
-    has_entry C (B, one) ->
-    upd_rel_ex C (B, one) (B, omega) C1 ->
-    bct4 C K.
+Lemma admissibility_boxL_star :
+  forall {C: sctx} {L1: lctx} (B: o) {K: o},
+    permeable B ->
+    bct4 (B :: C) L1 K ->
+    forall {L: lctx},
+      Permutation L (B :: L1) ->
+      bct4 C L K.
 Proof.
-    intros B H0 C1 K H1. induction H1; intros C' H2 H3.
-        - apply bct4_R_box. apply H. eapply ept4_L_box with (B := B).
-            apply H2. apply H3. apply H. apply H0. apply H1.
-        - apply bct4_R_AndN. 
-            + apply IHbct4_1. apply H2. apply H3.
-            + apply IHbct4_2. apply H2. apply H3.  
-        - apply bct4_R_Impl. apply IHbct4.
-            + apply in_cons. apply H2.
-            + apply upd_rel_ex_cons. apply H3.
+  intros C L1 B K p H. remember (B :: C). induction H ; intros ; subst.
+    - eapply LJF4_exchange_linear_bct4.
+      2: apply Permutation_sym ; apply H1.
+      apply bct4_boxR. apply H.
+      eapply ept4_boxL. apply Permutation_refl. apply H. apply p. apply H0. 
+    - apply bct4_AndNR.
+      + apply IHbct4_1. reflexivity. apply H1.
+      + apply IHbct4_2. reflexivity. apply H1.
+    - apply bct4_ImpR. 
+      apply IHbct4. reflexivity. 
+      assert (Permutation (B1 :: B :: L) (B :: B1 :: L)). apply perm_swap.
+      eapply perm_trans. 2: apply H1.
+      apply Permutation_cons. reflexivity. apply H0.
 Qed.
 
-Lemma admissibility_L_true_star :
-    forall {C1 : dctx} {K : o}, bct4 C1 K ->
-    forall {C: dctx}, 
-        has_entry C (TT, one) ->
-        upd_rel_ex C (TT, one) (TT, zero) C1 ->
-        bct4 C K.
-Proof. intros C1 K H1. induction H1 ; intros C' H2 H3.
-    - apply bct4_R_box. apply H. eapply ept4_L_True.
-        apply H2. apply H3. apply H. apply H0.
-    - apply bct4_R_AndN.
-        + apply IHbct4_1. apply H2. apply H3.
-        + apply IHbct4_2. apply H2. apply H3.
-    - apply bct4_R_Impl. apply IHbct4. 
-        + apply in_cons. apply H2.
-        + apply upd_rel_ex_cons. apply H3.
+Lemma admissibility_TrueL_star :
+  forall {C: sctx} {L1: lctx} {K: o},
+    bct4 C L1 K ->
+    forall {L: lctx},
+      Permutation L (TT :: L1) ->
+      bct4 C L K.
+Proof.
+  intros C L1 K H. induction H ; intros.
+    - apply bct4_boxR. apply H.
+      eapply ept4_TrueL. apply H1. apply H. apply H0.
+    - apply bct4_AndNR. apply IHbct4_1. apply H1. apply IHbct4_2. apply H1.
+    - apply bct4_ImpR. apply IHbct4. 
+      apply Permutation_sym. rewrite perm_swap. apply Permutation_cons.
+      reflexivity. apply Permutation_sym. apply H0.
 Qed.
 
-Lemma admissibility_L_AndP_star :
-    forall {C1: dctx} (B1 B2: o) {K: o}, bct4 ((B2, one) :: (B1, one) :: C1) K ->
-    forall {C: dctx}, 
-        has_entry C ((AndP B1 B2), one) ->
-        upd_rel_ex C ((AndP B1 B2), one) ((AndP B1 B2), zero) C1 ->
-        bct4 C K.
-Proof. intros C1 B1 B2 K H. remember ((B2, one) :: (B1, one) :: C1) as L eqn:HL. revert C1 HL.
-    induction H ; intros C1 HL C0 H2 H3. subst C.
-    - apply bct4_R_box. apply H. eapply ept4_L_AndP with (B1 := B1) (B2 := B2).
-        apply H2. apply H3. apply H. apply H0.  
-    - apply bct4_R_AndN. 
-        + eapply IHbct4_1. exact HL. apply H2. apply H3.
-        + eapply IHbct4_2. exact HL. apply H2. apply H3.
-    -
+Lemma admissibility_FalseL_star :
+  forall {C: sctx} {L: lctx} {K: o},
+    In FF L ->
+    bct4 C L K.
+Proof.
+  intros C L K. revert C L. induction K ; intros.
+    - destruct p.
+      + apply bct4_boxR. apply Bracketable_pos. apply Pos_atom.
+        apply ept4_FalseL. apply H. apply Bracketable_pos. apply Pos_atom.
+      + apply bct4_boxR. apply Bracketable_neg_atom. apply Is_atom. apply Neg_atom.
+        apply ept4_FalseL. apply H. apply Bracketable_neg_atom. apply Is_atom. apply Neg_atom.
+    - apply bct4_boxR. apply Bracketable_pos. apply Pos_true.
+        apply ept4_FalseL. apply H. apply Bracketable_pos. apply Pos_true.
+    - apply bct4_boxR. apply Bracketable_pos. apply Pos_false.
+        apply ept4_FalseL. apply H. apply Bracketable_pos. apply Pos_false.
+    - apply bct4_boxR. apply Bracketable_pos. apply Pos_and.
+        apply ept4_FalseL. apply H. apply Bracketable_pos. apply Pos_and.
+    - apply bct4_AndNR. apply IHK1. apply H. apply IHK2. apply H.
+    - apply bct4_boxR. apply Bracketable_pos. apply Pos_or.
+        apply ept4_FalseL. apply H. apply Bracketable_pos. apply Pos_or.
+    - apply bct4_ImpR. apply IHK2. apply in_cons. apply H.
+Qed.
+
+Lemma admissibility_AndPL_star :
+  forall {C: sctx} {L1: lctx} (B1 B2 : o) {K: o},
+    bct4 C (B2 :: B1 :: L1) K ->
+    forall {L: lctx},
+      Permutation L ((AndP B1 B2) :: L1) ->
+      bct4 C L K.
+Proof.
+  intros C L1 B1 B2 K H. remember (B2 :: B1 :: L1). induction H ; intros ; subst.
+  - apply bct4_boxR. apply H.
+    eapply LJF4_exchange_linear_ept4.
+    2: apply Permutation_sym ; apply H1.
+    eapply ept4_AndPL.
+    reflexivity.
+    apply H.
+    apply H0.
+  - apply bct4_AndNR.
+    + eapply LJF4_exchange_linear_bct4. 
+      2: apply Permutation_sym ; apply H1.
+      apply IHbct4_1. reflexivity. apply Permutation_refl.
+    + eapply LJF4_exchange_linear_bct4. 
+      2: apply Permutation_sym ; apply H1.
+      apply IHbct4_2. reflexivity. apply Permutation_refl.
+  - apply bct4_ImpR.
+
+
+
+
+
+
+Scheme ufcL_mut := Induction for ufcL Sort Prop
+  with lfcL_mut := Induction for lfcL Sort Prop
+  with rfcL_mut := Induction for rfcL Sort Prop.
+
+Combined Scheme LJF_mutind_all from ufcL_mut, lfcL_mut, rfcL_mut.
+
+Theorem LJF4_completeness : 
+  (forall {C: sctx} {L: lctx} {K: o} {u: state}, ufcL C L K u -> 
+    match u with 
+    | Unbracketed => bct4 C L K
+    | Bracketed => ept4 C L K
+    end) /\
+  (forall {C: sctx} {N K: o}, lfcL C N K -> lfc4 C N K) /\
+  (forall {C: sctx} {K: o}, rfcL C K -> rfc4 C K).
+Proof.
+  apply LJF_mutind_all ; intros.
+    - eapply ept4_Lf. apply i. apply b. apply n. apply H.
+    - apply ept4_Rf. apply p. apply H.
+    - eapply ept4_boxL. apply p. apply b. apply p0. apply H.
+    - eapply admissibility_boxL_star. apply p0. apply H. apply p.
+    - apply bct4_boxR. apply b. apply H.
+    - eapply ept4_AndPL. apply p. apply b. apply H.
+    - admit.
+    - apply bct4_AndNR. apply H. apply H0.
+    - eapply ept4_OrL. apply p. apply b. apply H. apply H0.
+    - admit.
+    - apply bct4_ImpR. apply H.
+    - eapply ept4_TrueL. apply p. apply b. apply H.
+    - eapply admissibility_TrueL_star. apply H. apply p.
+    - apply ept4_FalseL. apply i. apply b.
+    - apply admissibility_FalseL_star. apply i.
+    - apply lfc4_Rl. apply b. apply p. apply H.
+    - apply lfc4_Il. apply n. apply a.
+    - apply lfc4_AndNL_1. apply b. apply H.
+    - apply lfc4_AndNL_2. apply b. apply H.
+    - apply lfc4_ImpL. apply b. apply H. apply H0.
+    - apply rfc4_Rr. apply n. apply H.
+    - apply rfc4_Ir. apply i. apply p. apply a.
+    - apply rfc4_AndPR. apply H. apply H0.
+    - apply rfc4_OrR_1. apply H.
+    - apply rfc4_OrR_2. apply H.
+    - apply rfc4_TrueR.
+Qed.
+
+
+      
+
+
+
+

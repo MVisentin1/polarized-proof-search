@@ -10,7 +10,7 @@ Scheme bct4_mut := Induction for bct4 Sort Prop
 
 Combined Scheme LJF4_mutind_all from bct4_mut, ept4_mut, lfc4_mut, rfc4_mut.
 
-Theorem completenesss_LJFPS : 
+Theorem LJFPS_completeness : 
     (forall {C: sctx} {L: lctx} {K: o}, bct4 C L K -> bct C L K) /\
     (forall {C: sctx} {L: lctx} {K: o}, ept4 C L K -> ept C L K) /\
     (forall {C: sctx} {N K: o}, lfc4 C N K -> lfc C N K) /\
