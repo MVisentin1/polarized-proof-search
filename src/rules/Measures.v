@@ -11,7 +11,7 @@ Equations osize (A : o) : nat :=
   osize (Or   A B) := 1 + osize A + osize B;
   osize (Imp A B) := 1 + osize A + osize B
 .
-About osize_equation_1.
+
 Equations octx_size (L: octx) : nat :=
     octx_size nil := 0;
     octx_size (A :: L') := osize A + octx_size L'

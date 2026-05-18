@@ -7,7 +7,8 @@ src/rules/LJF_Rules.v
 src/rules/LJF4_Rules.v
 src/rules/LJFPS_Rules.v
 
-src/metatheory/LJFPS_Exchange.v
-src/metatheory/LJFPS_Completeness.v
+src/metatheory/LJFPS/LJFPS_Exchange.v
+src/metatheory/LJFPS/LJFPS_Completeness.v
 
-src/metatheory/LJF4_Exchange.v
+src/metatheory/LJF4/LJF4_Exchange.v
+src/metatheory/LJF4/LJF4_Completeness.v
