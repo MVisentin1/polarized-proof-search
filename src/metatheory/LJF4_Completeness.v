@@ -64,33 +64,99 @@ Proof.
 Qed.
 
 Lemma admissibility_AndPL_star :
-  forall {C: sctx} {L1: lctx} (B1 B2 : o) {K: o},
-    bct4 C (B2 :: B1 :: L1) K ->
-    forall {L: lctx},
-      Permutation L ((AndP B1 B2) :: L1) ->
-      bct4 C L K.
+  forall {C: sctx} {L0: lctx} {K: o},
+    bct4 C L0 K ->
+    forall (B1 B2 : o) {L1: lctx},
+      Permutation L0 (B2 :: B1 :: L1) ->   (* permutation, not equation *)
+      forall {L: lctx},
+        Permutation L ((AndP B1 B2) :: L1) ->
+        bct4 C L K.
 Proof.
-  intros C L1 B1 B2 K H. remember (B2 :: B1 :: L1). induction H ; intros ; subst.
+  intros C L0 K H. induction H ; intros.
   - apply bct4_boxR. apply H.
     eapply LJF4_exchange_linear_ept4.
-    2: apply Permutation_sym ; apply H1.
-    eapply ept4_AndPL.
-    reflexivity.
-    apply H.
+    2: apply Permutation_sym ; apply H2.
+    eapply ept4_AndPL. reflexivity. apply H.
+    eapply LJF4_exchange_linear_ept4.
+    2: apply H1.
     apply H0.
   - apply bct4_AndNR.
-    + eapply LJF4_exchange_linear_bct4. 
-      2: apply Permutation_sym ; apply H1.
-      apply IHbct4_1. reflexivity. apply Permutation_refl.
-    + eapply LJF4_exchange_linear_bct4. 
-      2: apply Permutation_sym ; apply H1.
-      apply IHbct4_2. reflexivity. apply Permutation_refl.
+    + eapply LJF4_exchange_linear_bct4.
+      2: apply Permutation_sym ; apply H2.
+      eapply IHbct4_1.
+      2: reflexivity.
+      apply H1.
+   + eapply LJF4_exchange_linear_bct4.
+      2: apply Permutation_sym ; apply H2.
+      eapply IHbct4_2.
+      2: reflexivity.
+      apply H1.
   - apply bct4_ImpR.
+    assert (Permutation (B1 :: AndP B0 B3 :: L1) (B1 :: L0)).
+    apply Permutation_sym. apply Permutation_cons. reflexivity. apply H1.
+    eapply LJF4_exchange_linear_bct4.
+    2: apply H2.
+    eapply IHbct4 with (L1 := B1 :: L1) (B2 := B3) (B1 := B0).
+      + eapply perm_trans.
+        apply Permutation_cons. reflexivity. exact H0.
+        eapply perm_trans.
+        apply perm_swap.
+        apply Permutation_cons. reflexivity.
+        apply perm_swap.
+      + apply perm_swap.
+Qed.
 
-
-
-
-
+Lemma admissibility_OrL_star :
+  forall {C: sctx} {L1 L2: lctx} {K: o},
+    bct4 C L1 K ->
+    bct4 C L2 K ->
+    forall (B1 B2 : o) {L0: lctx},
+      Permutation L1 (B1 :: L0) ->  
+      Permutation L2 (B2 :: L0) -> 
+      forall {L: lctx},
+        Permutation L ((Or B1 B2) :: L0) ->
+        bct4 C L K.
+Proof.
+  intros C L1 L2 K H. revert L2. induction H ; intros.
+  - apply bct4_boxR. apply H.
+    eapply LJF4_exchange_linear_ept4.
+    2: apply Permutation_sym ; apply H4.
+    eapply ept4_OrL. reflexivity. apply H.
+      + eapply LJF4_exchange_linear_ept4. 2: apply H2. apply H0.
+      + inversion H1 ; subst.
+        -- eapply LJF4_exchange_linear_ept4. apply H6. apply H3.
+        -- inversion H. inversion H7. inversion H7.
+        -- inversion H. inversion H6. inversion H6.
+  - apply bct4_AndNR.
+    + eapply IHbct4_1.
+      2: apply H2.
+      2: apply H3.
+      2: apply H4.
+      inversion H1 ; subst.
+        -- inversion H5. inversion H7. inversion H7.
+        -- apply H9.  
+    + eapply LJF4_exchange_linear_bct4.
+      eapply IHbct4_2.
+      2: apply H2.
+      2: apply H3.
+      2: apply H4.
+      2: reflexivity.
+      inversion H1 ; subst.
+        -- inversion H5. inversion H7. inversion H7.
+        -- apply H10.
+  - apply bct4_ImpR.
+    assert (Permutation (B1 :: L1) (B1 :: Or B0 B3 :: L0)).
+    apply Permutation_cons. reflexivity. apply H3.
+    eapply LJF4_exchange_linear_bct4. 2: apply Permutation_sym ; apply H4.
+    inversion H0. subst. inversion H5. inversion H7. inversion H7. subst.  
+    eapply IHbct4.
+    apply H8.
+    3: apply perm_swap.
+    apply Permutation_sym. rewrite perm_swap. apply Permutation_cons.
+    reflexivity. apply Permutation_sym. apply H1.
+    apply Permutation_sym. rewrite perm_swap. apply Permutation_cons.
+    reflexivity. apply Permutation_sym. apply H2.
+Qed.
 
 Scheme ufcL_mut := Induction for ufcL Sort Prop
   with lfcL_mut := Induction for lfcL Sort Prop
@@ -114,10 +180,11 @@ Proof.
     - eapply admissibility_boxL_star. apply p0. apply H. apply p.
     - apply bct4_boxR. apply b. apply H.
     - eapply ept4_AndPL. apply p. apply b. apply H.
-    - admit.
+    - eapply admissibility_AndPL_star. apply H. reflexivity. apply p.
     - apply bct4_AndNR. apply H. apply H0.
     - eapply ept4_OrL. apply p. apply b. apply H. apply H0.
-    - admit.
+    - eapply admissibility_OrL_star. apply H. apply H0. reflexivity.
+      reflexivity. apply p.
     - apply bct4_ImpR. apply H.
     - eapply ept4_TrueL. apply p. apply b. apply H.
     - eapply admissibility_TrueL_star. apply H. apply p.
