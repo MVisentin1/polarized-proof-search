@@ -1,19 +1,21 @@
-From Equations Require Import Equations.
 From Stdlib Require Import List.
 From LJF Require Import SharedLogic.
 
-Equations osize (A : o) : nat :=
-  osize (Atom _ _) := 1;
-  osize TT         := 1;
-  osize FF         := 1;
-  osize (AndP A B) := 1 + osize A + osize B;
-  osize (AndN A B) := 1 + osize A + osize B;
-  osize (Or   A B) := 1 + osize A + osize B;
-  osize (Imp A B) := 1 + osize A + osize B
+Fixpoint osize (A : o) : nat :=
+    match A with
+    | Atom _ _ => 1
+    | TT       => 1
+    | FF       => 1
+    | AndP A B => 1 + osize A + osize B
+    | AndN A B => 1 + osize A + osize B
+    | Or   A B => 1 + osize A + osize B
+    | Imp  A B => 1 + osize A + osize B
+    end
 .
 
-Equations octx_size (L: octx) : nat :=
-  octx_size nil := 0;
-  octx_size (A :: L') := osize A + octx_size L'
+Fixpoint octx_size (L : octx) : nat :=
+    match L with
+    | nil      => 0
+    | A :: L'  => osize A + octx_size L'
+    end
 .
-

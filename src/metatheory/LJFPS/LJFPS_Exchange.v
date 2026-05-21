@@ -1,4 +1,3 @@
-From Equations Require Import Equations.
 From Stdlib Require Import List Permutation.
 From Stdlib Require Import Wellfounded Nat Arith Lia.
 
@@ -313,30 +312,34 @@ Proof.
     + apply ept_boxL. apply b. destruct p. 
       apply Permeable_pos_atom. apply Is_atom. apply Pos_atom.
       apply Permeable_neg. apply Neg_atom. apply H.
-      simp octx_size. inversion I. discriminate H0. apply H0.
+      cbn [octx_size]. inversion I. discriminate H0.
+      apply Nat.lt_add_pos_l. cbn [osize]. apply Nat.lt_0_1.
+      inversion I. discriminate H0. apply H0.
     + apply ept_TrueL. apply b. apply H.
-      simp octx_size. inversion I. discriminate H0. apply H0.
+      cbn [octx_size]. inversion I. discriminate H0. 
+      apply Nat.lt_add_pos_l. cbn [osize]. apply Nat.lt_0_1.
+      inversion I. discriminate H0. apply H0.
     + apply ept_FalseL. apply b.
     + apply ept_AndPL. apply b. apply H.
-      simp octx_size. simp osize.
+      cbn [octx_size]. cbn [osize].
       simpl. rewrite Nat.add_shuffle3. rewrite Nat.add_assoc. apply Nat.lt_succ_diag_r.
       inversion I. discriminate H0. apply in_cons. apply in_cons. apply H0.
     + apply ept_boxL. apply b. apply Permeable_neg. apply Neg_and.
-      apply H. simp octx_size. apply Nat.lt_add_pos_l. 
-      simp osize. apply Nat.lt_lt_add_r. apply Nat.lt_lt_add_r. apply Nat.lt_0_1.
+      apply H. cbn [octx_size]. apply Nat.lt_add_pos_l. 
+      cbn [osize]. apply Nat.lt_lt_add_r. apply Nat.lt_lt_add_r. apply Nat.lt_0_1.
       inversion I. discriminate H0. apply H0.
     + apply ept_OrL. apply b.
-      -- apply H. simp octx_size. simp osize. simpl.
+      -- apply H. cbn [octx_size]. cbn [osize]. simpl.
         apply Nat.lt_succ_r.
         apply add_le_mono_r_proj_l2r. apply Nat.le_add_r.
         inversion I. discriminate H0. apply in_cons. apply H0.
-      -- apply H. simp octx_size. simp osize. simpl.
+      -- apply H. cbn [octx_size]. cbn [osize]. simpl.
         apply Nat.lt_succ_r.
         apply add_le_mono_r_proj_l2r. apply Nat.le_add_l.
         inversion I. discriminate H0. apply in_cons. apply H0.
     + apply ept_boxL. apply b. apply Permeable_neg. apply Neg_imp.
-      apply H. simp octx_size. apply Nat.lt_add_pos_l. 
-      simp osize. apply Nat.lt_lt_add_r. apply Nat.lt_lt_add_r. apply Nat.lt_0_1.
+      apply H. cbn [octx_size]. apply Nat.lt_add_pos_l. 
+      cbn [osize]. apply Nat.lt_lt_add_r. apply Nat.lt_lt_add_r. apply Nat.lt_0_1.
       inversion I. discriminate H0. apply H0.
 Qed.
 
@@ -386,4 +389,3 @@ Lemma LJFPS_exchange_ordered_ept :
 Proof.
   destruct LJFPS_exchange_ordered. apply H0.
 Qed.
-
