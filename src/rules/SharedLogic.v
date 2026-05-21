@@ -32,17 +32,11 @@ Variant negative : o -> Prop :=
   | Neg_imp : forall A B, negative (Imp A B)
 .
 
-(* bracketable corresponds to formulae that can be put in brackets,
-   is either positive formula or negative atoms,
-   used in rule ufcLJF_R_box *)
 Variant bracketable : o -> Prop :=
   | Bracketable_pos : forall D, positive D -> bracketable D
   | Bracketable_neg_atom : forall D, atomic D -> negative D -> bracketable D
 .
 
-(* permeable corresponds to formulae that can be switched from linear context to structural,
-  is either negative formula or positive atom,
-   used in rule ufcLJF_L_box *)
 Variant permeable : o -> Prop :=
   | Permeable_neg : forall C, negative C -> permeable C
   | Permeable_pos_atom : forall C, atomic C -> positive C -> permeable C

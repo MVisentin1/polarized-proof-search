@@ -1,7 +1,5 @@
 From Stdlib Require Import List.
 
-From CARVe Require Import contexts.list algebras.structural.
-
 From LJF Require Import LJFPS_Rules SharedLogic.
 
 Ltac T_atomic := solve [
@@ -32,7 +30,7 @@ Ltac T_negative := solve [
     lazymatch a' with
     | Atom Neg _ => apply Neg_atom
     | AndN _ _ => apply Neg_and
-    | Impl _ _ => apply Neg_imp
+    | Imp _ _ => apply Neg_imp
     end
   end]
 .
@@ -58,9 +56,9 @@ Ltac T_bracketable := solve [
 .
 
 (* Solves a has_entry carve subgoal*)
-Ltac T_has_entry := solve [
+Ltac T_in := solve [
     lazymatch goal with
-    | [|- has_entry _ _] => repeat (apply in_eq || apply in_cons)
+    | [|- In _ _] => repeat (apply in_eq || apply in_cons)
     end]
 .
 
@@ -98,20 +96,20 @@ Ltac T_rfc paths ::=
   | [|- rfc _ ?b] => let b' := (eval hnf in b) in
     lazymatch b' with
     (* Right focus on positive atom*)
-    | Atom Pos _ => apply rfc_I_r ; [> T_positive | T_atomic | T_has_entry]
+    | Atom Pos _ => apply rfc_Ir ; [> T_in | T_positive | T_atomic | T_rfc paths]
 
     (* Right focus on TT*)
-    | TT => apply rfc_R_True
+    | TT => apply rfc_TrueR
 
     (* Right focus on positive conjunction *)
-    | AndP _ _ => apply rfc_R_AndP ; [> T_rfc paths | T_rfc paths]
+    | AndP _ _ => apply rfc_AndPR ; [> T_rfc paths | T_rfc paths]
 
     (* Right focus on disjunction. Try proving B1, if it fails, try proving B2 *)
-    | Or _ _ => solve [apply rfc_R_Or_1 ; [> T_rfc paths]] 
-      || (apply rfc_R_Or_2 ; [> T_rfc paths])
+    | Or _ _ => solve [apply rfc_OrR_1 ; [> T_rfc paths]] 
+      || (apply rfc_OrR_2 ; [> T_rfc paths])
 
     (* Right focus on negative formula ends right-focus phase, transitions to bct*)
-    | _ => apply rfc_R_r ; [> T_negative | T_bct paths]
+    | _ => apply rfc_Rr ; [> T_negative | T_bct paths]
   end
 end
 .
@@ -122,17 +120,17 @@ Ltac  T_lfc paths ::=
   | [|- lfc _ ?b _] => let b' := (eval hnf in b) in
     lazymatch b' with
     (* Left focus on negative atom*)
-    | Atom Neg _ => apply lfc_I_l ; [> T_negative | T_atomic ]
+    | Atom Neg _ => apply lfc_Il ; [> T_negative | T_atomic ]
 
     (* Left focus on negative conjunction. Try proving B1, if it fails, try proving B2 *)
-    | AndN _ _ => solve [apply lfc_L_AndN_1 ; [> T_bracketable | T_lfc paths ]]
-      || (apply lfc_L_AndN_2 ; [> T_bracketable | T_lfc paths ])
+    | AndN _ _ => solve [apply lfc_AndNL_1 ; [> T_bracketable | T_lfc paths ]]
+      || (apply lfc_AndNL_2 ; [> T_bracketable | T_lfc paths ])
 
     (* Left focus on implication *)
-    | Impl _ _ => apply lfc_L_Impl ; [> T_bracketable | T_rfc paths | T_lfc paths]
+    | Imp _ _ => apply lfc_ImpL ; [> T_bracketable | T_rfc paths | T_lfc paths]
 
     (* Left focus on a positive formula, ends left-focus phase, leaves a ufc subgoal *)
-    | _ => apply lfc_R_l ; [> T_bracketable | T_positive | T_ept paths]
+    | _ => apply lfc_Rl ; [> T_bracketable | T_positive | T_ept paths]
     end
   end
 .
@@ -142,9 +140,9 @@ Ltac T_bct paths ::=
   lazymatch goal with
   | [|- bct _ _ ?k ] => let k' := (eval hnf in k) in
     lazymatch k' with
-    | AndN _ _ => apply bct_R_AndN ; [> T_bct paths | T_bct paths]
-    | Impl _ _ => apply bct_R_Impl ; [> T_bct paths]
-    | _ => apply bct_R_box ; [> T_bracketable | T_ept paths]
+    | AndN _ _ => apply bct_AndNR ; [> T_bct paths | T_bct paths]
+    | Imp _ _ => apply bct_ImpR ; [> T_bct paths]
+    | _ => apply bct_boxR ; [> T_bracketable | T_ept paths]
     end
   end
 .
@@ -157,11 +155,11 @@ Ltac T_ept paths ::=
     | nil => T_decide_right paths
     | cons ?a _ => let a' := (eval hnf in a) in
       lazymatch a' with
-      | AndP _ _ => apply ept_L_AndP ; [> T_bracketable | T_ept paths]
-      | Or _ _ => apply ept_L_Or ; [> T_bracketable | T_ept paths | T_ept paths]
-      | TT => apply ept_L_True ; [> T_bracketable | T_ept paths]
-      | FF => apply ept_L_False ; [> T_bracketable]
-      | _ => apply ept_L_box ; [> T_bracketable | T_permeable | T_ept paths]
+      | AndP _ _ => apply ept_AndPL ; [> T_bracketable | T_ept paths]
+      | Or _ _ => apply ept_OrL ; [> T_bracketable | T_ept paths | T_ept paths]
+      | TT => apply ept_TrueL ; [> T_bracketable | T_ept paths]
+      | FF => apply ept_FalseL ; [> T_bracketable]
+      | _ => apply ept_boxL ; [> T_bracketable | T_permeable | T_ept paths]
       end
     end
   end
@@ -173,7 +171,7 @@ Ltac T_decide_right paths ::=
   | [|- ept _ _ ?k] => let k' := (eval hnf in k) in
     (* If k is positive, we right focus *)
     (* If k is negative, or right focusing fails, we left focus *)
-    solve [apply ept_R_f ; [> T_positive | T_rfc paths]] 
+    solve [apply ept_Rf ; [> T_positive | T_rfc paths]] 
     || T_decide_left paths
   end
 .
@@ -191,8 +189,8 @@ Ltac T_decide_left_private cont formula paths :=
       let updated_paths := constr:((cont', formula', b') :: paths) in
       solve [
         T_noloop cont' formula' b' paths ; 
-        apply ept_L_f with (N := b') ; 
-        [> T_bracketable | T_negative | T_has_entry | T_lfc updated_paths]] 
+        apply ept_Lf with (N := b') ; 
+        [> T_in | T_bracketable | T_negative | T_lfc updated_paths]] 
         || T_decide_left_private rest formula' paths
   end
 .

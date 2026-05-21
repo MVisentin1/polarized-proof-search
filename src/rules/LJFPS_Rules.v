@@ -2,7 +2,6 @@ From Stdlib Require Import List Permutation.
 
 From LJF Require Import SharedLogic.
 
-
 Inductive bct : sctx -> octx -> o -> Prop :=
 | bct_boxR :
   forall {C: sctx} {L: octx} {D: o},

@@ -13,7 +13,7 @@ Equations osize (A : o) : nat :=
 .
 
 Equations octx_size (L: octx) : nat :=
-    octx_size nil := 0;
-    octx_size (A :: L') := osize A + octx_size L'
+  octx_size nil := 0;
+  octx_size (A :: L') := osize A + octx_size L'
 .
 
