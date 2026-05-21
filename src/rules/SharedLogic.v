@@ -1,9 +1,15 @@
 From Stdlib Require Import List.
 From Equations Require Import Equations.
+From Stdlib Require Import PeanoNat.
+
 
 Variant polarity : Type :=
 | Pos : polarity
 | Neg : polarity.
+
+Lemma polarity_eq_dec : forall p1 p2 : polarity, {p1 = p2} + {p1 <> p2}.
+Proof. decide equality. Defined
+.
 
 Inductive o : Type :=
 | Atom  : polarity -> nat -> o   
@@ -13,6 +19,13 @@ Inductive o : Type :=
 | AndN  : o -> o -> o
 | Or    : o -> o -> o
 | Imp  : o -> o -> o.
+
+Lemma o_eq_dec : forall A B : o, {A = B} + {A <> B}.
+Proof.
+  decide equality.
+  - apply Nat.eq_dec.
+  - apply polarity_eq_dec.
+Defined.
 
 Variant atomic : o -> Prop :=
   | Is_atom : forall p n, atomic (Atom p n)

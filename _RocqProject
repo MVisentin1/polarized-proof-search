@@ -19,3 +19,6 @@ src/examples/LJFPS_Examples.v
 
 src/proofsearch/Subformula.v
 src/proofsearch/Sequents.v
+
+src/rules/LJFC_Rules.v
+src/metatheory/LJFC/LJFC_Completeness.v
