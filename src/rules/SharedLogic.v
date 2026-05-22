@@ -55,6 +55,6 @@ Variant permeable : o -> Prop :=
   | Permeable_pos_atom : forall C, atomic C -> positive C -> permeable C
 .
 
-Definition sctx : Type := list o.
-Definition lctx : Type := list o.
-Definition octx : Type := list o.
+Notation sctx := (list o).
+Notation lctx := (list o).
+Notation octx := (list o).
