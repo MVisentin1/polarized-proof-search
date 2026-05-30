@@ -1,14 +1,7 @@
 From Stdlib Require Import List Permutation.
 From Stdlib Require Import Wellfounded Nat Arith Lia.
 
-From LJF Require Import SharedLogic Measures LJFPS_Rules.
-
-Scheme bct_mut := Induction for bct Sort Prop
-  with ept_mut := Induction for ept Sort Prop
-  with lfc_mut := Induction for lfc Sort Prop
-  with rfc_mut := Induction for rfc Sort Prop.
-
-Combined Scheme LJFPS_mutind_all from bct_mut, ept_mut, lfc_mut, rfc_mut.
+From LJF Require Import SharedLogic Measures LJFPS_Rules Schemes.
 
 Theorem LJFPS_exchange_structural :
   (forall {C: sctx} {L: octx} {K: o}, bct C L K -> forall {C': sctx}, Permutation C C' -> bct C' L K) /\
@@ -342,10 +335,6 @@ Proof.
       cbn [osize]. apply Nat.lt_lt_add_r. apply Nat.lt_lt_add_r. apply Nat.lt_0_1.
       inversion I. discriminate H0. apply H0.
 Qed.
-
-Scheme bct_mut_async := Induction for bct Sort Prop
-  with ept_mut_async := Induction for ept Sort Prop.
-Combined Scheme LJFPS_mutind_async from bct_mut_async, ept_mut_async.
 
 Theorem LJFPS_exchange_ordered :
   (forall {C: sctx} {L: octx} {K: o}, bct C L K -> forall {L': octx}, Permutation L L' -> bct C L' K) /\

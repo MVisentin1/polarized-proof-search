@@ -1,14 +1,7 @@
 From Stdlib Require Import List Permutation.
-From LJF Require Import SharedLogic LJF4_Rules LJFPS_Rules LJFPS_Exchange.
+From LJF Require Import SharedLogic LJF4_Rules LJFPS_Rules LJFPS_Exchange Schemes.
 
 From Equations Require Import Equations.
-
-Scheme bct4_mut := Induction for bct4 Sort Prop
-  with ept4_mut := Induction for ept4 Sort Prop
-  with lfc4_mut := Induction for lfc4 Sort Prop
-  with rfc4_mut := Induction for rfc4 Sort Prop.
-
-Combined Scheme LJF4_mutind_all from bct4_mut, ept4_mut, lfc4_mut, rfc4_mut.
 
 Theorem LJFPS_completeness : 
     (forall {C: sctx} {L: lctx} {K: o}, bct4 C L K -> bct C L K) /\

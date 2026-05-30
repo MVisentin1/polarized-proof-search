@@ -1,13 +1,6 @@
 From Stdlib Require Import List Permutation.
 
-From LJF Require Import SharedLogic LJFPS_Rules LJFC_Rules.
-
-Scheme bct_mut := Induction for bct Sort Prop
-  with ept_mut := Induction for ept Sort Prop
-  with lfc_mut := Induction for lfc Sort Prop
-  with rfc_mut := Induction for rfc Sort Prop.
-
-Combined Scheme LJFPS_mutind_all from bct_mut, ept_mut, lfc_mut, rfc_mut.
+From LJF Require Import SharedLogic LJFPS_Rules LJFC_Rules Schemes.
 
 Theorem LJFC_completeness :
     (forall {C: sctx} {L: octx} {K: o}, bct C L K -> bctC (mk_ndctx C) L K) /\

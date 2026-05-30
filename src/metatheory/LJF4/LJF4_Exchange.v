@@ -1,12 +1,5 @@
 From Stdlib Require Import List Permutation.
-From LJF Require Import LJF_Rules LJF4_Rules SharedLogic.
-
-Scheme bct4_mut := Induction for bct4 Sort Prop
-  with ept4_mut := Induction for ept4 Sort Prop
-  with lfc4_mut := Induction for lfc4 Sort Prop
-  with rfc4_mut := Induction for rfc4 Sort Prop.
-
-Combined Scheme LJF4_mutind_all from bct4_mut, ept4_mut, lfc4_mut, rfc4_mut.
+From LJF Require Import LJF_Rules LJF4_Rules SharedLogic Schemes.
 
 Lemma LJF4_exchange_structural :
   (forall {C: sctx} {L: lctx} {K: o}, bct4 C L K -> forall C1, Permutation C C1 -> bct4 C1 L K) /\
@@ -62,10 +55,6 @@ Lemma LJF4_exchange_structural_rfc4 :
 Proof.
   destruct LJF4_exchange_structural. destruct H0. destruct H1. apply H2.
 Qed.
-
-Scheme bct4_mut_async := Induction for bct4 Sort Prop
-  with ept4_mut_async := Induction for ept4 Sort Prop.
-Combined Scheme LJF4_mutind_async from bct4_mut_async, ept4_mut_async.
 
 Lemma LJF4_exchange_linear :
   (forall {C: sctx} {L: lctx} {K: o}, bct4 C L K -> forall L1, Permutation L L1 -> bct4 C L1 K) /\

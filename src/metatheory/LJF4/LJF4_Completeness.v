@@ -1,5 +1,5 @@
 From Stdlib Require Import List Permutation.
-From LJF Require Import SharedLogic LJF_Rules LJF4_Rules LJF4_Exchange.
+From LJF Require Import SharedLogic LJF_Rules LJF4_Rules LJF4_Exchange Schemes.
 
 Lemma admissibility_boxL_star :
   forall {C: sctx} {L1: lctx} (B: o) {K: o},
@@ -158,11 +158,6 @@ Proof.
     reflexivity. apply Permutation_sym. apply H2.
 Qed.
 
-Scheme ufcL_mut := Induction for ufcL Sort Prop
-  with lfcL_mut := Induction for lfcL Sort Prop
-  with rfcL_mut := Induction for rfcL Sort Prop.
-
-Combined Scheme LJF_mutind_all from ufcL_mut, lfcL_mut, rfcL_mut.
 
 Theorem LJF4_completeness : 
   (forall {C: sctx} {L: lctx} {K: o} {u: state}, ufcL C L K u -> 
