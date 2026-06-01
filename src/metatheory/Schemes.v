@@ -25,7 +25,7 @@ Scheme bctC_mut := Induction for bctC Sort Prop
   with lfcC_mut := Induction for lfcC Sort Prop
   with rfcC_mut := Induction for rfcC Sort Prop.
 
-Combined Scheme LJFC_mutind_all from bct_mut, ept_mut, lfc_mut, rfc_mut.
+Combined Scheme LJFC_mutind_all from bctC_mut, eptC_mut, lfcC_mut, rfcC_mut.
 
 Scheme bct4_mut_async := Induction for bct4 Sort Prop
   with ept4_mut_async := Induction for ept4 Sort Prop.

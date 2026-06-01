@@ -11,12 +11,19 @@ src/metatheory/Schemes.v
 src/tactics/SharedLogic_tactics.v
 src/rules/Measures.v
 
-
 src/metatheory/LJFPS/LJFPS_Exchange.v
 src/metatheory/LJFPS/LJFPS_Completeness.v
+src/metatheory/LJFPS/LJFPS_Soundness.v
+src/metatheory/LJFPS/LJFPS_Weakening.v
+
 
 src/metatheory/LJF4/LJF4_Exchange.v
 src/metatheory/LJF4/LJF4_Completeness.v
+src/metatheory/LJF4/LJF4_Soundness.v
+
+src/metatheory/LJFC/LJFC_Exchange.v
+src/metatheory/LJFC/LJFC_Completeness.v
+src/metatheory LJFC_Soundess.v
 
 src/tactics/LJFPS_Prover.v
 src/examples/LJFPS_Examples.v
@@ -24,4 +31,3 @@ src/examples/LJFPS_Examples.v
 src/proofsearch/Subformula.v
 src/proofsearch/Sequents.v
 
-src/metatheory/LJFC/LJFC_Completeness.v
