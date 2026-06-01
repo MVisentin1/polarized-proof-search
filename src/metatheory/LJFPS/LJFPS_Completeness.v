@@ -1,8 +1,6 @@
 From Stdlib Require Import List Permutation.
 From LJF Require Import SharedLogic LJF4_Rules LJFPS_Rules LJFPS_Exchange Schemes.
 
-From Equations Require Import Equations.
-
 Theorem LJFPS_completeness : 
     (forall {C: sctx} {L: lctx} {K: o}, bct4 C L K -> bct C L K) /\
     (forall {C: sctx} {L: lctx} {K: o}, ept4 C L K -> ept C L K) /\
