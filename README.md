@@ -1,2 +1,2 @@
 # polarized-proof-search
-Mechanizing the LJF calculus using CARVe's rocq library for modelling contexts as ressource vectors.
+Mechanization Liang and Miller LJF calculus in Rocq. Working towards a verified proof search procedure.
