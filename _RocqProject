@@ -5,10 +5,10 @@ src/rules/SharedLogic.v
 src/rules/LJF_Rules.v
 src/rules/LJF4_Rules.v
 src/rules/LJFPS_Rules.v
-src/rules/LJFC_Rules.v
 src/metatheory/Schemes.v
-
 src/tactics/SharedLogic_tactics.v
+src/rules/Predicates.v
+
 src/rules/Measures.v
 
 src/metatheory/LJFPS/LJFPS_Exchange.v
@@ -20,13 +20,6 @@ src/metatheory/LJFPS/LJFPS_Weakening.v
 src/metatheory/LJF4/LJF4_Exchange.v
 src/metatheory/LJF4/LJF4_Completeness.v
 src/metatheory/LJF4/LJF4_Soundness.v
-
-src/metatheory/LJFC/LJFC_Exchange.v
-src/metatheory/LJFC/LJFC_Completeness.v
-src/metatheory/LJFC/LJFC_Soundness.v
-
-src/tactics/LJFPS_Prover.v
-src/examples/LJFPS_Examples.v
 
 src/proofsearch/Subformula.v
 src/proofsearch/Sequents.v
