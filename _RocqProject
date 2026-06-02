@@ -23,7 +23,7 @@ src/metatheory/LJF4/LJF4_Soundness.v
 
 src/metatheory/LJFC/LJFC_Exchange.v
 src/metatheory/LJFC/LJFC_Completeness.v
-src/metatheory LJFC_Soundess.v
+src/metatheory/LJFC/LJFC_Soundness.v
 
 src/tactics/LJFPS_Prover.v
 src/examples/LJFPS_Examples.v
