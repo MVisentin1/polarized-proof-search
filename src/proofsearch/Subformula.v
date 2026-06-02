@@ -30,42 +30,25 @@ Proof.
     - apply Sub_ImpR. apply IHsubformula. apply H0.
 Qed.
 
-Fixpoint subformulas (A : o) : list o :=
+Fixpoint subformulas_dup (A : o) : list o :=
     match A with
     | Atom p n => Atom p n :: nil
     | TT => TT :: nil
     | FF => FF :: nil
-    | AndP A B => (AndP A B) :: subformulas A ++ subformulas B
-    | AndN A B => (AndN A B) :: subformulas A ++ subformulas B
-    | Or A B => (Or A B) :: subformulas A ++ subformulas B
-    | Imp A B => (Imp A B) :: subformulas A ++ subformulas B
+    | AndP A B => (AndP A B) :: subformulas_dup A ++ subformulas_dup B
+    | AndN A B => (AndN A B) :: subformulas_dup A ++ subformulas_dup B
+    | Or A B => (Or A B) :: subformulas_dup A ++ subformulas_dup B
+    | Imp A B => (Imp A B) :: subformulas_dup A ++ subformulas_dup B
     end
 .
 
-Lemma subformulas_iff :
-    forall (A B: o), In A (subformulas B) <-> subformula A B.
+Definition subformulas (A: o) : list o :=
+    nodup o_eq_dec (subformulas_dup A).
+
+Lemma subformula_iff_subformulas_dup :
+    forall (A B: o), subformula A B <-> In A (subformulas_dup B).
 Proof.
     intros. split.
-    - intros. induction B ; simpl in H.
-        + destruct H. subst. apply Sub_Refl. inversion H.
-        + destruct H. subst. apply Sub_Refl. inversion H.
-        + destruct H. subst. apply Sub_Refl. inversion H.
-        + destruct H. subst. apply Sub_Refl.
-            apply in_app_or in H. inversion H.
-            apply Sub_AndPL. apply IHB1. apply H0.
-            apply Sub_AndPR. apply IHB2. apply H0.
-        + destruct H. subst. apply Sub_Refl.
-            apply in_app_or in H. inversion H.
-            apply Sub_AndNL. apply IHB1. apply H0.
-            apply Sub_AndNR. apply IHB2. apply H0.
-        + destruct H. subst. apply Sub_Refl.
-            apply in_app_or in H. inversion H.
-            apply Sub_OrL. apply IHB1. apply H0.
-            apply Sub_OrR. apply IHB2. apply H0.
-        + destruct H. subst. apply Sub_Refl.
-            apply in_app_or in H. inversion H.
-            apply Sub_ImpL. apply IHB1. apply H0.
-            apply Sub_ImpR. apply IHB2. apply H0.
     - intros. induction B ; simpl.
         + inversion H. left. reflexivity.
         + inversion H. left. reflexivity.
@@ -86,7 +69,33 @@ Proof.
             apply in_eq.
             apply in_cons. apply in_or_app. left. apply IHB1. apply H2.
             apply in_cons. apply in_or_app. right. apply IHB2. apply H2.
+    - intros. induction B ; simpl in H.
+        + destruct H. subst. apply Sub_Refl. inversion H.
+        + destruct H. subst. apply Sub_Refl. inversion H.
+        + destruct H. subst. apply Sub_Refl. inversion H.
+        + destruct H. subst. apply Sub_Refl.
+            apply in_app_or in H. inversion H.
+            apply Sub_AndPL. apply IHB1. apply H0.
+            apply Sub_AndPR. apply IHB2. apply H0.
+        + destruct H. subst. apply Sub_Refl.
+            apply in_app_or in H. inversion H.
+            apply Sub_AndNL. apply IHB1. apply H0.
+            apply Sub_AndNR. apply IHB2. apply H0.
+        + destruct H. subst. apply Sub_Refl.
+            apply in_app_or in H. inversion H.
+            apply Sub_OrL. apply IHB1. apply H0.
+            apply Sub_OrR. apply IHB2. apply H0.
+        + destruct H. subst. apply Sub_Refl.
+            apply in_app_or in H. inversion H.
+            apply Sub_ImpL. apply IHB1. apply H0.
+            apply Sub_ImpR. apply IHB2. apply H0.
 Qed.
+
+Lemma subformula_iff_subformulas :
+    forall (A B: o), subformula A B <-> In A (subformulas B).
+Proof.
+    intros. unfold subformulas. rewrite nodup_In. apply subformula_iff_subformulas_dup.
+Qed. 
 
 Definition positive_b (A: o) : bool :=
     match A with
@@ -98,7 +107,6 @@ Definition positive_b (A: o) : bool :=
     | _ => false
     end
 .
-
 Lemma positive_b_iff : forall A, positive_b A = true <-> positive A.
 Proof.
     intros. split.
@@ -117,7 +125,6 @@ Definition negative_b (A: o) : bool :=
     | _ => false
     end
 .
-
 Lemma negative_b_iff : forall A, negative_b A = true <-> negative A.
 Proof.
     intros. split.
@@ -136,7 +143,6 @@ Definition permeable_b (A : o) : bool :=
     | _          => false
     end
 .
-
 Lemma permeable_b_iff : forall A, permeable_b A = true <-> permeable A.
 Proof.
     intros. split.
@@ -156,7 +162,7 @@ Lemma subformulas_positive_correct :
 Proof.
     intros. unfold subformulas_positive in H. apply filter_In in H.
     destruct H. split. apply positive_b_iff in H0. apply H0.
-    apply subformulas_iff. apply H.
+    apply subformula_iff_subformulas. apply H.
 Qed.
 
 
@@ -170,7 +176,7 @@ Lemma subformulas_negative_correct :
 Proof.
     intros. unfold subformulas_negative in H. apply filter_In in H.
     destruct H. split. apply negative_b_iff in H0. apply H0.
-    apply subformulas_iff. apply H.
+    apply subformula_iff_subformulas. apply H.
 Qed.
 
 
@@ -184,5 +190,5 @@ Lemma subformulas_permeable_correct :
 Proof.
     intros. unfold subformulas_permeable in H. apply filter_In in H.
     destruct H. split. apply permeable_b_iff in H0. apply H0.
-    apply subformulas_iff. apply H.
+    apply subformula_iff_subformulas. apply H.
 Qed.
