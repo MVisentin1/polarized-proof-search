@@ -1,15 +1,17 @@
 -docroot LJF
 -R src LJF
 
-src/rules/SharedLogic.v
+src/definitions/SharedLogic.v
+src/definitions/Pndctx.v
+src/definitions/Predicates.v
+src/definitions/Measures.v
+
 src/rules/LJF_Rules.v
 src/rules/LJF4_Rules.v
 src/rules/LJFPS_Rules.v
 src/metatheory/Schemes.v
 src/tactics/SharedLogic_tactics.v
-src/rules/Predicates.v
 
-src/rules/Measures.v
 
 src/metatheory/LJFPS/LJFPS_Exchange.v
 src/metatheory/LJFPS/LJFPS_Completeness.v
