@@ -1,13 +1,13 @@
 From Stdlib Require Import List Permutation.
-From LJF Require Import SharedLogic LJF4_Rules LJFPS_Rules LJFPS_Exchange Schemes.
+From LJF Require Import SharedLogic LJF4_Rules LJFO_Rules LJFO_Exchange Schemes.
 
-Theorem LJFPS_soundness : 
-    (forall {C: sctx} {L: lctx} {K: o}, bct C L K -> bct4 C L K) /\
-    (forall {C: sctx} {L: lctx} {K: o}, ept C L K -> ept4 C L K) /\
-    (forall {C: sctx} {N K: o}, lfc C N K -> lfc4 C N K) /\
-    (forall {C: sctx} {K: o}, rfc C K -> rfc4 C K).
+Theorem LJFO_soundness : 
+    (forall {C: sctx} {L: lctx} {K: o}, bctO C L K -> bct4 C L K) /\
+    (forall {C: sctx} {L: lctx} {K: o}, eptO C L K -> ept4 C L K) /\
+    (forall {C: sctx} {N K: o}, lfcO C N K -> lfc4 C N K) /\
+    (forall {C: sctx} {K: o}, rfcO C K -> rfc4 C K).
 Proof.
-    apply LJFPS_mutind_all ; intros.
+    apply LJFO_mutind_all ; intros.
     - apply bct4_boxR. apply b. apply H.
     - apply bct4_AndNR. apply H. apply H0.
     - apply bct4_ImpR. apply H.

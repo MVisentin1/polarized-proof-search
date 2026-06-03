@@ -2,27 +2,23 @@
 -R src LJF
 
 src/definitions/SharedLogic.v
-src/definitions/Pndctx.v
 src/definitions/Predicates.v
 src/definitions/Measures.v
 
 src/rules/LJF_Rules.v
 src/rules/LJF4_Rules.v
-src/rules/LJFPS_Rules.v
+src/rules/LJFO_Rules.v
+
 src/metatheory/Schemes.v
-src/tactics/SharedLogic_tactics.v
-
-
-src/metatheory/LJFPS/LJFPS_Exchange.v
-src/metatheory/LJFPS/LJFPS_Completeness.v
-src/metatheory/LJFPS/LJFPS_Soundness.v
-src/metatheory/LJFPS/LJFPS_Weakening.v
-
 
 src/metatheory/LJF4/LJF4_Exchange.v
 src/metatheory/LJF4/LJF4_Completeness.v
 src/metatheory/LJF4/LJF4_Soundness.v
 
-src/proofsearch/Subformula.v
-src/proofsearch/Sequents.v
+src/metatheory/LJFO/LJFO_Exchange.v
+src/metatheory/LJFO/LJFO_Completeness.v
+src/metatheory/LJFO/LJFO_Soundness.v
+src/metatheory/LJFO/LJFO_Weakening.v
+
+
 
