@@ -1,5 +1,5 @@
 From Stdlib Require Import List Permutation ProofIrrelevance.
-From LJF Require Import SharedLogic Decidability.  
+From LJF Require Import SharedLogic Decidability Predicates.  
 
 Definition raw_insert (A : o) (C : sctx) : sctx :=
   if permeable_dec A 
@@ -218,17 +218,68 @@ Proof.
   apply pndctx_insert_swap.
 Qed.
 
-(*
+Lemma permeable_ctx_filter :
+  forall {C: sctx}, permeable_ctx (filter permeable_b C).
+Proof.
+  intros. unfold permeable_ctx ; induction C ; unfold filter.
+  - apply Forall_nil.
+  - destruct (permeable_b a) eqn:H.
+    + apply Forall_cons. apply permeable_b_iff. apply H.
+      apply IHC.
+    + apply IHC.
+Qed.
+  
 Definition mk_pndctx (C : sctx) : pndctx :=
-    exist _ (nodup o_eq_dec C) (NoDup_nodup o_eq_dec C).
+    exist2 _ _ 
+      (filter permeable_b (nodup o_eq_dec C))
+      (NoDup_filter permeable_b (NoDup_nodup o_eq_dec C))
+      permeable_ctx_filter.
 
 Lemma pndctx_insert_mk_pndctx_eq : forall B C,
-    pndctx_insert B (mk_pndctx C) = mk_pndctx (B :: C).
+  pndctx_insert B (mk_pndctx C) = mk_pndctx (B :: C).
 Proof.
-    intros. apply pndctx_eq. simpl. unfold raw_insert.
-    destruct (in_dec o_eq_dec B (nodup o_eq_dec C)).
-    - rewrite nodup_In in i.
-        destruct (in_dec o_eq_dec B C). reflexivity. contradiction.
-    - rewrite nodup_In in n.
-        destruct (in_dec o_eq_dec B C). contradiction. reflexivity.
-Qed. *)
+  intros.
+  apply pndctx_eq.
+  unfold pndctx_list.
+  simpl.
+  unfold raw_insert.
+  destruct permeable_dec.
+  - destruct in_dec.
+    + destruct in_dec.
+      -- reflexivity.
+      -- exfalso.
+        apply n.
+        unfold pndctx_list in i.
+        unfold mk_pndctx in i.
+        simpl in i.
+        apply filter_In in i.
+        destruct i.
+        apply nodup_In in H.
+        apply H.
+    + destruct in_dec.
+      -- exfalso.
+        apply n.
+        unfold pndctx_list.
+        unfold mk_pndctx.
+        simpl.
+        apply filter_In.
+        split.
+        ++ apply nodup_In. apply i.
+        ++ apply permeable_b_iff. apply p.
+      -- unfold pndctx_list.
+        unfold mk_pndctx.
+        simpl.
+        destruct (permeable_b B) eqn:H.
+        ++ reflexivity.
+        ++ apply permeable_b_iff in p.  
+          congruence.
+  - unfold pndctx_list.
+    unfold mk_pndctx.
+    simpl.
+    destruct in_dec.
+    + reflexivity.
+    + unfold filter.
+      destruct (permeable_b B) eqn:H.
+      -- apply permeable_b_iff in H. contradiction.
+      -- reflexivity.
+Qed.
