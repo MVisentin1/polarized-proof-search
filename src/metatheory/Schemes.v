@@ -1,4 +1,4 @@
-From LJF Require Import LJF_Rules LJF4_Rules LJFO_Rules.
+From LJF Require Import LJF_Rules LJF4_Rules LJFO_Rules LJFPS_Rules.
 
 Scheme ufcL_mut := Induction for ufcL Sort Prop
   with lfcL_mut := Induction for lfcL Sort Prop
@@ -19,6 +19,12 @@ Scheme bctO_mut := Induction for bctO Sort Prop
   with rfcO_mut := Induction for rfcO Sort Prop.
 Combined Scheme LJFO_mutind_all from bctO_mut, eptO_mut, lfcO_mut, rfcO_mut.
 
+Scheme bct_mut := Induction for bct Sort Prop
+  with ept_mut := Induction for ept Sort Prop
+  with lfc_mut := Induction for lfc Sort Prop
+  with rfc_mut := Induction for rfc Sort Prop.
+Combined Scheme LJFPS_mutind_all from bct_mut, ept_mut, lfc_mut, rfc_mut.
+
 Scheme bct4_mut_async := Induction for bct4 Sort Prop
   with ept4_mut_async := Induction for ept4 Sort Prop.
 Combined Scheme LJF4_mutind_async from bct4_mut_async, ept4_mut_async.
@@ -26,3 +32,7 @@ Combined Scheme LJF4_mutind_async from bct4_mut_async, ept4_mut_async.
 Scheme bctO_mut_async := Induction for bctO Sort Prop
   with eptO_mut_async := Induction for eptO Sort Prop.
 Combined Scheme LJFO_mutind_async from bctO_mut_async, eptO_mut_async.
+
+Scheme bct_mut_async := Induction for bct Sort Prop
+  with ept_mut_async := Induction for ept Sort Prop.
+Combined Scheme LJFPS_mutind_async from bct_mut_async, ept_mut_async.
