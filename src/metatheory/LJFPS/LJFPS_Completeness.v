@@ -1,6 +1,6 @@
 From Stdlib Require Import List Permutation.
 
-From LJF Require Import SharedLogic Predicates LJFO_Rules Pndctx LJFPS_Rules Schemes.
+From LJF Require Import SharedLogic Decidability Predicates LJFO_Rules Pndctx LJFPS_Rules Schemes.
 
 Theorem LJFC_completeness :
     (forall {C: sctx} {L: octx} {K: o}, bctO C L K -> bct (mk_pndctx C) L K) /\
