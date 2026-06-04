@@ -1,22 +1,26 @@
 From Stdlib Require Import List Permutation.
 From Stdlib Require Import Wellfounded Nat Arith Lia.
 
-From LJF Require Import SharedLogic Measures LJFC_Rules Schemes.
+From LJF Require Import SharedLogic Measures Pndctx LJFPS_Rules Schemes.
 
-Theorem LJFC_exchange_structural :
-  (forall {C: ndctx} {L: octx} {K: o}, bct C L K -> forall {C': ndctx}, Permutation C C' -> bct C' L K) /\
-  (forall {C: ndctx} {L: octx} {K: o}, ept C L K -> forall {C': ndctx}, Permutation C C' -> ept C' L K) /\
-  (forall {C: ndctx} {N K: o}, lfc C N K -> forall {C': ndctx}, Permutation C C' -> lfc C' N K) /\
-  (forall {C: ndctx} {P: o}, rfc C P -> forall {C': ndctx}, Permutation C C' -> rfc C' P). 
+Theorem LJFPS_exchange_structural :
+  (forall {C: pndctx} {L: octx} {K: o}, bct C L K -> 
+    forall {C0: pndctx}, Permutation (pndctx_list C) (pndctx_list C0) -> bct C0 L K) /\
+  (forall {C: pndctx} {L: octx} {K: o}, ept C L K -> 
+    forall {C0: pndctx}, Permutation (pndctx_list C) (pndctx_list C0) -> ept C0 L K) /\
+  (forall {C: pndctx} {N K: o}, lfc C N K -> 
+    forall {C0: pndctx}, Permutation (pndctx_list C) (pndctx_list C0) -> lfc C0 N K) /\
+  (forall {C: pndctx} {P: o}, rfc C P -> 
+    forall {C0: pndctx}, Permutation (pndctx_list C) (pndctx_list C0) -> rfc C0 P). 
 Proof.
-    apply LJFC_mutind_all ; intros.
+    apply LJFPS_mutind_all ; intros ; unfold pndctx_list in*.
         - apply bct_boxR. apply b. apply H. apply H0.
         - apply bct_AndNR. apply H. apply H1. apply H0. apply H1.
         - apply bct_ImpR. apply H. apply H0.
         - eapply ept_Lf. eapply Permutation_in. apply H0. apply i. apply b. apply n. apply H. apply H0.
         - apply ept_Rf. apply p. apply H. apply H0.
         - apply ept_boxL. apply b. apply p. apply H.
-          apply ndctx_insert_perm_cons. apply H0.
+          apply pndctx_insert_perm_cons. apply H0.
         - apply ept_AndPL. apply b. apply H. apply H0.
         - apply ept_OrL. apply b. apply H. apply H1. apply H0. apply H1.
         - apply ept_TrueL. apply b. apply H. apply H0.
@@ -34,37 +38,34 @@ Proof.
         - apply rfc_TrueR.
 Qed.
 
-Lemma LJFC_exchange_structural_bct :
-    forall {C: ndctx} {L: octx} {K: o}, bct C L K -> forall {C': ndctx}, Permutation C C' -> bct C' L K.
+Lemma LJFPS_exchange_structural_ept :
+    forall {C: pndctx} {L: octx} {K: o}, ept C L K -> forall {C0: pndctx}, 
+    Permutation (pndctx_list C) (pndctx_list C0) -> ept C0 L K.
 Proof.
-  destruct LJFC_exchange_structural. apply H.
+  destruct LJFPS_exchange_structural. destruct H0. apply H0.
 Qed.
 
-Lemma LJFC_exchange_structural_ept :
-    forall {C: ndctx} {L: octx} {K: o}, ept C L K -> forall {C': ndctx}, Permutation C C' -> ept C' L K.
+Lemma LJFPS_exchange_structural_lfc :
+    forall {C: pndctx} {N K: o}, lfc C N K -> forall {C0: pndctx}, 
+    Permutation (pndctx_list C) (pndctx_list C0) -> lfc C0 N K.
 Proof.
-  destruct LJFC_exchange_structural. destruct H0. apply H0.
+  destruct LJFPS_exchange_structural. destruct H0. destruct H1. apply H1.
 Qed.
 
-Lemma LJFC_exchange_structural_lfc :
-  forall {C: ndctx} {N K: o}, lfc C N K -> forall {C': ndctx}, Permutation C C' -> lfc C' N K.
+Lemma LJFPS_exchange_structural_rfc :
+    forall {C: pndctx} {K: o}, rfc C K -> forall {C0: pndctx}, 
+    Permutation (pndctx_list C) (pndctx_list C0) -> rfc C0 K.
 Proof.
-  destruct LJFC_exchange_structural. destruct H0. destruct H1. apply H1.
-Qed.
-
-Lemma LJFC_exchange_structural_rfc :
-  forall {C: ndctx} {K: o}, rfc C K -> forall {C': ndctx}, Permutation C C' -> rfc C' K.
-Proof.
-  destruct LJFC_exchange_structural. destruct H0. destruct H1. apply H2.
+  destruct LJFPS_exchange_structural. destruct H0. destruct H1. apply H2.
 Qed.
 
 Lemma eager_boxL :
-  forall {C0: ndctx} {L: octx} {B: o} {K: o},
+  forall {C0: pndctx} {L: octx} {B: o} {K: o},
     bracketable K ->
     permeable B ->
     ept C0 L K ->
-    forall {C: ndctx} {L1 L2: octx},
-      Permutation C0 (ndctx_insert B C) ->
+    forall {C: pndctx} {L1 L2: octx},
+      Permutation (pndctx_list C0) (pndctx_list (pndctx_insert B C)) ->
       L = L1 ++ L2 ->
       ept C (L1 ++ B :: L2) K.
 Proof.
@@ -72,31 +73,31 @@ Proof.
     - symmetry in H4. apply app_eq_nil in H4. destruct H4. subst. simpl.
       apply ept_boxL. apply b. apply p.
       eapply ept_Lf. eapply Permutation_in.
-        unfold ndctx_list in *.
+        unfold pndctx_list in *.
         apply H3. apply H. apply b. apply H1.
-      eapply LJFC_exchange_structural_lfc. apply H2. apply H3.
+      eapply LJFPS_exchange_structural_lfc. apply H2. apply H3.
     - symmetry in H2. apply app_eq_nil in H2. destruct H2. subst. simpl.
       apply ept_boxL. apply b. apply p.
       apply ept_Rf. apply H. 
-      eapply LJFC_exchange_structural_rfc. apply H0. apply H1.
+      eapply LJFPS_exchange_structural_rfc. apply H0. apply H1.
     - symmetry in H3. apply app_eq_cons in H3. destruct H3. 
       + destruct H3. subst. simpl.
         apply ept_boxL. apply b. apply p. 
-        eapply LJFC_exchange_structural_ept. 2: apply H2.
+        eapply LJFPS_exchange_structural_ept. 2: apply H2.
         apply ept_boxL. apply H. apply H0. apply H1.
       + destruct H3. destruct H3. subst. simpl. 
         apply ept_boxL. apply H. apply H0.
         apply IHept. apply H.
         apply Permutation_sym.
-        apply ndctx_insert_perm_swap.
-        apply ndctx_insert_perm_cons.
+        apply pndctx_insert_perm_swap.
+        apply pndctx_insert_perm_cons.
         apply Permutation_sym.
         apply H2.
         reflexivity.
     - symmetry in H2. apply app_eq_cons in H2. destruct H2 ; destruct H2.
       + subst. simpl. apply ept_boxL. apply b. apply p.
         apply ept_AndPL. apply b.
-        eapply LJFC_exchange_structural_ept. apply H0. apply H1.
+        eapply LJFPS_exchange_structural_ept. apply H0. apply H1.
       + destruct H2. subst. simpl.
         apply ept_AndPL. apply H.
         eapply IHept with (L1 := B2 :: B1 :: x). apply b. apply H1. reflexivity.
@@ -104,8 +105,8 @@ Proof.
       + subst. simpl.
         apply ept_boxL. apply b. apply p.
         apply ept_OrL. apply b.
-          -- eapply LJFC_exchange_structural_ept. apply H0. apply H2.
-          -- eapply LJFC_exchange_structural_ept. apply H1. apply H2.
+          -- eapply LJFPS_exchange_structural_ept. apply H0. apply H2.
+          -- eapply LJFPS_exchange_structural_ept. apply H1. apply H2.
       + destruct H3. subst. simpl. 
         apply ept_OrL. apply b.
           -- eapply IHept1 with (L1 := B1 :: x). apply b. apply H2. reflexivity.
@@ -113,7 +114,7 @@ Proof.
     - symmetry in H2. apply app_eq_cons in H2. destruct H2 ; destruct H2.
       + subst. simpl. apply ept_boxL. apply b. apply p.
         apply ept_TrueL. apply b.
-        eapply LJFC_exchange_structural_ept. apply H0. apply H1.
+        eapply LJFPS_exchange_structural_ept. apply H0. apply H1.
       + destruct H2. subst. simpl.
         apply ept_TrueL. apply H.
         eapply IHept with (L1 := x). apply b. apply H1. reflexivity.
@@ -125,7 +126,7 @@ Proof.
 Qed.        
         
 Lemma eager_AndPL :
-  forall {C: ndctx} {L: octx} {B1 B2 K: o},
+  forall {C: pndctx} {L: octx} {B1 B2 K: o},
     bracketable K ->
     ept C L K ->
       forall {L1 L2: octx},
@@ -172,14 +173,14 @@ Proof.
         apply ept_FalseL. apply H.
 Qed.
 
-Lemma LJFC_inversion_boxL :
-  forall {C: ndctx} {L: octx} {B K: o},
+Lemma LJFPS_inversion_boxL :
+  forall {C: pndctx} {L: octx} {B K: o},
     bracketable K ->
     permeable B ->
     ept C L K ->
     forall {L1: octx},
       L = B :: L1 ->  
-      ept (ndctx_insert B C) L1 K.
+      ept (pndctx_insert B C) L1 K.
 Proof.
   intros C L B K b p H. induction H ; intros L1 Ho.
     - discriminate Ho.
@@ -192,7 +193,7 @@ Proof.
 Qed.
 
 Lemma eager_OrL :
-  forall {C: ndctx} {L: octx} {B1 B2 K: o},
+  forall {C: pndctx} {L: octx} {B1 B2 K: o},
     bracketable K ->
     ept C L K ->
     forall {L' : octx},
@@ -216,7 +217,7 @@ Proof.
         apply ept_boxL. apply H. apply H0.
         simpl in H'.
         eapply IHept with (L' := x ++ B2 :: L2). apply H.
-        eapply LJFC_inversion_boxL. apply H. apply H0.
+        eapply LJFPS_inversion_boxL. apply H. apply H0.
         apply H'. reflexivity. reflexivity. reflexivity.
     - symmetry in Ho. apply app_eq_cons in Ho. destruct Ho.
       + destruct H1. inversion H2. subst. simpl. 
@@ -253,7 +254,7 @@ Proof.
 Qed. 
 
 Lemma eager_TrueL :
-  forall {C: ndctx} {L: octx} {K: o},
+  forall {C: pndctx} {L: octx} {K: o},
     bracketable K ->
     ept C L K ->
     forall {L1 L2: octx},
@@ -298,7 +299,7 @@ Proof.
 Qed.
 
 Lemma eager_FalseL : 
-  forall {C: ndctx} {L: octx} {K: o},
+  forall {C: pndctx} {L: octx} {K: o},
     bracketable K ->
     In FF L ->
     ept C L K.
@@ -341,11 +342,11 @@ Proof.
 Qed.
 
 
-Theorem LJFC_exchange_ordered :
-  (forall {C: ndctx} {L: octx} {K: o}, bct C L K -> forall {L': octx}, Permutation L L' -> bct C L' K) /\
-  (forall {C: ndctx} {L: octx} {K: o}, ept C L K -> forall {L': octx}, Permutation L L' -> ept C L' K).
+Theorem LJFPS_exchange_ordered :
+  (forall {C: pndctx} {L: octx} {K: o}, bct C L K -> forall {L': octx}, Permutation L L' -> bct C L' K) /\
+  (forall {C: pndctx} {L: octx} {K: o}, ept C L K -> forall {L': octx}, Permutation L L' -> ept C L' K).
 Proof.
-    apply LJFC_mutind_async ; intros.
+    apply LJFPS_mutind_async ; intros.
       - apply bct_boxR. apply b. apply H. apply H0.
       - apply bct_AndNR. apply H. apply H1. apply H0. apply H1.
       - apply bct_ImpR. apply H. apply Permutation_cons. reflexivity. apply H0.
@@ -372,14 +373,14 @@ Proof.
         apply H. apply in_eq.
 Qed.
 
-Lemma LJFC_exchange_ordered_bct :
-  forall {C: ndctx} {L: octx} {K: o}, bct C L K -> forall {L': octx}, Permutation L L' -> bct C L' K.
+Lemma LJFPS_exchange_ordered_bct :
+  forall {C: pndctx} {L: octx} {K: o}, bct C L K -> forall {L': octx}, Permutation L L' -> bct C L' K.
 Proof.
-  destruct LJFC_exchange_ordered. apply H.
+  destruct LJFPS_exchange_ordered. apply H.
 Qed.
 
-Lemma LJFC_exchange_ordered_ept :
-  forall {C: ndctx} {L: octx} {K: o}, ept C L K -> forall {L': octx}, Permutation L L' -> ept C L' K.
+Lemma LJFPS_exchange_ordered_ept :
+  forall {C: pndctx} {L: octx} {K: o}, ept C L K -> forall {L': octx}, Permutation L L' -> ept C L' K.
 Proof.
-  destruct LJFC_exchange_ordered. apply H0.
+  destruct LJFPS_exchange_ordered. apply H0.
 Qed.

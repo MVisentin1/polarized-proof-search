@@ -53,73 +53,172 @@ Proof.
   apply proof_irrelevance.
 Qed.
 
-(*Lemma pndctx_insert_perm_cons : 
-  forall (B : o) (C C' : pndctx),
-  Permutation C C' ->
-  Permutation (pndctx_insert B C) (pndctx_insert B C').
+Lemma pndctx_insert_rewrite_in :
+  forall {B: o} {C: pndctx}, In B (pndctx_list C) ->
+    pndctx_insert B C = C.
 Proof.
-  intros. simpl. unfold raw_insert. unfold pndctx_list in *.
-  destruct (in_dec o_eq_dec B (proj1_sig C)), (in_dec o_eq_dec B (proj1_sig C')).
+  intros.
+  apply pndctx_eq.
+  unfold pndctx_list. simpl.
+  unfold raw_insert.
+  destruct permeable_dec.
+  - destruct in_dec. reflexivity.
+    contradiction.
+  - unfold pndctx_list. reflexivity.
+Qed.
+
+Lemma pndctx_insert_rewrite_fixed_point :
+  forall {B: o} {C: pndctx}, 
+    (~ permeable B \/ In B (pndctx_list C)) ->
+    pndctx_insert B C = C.
+Proof.
+  intros.
+  destruct H.
+  - apply pndctx_eq.
+    unfold pndctx_list. simpl.
+    unfold raw_insert.
+    destruct permeable_dec.
+    + contradiction.
+    + reflexivity.
+  - apply pndctx_eq.
+    unfold pndctx_list. simpl.
+    unfold raw_insert.
+    destruct permeable_dec.
+    + destruct in_dec. reflexivity. contradiction.
+    + unfold pndctx_list. reflexivity.
+Qed.
+
+Lemma pndctx_insert_rewrite_valid :
+  forall {B: o} {C: pndctx} (Hperm : permeable B) (Hnotin : ~ In B (pndctx_list C)),
+    pndctx_insert B C = 
+      exist2 _ _ (B :: (pndctx_list C)) 
+        (NoDup_cons B Hnotin (pndctx_nodup C))
+        (Forall_cons B Hperm (pndctx_permeable_ctx C)).
+Proof.
+  intros. apply pndctx_eq.
+  unfold pndctx_list. simpl.
+  unfold raw_insert.
+  destruct permeable_dec.
+  - destruct in_dec.
+    + contradiction.
+    + reflexivity.
+  - contradiction.
+Qed.
+
+Lemma pndctx_insert_perm_cons : 
+  forall (B : o) (C C' : pndctx),
+  Permutation (pndctx_list C) (pndctx_list C') ->
+  Permutation (pndctx_list (pndctx_insert B C)) (pndctx_list (pndctx_insert B C')).
+Proof.
+  intros. 
+  unfold pndctx_list in*. 
+  unfold pndctx_insert. simpl.
+  unfold raw_insert.
+  destruct permeable_dec. 
+  - destruct in_dec ; destruct in_dec.
+    + apply H.
+    + eapply Permutation_in in i. 2: apply H. contradiction.
+    + eapply Permutation_in in i. 2: apply Permutation_sym ; apply H. contradiction.
+    + apply Permutation_cons. reflexivity. apply H.
   - apply H.
-  - exfalso. apply n. eapply Permutation_in. apply H. apply i.
-  - exfalso. apply n. eapply Permutation_in. apply Permutation_sym. apply H. apply i.
-  - apply Permutation_cons. reflexivity. apply H.
+Qed.
+
+Lemma raw_insert_swap : forall (B1 B2 : o) (l : sctx),
+  Permutation 
+    (raw_insert B1 (raw_insert B2 l)) 
+    (raw_insert B2 (raw_insert B1 l)).
+Proof.
+  intros.
+  unfold raw_insert.
+  destruct permeable_dec.
+  - destruct in_dec.
+    + destruct permeable_dec.
+      -- destruct in_dec.
+        ++ destruct in_dec.
+          --- destruct in_dec.
+            +++ reflexivity.
+            +++ contradiction.
+          --- destruct in_dec.
+            +++ contradiction.
+            +++ contradiction.
+        ++ destruct in_dec.
+          --- destruct in_dec.
+            +++ contradiction.
+            +++ apply in_inv in i.
+              destruct i.
+              ---- subst. reflexivity.
+              ---- contradiction.
+          --- destruct in_dec.
+            +++ reflexivity.
+            +++ exfalso.
+              apply not_in_cons in n0.
+              destruct i.
+              ---- destruct n0. contradiction.
+              ---- contradiction.
+      -- destruct in_dec.
+        ++ reflexivity.
+        ++ contradiction.
+    + destruct permeable_dec.
+      -- destruct in_dec.
+        ++ destruct in_dec.
+          --- destruct in_dec.
+            +++ contradiction.
+            +++ reflexivity.
+          --- destruct in_dec.
+            +++ contradiction.
+            +++ exfalso.
+              apply n0.
+              apply in_cons.
+              apply i.
+        ++ destruct in_dec.
+          --- destruct in_dec.
+            +++ contradiction.
+            +++ exfalso.
+              apply not_in_cons in n.
+              destruct i.
+              ---- destruct n. contradiction.
+              ---- contradiction.
+          --- destruct in_dec.
+            +++ exfalso.
+              apply n.
+              apply in_cons.
+              apply i.
+            +++ apply perm_swap.
+      -- destruct in_dec.
+        ++ contradiction.
+        ++ reflexivity.
+  - destruct permeable_dec.
+    + reflexivity.
+    + reflexivity.
 Qed.
 
 Lemma pndctx_insert_swap : forall (B1 B2 : o) (C : pndctx),
-  Permutation (pndctx_insert B1 (pndctx_insert B2 C)) (pndctx_insert B2 (pndctx_insert B1 C)).
+  Permutation 
+    (pndctx_list (pndctx_insert B1 (pndctx_insert B2 C))) 
+    (pndctx_list (pndctx_insert B2 (pndctx_insert B1 C))).
 Proof.
-  intros. simpl. unfold raw_insert.
-  destruct 
-  (in_dec o_eq_dec B1),
-  (in_dec o_eq_dec B2 (proj1_sig C)).
-  - destruct
-    (in_dec o_eq_dec B2),
-    (in_dec o_eq_dec B1 (proj1_sig C)).
-    + apply Permutation_refl.
-    + contradiction.
-    + contradiction.
-    + contradiction.
-  - destruct
-    (in_dec o_eq_dec B2),
-    (in_dec o_eq_dec B1 (proj1_sig C)).
-    + contradiction.
-    + apply in_inv in i. destruct i.
-      -- subst. apply Permutation_cons. reflexivity. apply Permutation_refl.
-      -- contradiction.
-    + apply Permutation_cons. reflexivity. apply Permutation_refl.
-    + apply in_inv in i. destruct i.
-      -- subst. exfalso. apply n0. apply in_eq.
-      -- contradiction.
-  - destruct
-    (in_dec o_eq_dec B2),
-    (in_dec o_eq_dec B1 (proj1_sig C)).
-    + contradiction.
-    + apply Permutation_cons. reflexivity. apply Permutation_refl.
-    + contradiction.
-    + exfalso. apply n0. apply in_cons. apply i.
-  - destruct
-    (in_dec o_eq_dec B2),
-    (in_dec o_eq_dec B1 (proj1_sig C)).
-    + contradiction.
-    + apply in_inv in i. destruct i.
-      -- subst. exfalso. apply n. apply in_eq.
-      -- contradiction.
-    + exfalso. apply n. apply in_cons. apply i.
-    + apply perm_swap.
+  intros.
+  unfold pndctx_list.
+  simpl.
+  apply raw_insert_swap.
 Qed.
 
 Lemma pndctx_insert_perm_swap : 
   forall (B1 B2 : o) (C C' : pndctx),
-  Permutation (pndctx_insert B2 (pndctx_insert B1 C)) C' ->
-  Permutation (pndctx_insert B1 (pndctx_insert B2 C)) C'.
+  Permutation 
+    (pndctx_list (pndctx_insert B2 (pndctx_insert B1 C))) 
+    (pndctx_list C') ->
+  Permutation 
+    (pndctx_list (pndctx_insert B1 (pndctx_insert B2 C))) 
+    (pndctx_list C').
 Proof.
   intros.
-  transitivity (pndctx_insert B2 (pndctx_insert B1 C)).
-  - apply pndctx_insert_swap.
-  - apply H.
+  eapply perm_trans.
+  2: apply H.
+  apply pndctx_insert_swap.
 Qed.
 
+(*
 Definition mk_pndctx (C : sctx) : pndctx :=
     exist _ (nodup o_eq_dec C) (NoDup_nodup o_eq_dec C).
 
@@ -132,4 +231,4 @@ Proof.
         destruct (in_dec o_eq_dec B C). reflexivity. contradiction.
     - rewrite nodup_In in n.
         destruct (in_dec o_eq_dec B C). contradiction. reflexivity.
-Qed.*)
+Qed. *)
