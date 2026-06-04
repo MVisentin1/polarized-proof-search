@@ -1,54 +1,64 @@
 From Stdlib Require Import List Permutation ProofIrrelevance.
-From LJF Require Import SharedLogic.
+From LJF Require Import SharedLogic Decidability.  
 
 Definition raw_insert (A : o) (C : sctx) : sctx :=
-    if permeable A then 
-        if in_dec o_eq_dec A C then C else A :: C
-    else
-        C.
+  if permeable_dec A 
+  then (if in_dec o_eq_dec A C then C else A :: C) 
+  else C.
 
 Lemma raw_insert_nodup :
-    forall {A: o} {C: sctx},
-    NoDup C ->
-    NoDup (raw_insert A C).
+  forall {A: o} {C: sctx},
+  NoDup C ->
+  NoDup (raw_insert A C).
 Proof.
-    intros. unfold raw_insert. destruct (in_dec o_eq_dec A C).
-    - apply H.
-    - apply NoDup_cons. apply n. apply H.
+  intros. unfold raw_insert. destruct permeable_dec.
+  - destruct in_dec. apply H. apply NoDup_cons. apply n. apply H.
+  - apply H.
 Qed.
 
-Definition ndctx : Type := { C : sctx | NoDup C }.
-Definition ndctx_list (C : ndctx) : sctx := proj1_sig C.
-Definition ndctx_nodup (C : ndctx) : NoDup (ndctx_list C) := proj2_sig C.
-
-Arguments ndctx_list _ /.
-
-Coercion ndctx_list : ndctx >-> sctx.
-
-Definition ndctx_empty : ndctx := exist _ nil (NoDup_nil _).
-
-Definition ndctx_insert (A : o) (C : ndctx) : ndctx :=
-    exist _ (raw_insert A C) (raw_insert_nodup (ndctx_nodup C)).
-
-Lemma ndctx_eq : forall (C1 C2 : ndctx),
-    ndctx_list C1 = ndctx_list C2 -> C1 = C2.
+Lemma raw_insert_permeable_ctx :
+  forall {A: o} {C: sctx},
+  permeable_ctx C ->
+  permeable_ctx (raw_insert A C).
 Proof.
-    intros. simpl in H. 
-    destruct C1.
-    destruct C2.
-    simpl in H.
-    subst.
-    f_equal. 
-    apply proof_irrelevance.
+  intros. unfold raw_insert. destruct permeable_dec.
+  - destruct in_dec. apply H. apply Forall_cons. apply p. apply H. 
+  - apply H.
+Qed.
+  
+Definition pndctx : Type := { C : sctx | NoDup C & permeable_ctx C }.
+Definition pndctx_list (C : pndctx) : sctx := proj1_sig (sig_of_sig2 C).
+Definition pndctx_nodup (C : pndctx) : NoDup (pndctx_list C) := proj2_sig (sig_of_sig2 C).
+Definition pndctx_permeable_ctx (C : pndctx) : permeable_ctx (pndctx_list C) := proj3_sig C.
+
+Definition pndctx_empty : pndctx :=
+  exist2 _ _ nil (NoDup_nil _) (Forall_nil _).
+
+Definition pndctx_insert (A : o) (C : pndctx) : pndctx :=
+  exist2 _ _
+    (raw_insert A (pndctx_list C))
+    (raw_insert_nodup (pndctx_nodup C))
+    (raw_insert_permeable_ctx (pndctx_permeable_ctx C)).
+
+Lemma pndctx_eq : forall (C1 C2 : pndctx),
+    pndctx_list C1 = pndctx_list C2 -> C1 = C2.
+Proof.
+  intros.
+  destruct C1.
+  destruct C2.
+  unfold pndctx_list in H.
+  simpl in H. subst.
+  f_equal.
+  apply proof_irrelevance.
+  apply proof_irrelevance.
 Qed.
 
-
-Lemma ndctx_insert_perm_cons : 
-  forall (B : o) (C C' : ndctx),
+(*Lemma pndctx_insert_perm_cons : 
+  forall (B : o) (C C' : pndctx),
   Permutation C C' ->
-  Permutation (ndctx_insert B C) (ndctx_insert B C').
+  Permutation (pndctx_insert B C) (pndctx_insert B C').
 Proof.
-  intros. simpl. unfold raw_insert. unfold ndctx_list in *.
+  intros. simpl. unfold raw_insert. unfold pndctx_list in *.
   destruct (in_dec o_eq_dec B (proj1_sig C)), (in_dec o_eq_dec B (proj1_sig C')).
   - apply H.
   - exfalso. apply n. eapply Permutation_in. apply H. apply i.
@@ -56,8 +66,8 @@ Proof.
   - apply Permutation_cons. reflexivity. apply H.
 Qed.
 
-Lemma ndctx_insert_swap : forall (B1 B2 : o) (C : ndctx),
-  Permutation (ndctx_insert B1 (ndctx_insert B2 C)) (ndctx_insert B2 (ndctx_insert B1 C)).
+Lemma pndctx_insert_swap : forall (B1 B2 : o) (C : pndctx),
+  Permutation (pndctx_insert B1 (pndctx_insert B2 C)) (pndctx_insert B2 (pndctx_insert B1 C)).
 Proof.
   intros. simpl. unfold raw_insert.
   destruct 
@@ -99,27 +109,27 @@ Proof.
     + apply perm_swap.
 Qed.
 
-Lemma ndctx_insert_perm_swap : 
-  forall (B1 B2 : o) (C C' : ndctx),
-  Permutation (ndctx_insert B2 (ndctx_insert B1 C)) C' ->
-  Permutation (ndctx_insert B1 (ndctx_insert B2 C)) C'.
+Lemma pndctx_insert_perm_swap : 
+  forall (B1 B2 : o) (C C' : pndctx),
+  Permutation (pndctx_insert B2 (pndctx_insert B1 C)) C' ->
+  Permutation (pndctx_insert B1 (pndctx_insert B2 C)) C'.
 Proof.
   intros.
-  transitivity (ndctx_insert B2 (ndctx_insert B1 C)).
-  - apply ndctx_insert_swap.
+  transitivity (pndctx_insert B2 (pndctx_insert B1 C)).
+  - apply pndctx_insert_swap.
   - apply H.
 Qed.
 
-Definition mk_ndctx (C : sctx) : ndctx :=
+Definition mk_pndctx (C : sctx) : pndctx :=
     exist _ (nodup o_eq_dec C) (NoDup_nodup o_eq_dec C).
 
-Lemma ndctx_insert_mk_ndctx_eq : forall B C,
-    ndctx_insert B (mk_ndctx C) = mk_ndctx (B :: C).
+Lemma pndctx_insert_mk_pndctx_eq : forall B C,
+    pndctx_insert B (mk_pndctx C) = mk_pndctx (B :: C).
 Proof.
-    intros. apply ndctx_eq. simpl. unfold raw_insert.
+    intros. apply pndctx_eq. simpl. unfold raw_insert.
     destruct (in_dec o_eq_dec B (nodup o_eq_dec C)).
     - rewrite nodup_In in i.
         destruct (in_dec o_eq_dec B C). reflexivity. contradiction.
     - rewrite nodup_In in n.
         destruct (in_dec o_eq_dec B C). contradiction. reflexivity.
-Qed.
+Qed.*)

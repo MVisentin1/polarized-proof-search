@@ -17,7 +17,6 @@ Scheme bctO_mut := Induction for bctO Sort Prop
   with eptO_mut := Induction for eptO Sort Prop
   with lfcO_mut := Induction for lfcO Sort Prop
   with rfcO_mut := Induction for rfcO Sort Prop.
-
 Combined Scheme LJFO_mutind_all from bctO_mut, eptO_mut, lfcO_mut, rfcO_mut.
 
 Scheme bct4_mut_async := Induction for bct4 Sort Prop

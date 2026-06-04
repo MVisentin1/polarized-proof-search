@@ -3,10 +3,10 @@ From Stdlib Require Import List Permutation.
 From LJF Require Import SharedLogic LJFPS_Rules LJFC_Rules Schemes LJFPS_Weakening.
 
 Theorem LJFC_soundness :
-    (forall {C: ndctx} {L: octx} {K: o}, bctC C L K -> bct C L K) /\
-    (forall {C: ndctx} {L: octx} {K: o}, eptC C L K -> ept C L K) /\
-    (forall {C: ndctx} {N K: o}, lfcC C N K -> lfc C N K) /\
-    (forall {C: ndctx} {K: o}, rfcC C K -> rfc C K).
+    (forall {C: ndctx} {L: octx} {K: o}, bct C L K -> bctO C L K) /\
+    (forall {C: ndctx} {L: octx} {K: o}, ept C L K -> eptO C L K) /\
+    (forall {C: ndctx} {N K: o}, lfc C N K -> lfcO C N K) /\
+    (forall {C: ndctx} {K: o}, rfc C K -> rfcO C K).
 Proof.
     apply LJFC_mutind_all ; intros.
     - apply bct_boxR. apply b. apply H.

@@ -2,8 +2,11 @@
 -R src LJF
 
 src/definitions/SharedLogic.v
-src/definitions/Predicates.v
+src/definitions/Decidability.v
 src/definitions/Measures.v
+
+src/tactics/SharedLogic_tactics.v
+src/definitions/Predicates.v
 
 src/rules/LJF_Rules.v
 src/rules/LJF4_Rules.v
@@ -20,5 +23,6 @@ src/metatheory/LJFO/LJFO_Completeness.v
 src/metatheory/LJFO/LJFO_Soundness.v
 src/metatheory/LJFO/LJFO_Weakening.v
 
+src/definitions/Pndctx.v
 
 
