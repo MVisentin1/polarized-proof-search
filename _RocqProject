@@ -24,5 +24,6 @@ src/metatheory/LJFO/LJFO_Soundness.v
 src/metatheory/LJFO/LJFO_Weakening.v
 
 src/definitions/Pndctx.v
+src/rules/LJFPS_Rules.v
 
 
