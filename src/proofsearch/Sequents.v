@@ -1,11 +1,11 @@
 From Stdlib Require Import List.
-From LJF Require Import SharedLogic LJFC_Rules.
+From LJF Require Import SharedLogic Pndctx LJFPS_Rules.
 
 Inductive sequent : Type :=
-| SbctC : forall {C L D}, bctC C L D -> sequent
-| SeptC : forall {C L D}, eptC C L D -> sequent
-| SlfcC : forall {C N K}, lfcC C N K -> sequent
-| SrfcC : forall {C P}, rfcC C P   -> sequent
+| SbctC : forall {C: pndctx} {L: octx} {K: o}, bct C L K -> sequent
+| SeptC : forall {C: pndctx} {L: octx} {K: o}, ept C L K -> sequent
+| SlfcC : forall {C: pndctx} {N K: o}, lfc C N K -> sequent
+| SrfcC : forall {C: pndctx} {K: o}, rfc C K   -> sequent
 .
 
 Definition phase_rank (s : sequent) : nat :=

@@ -1,6 +1,6 @@
 From Stdlib Require Import List.
 
-From LJF Require Import SharedLogic Predicates.
+From LJF Require Import SharedLogic Decidability Predicates.
 
 Inductive subformula : o -> o -> Prop :=
 | Sub_Refl  : forall A, subformula A A
@@ -41,9 +41,6 @@ Fixpoint subformulas_dup (A : o) : list o :=
     | Imp A B => (Imp A B) :: subformulas_dup A ++ subformulas_dup B
     end
 .
-
-Definition subformulas (A: o) : list o :=
-    nodup o_eq_dec (subformulas_dup A).
 
 Lemma subformula_iff_subformulas_dup :
     forall (A B: o), subformula A B <-> In A (subformulas_dup B).
@@ -91,6 +88,9 @@ Proof.
             apply Sub_ImpR. apply IHB2. apply H0.
 Qed.
 
+Definition subformulas (A: o) : list o :=
+    nodup o_eq_dec (subformulas_dup A).
+
 Lemma subformula_iff_subformulas :
     forall (A B: o), subformula A B <-> In A (subformulas B).
 Proof.
@@ -137,3 +137,4 @@ Proof.
     destruct H. split. apply permeable_b_iff in H0. apply H0.
     apply subformula_iff_subformulas. apply H.
 Qed.
+
