@@ -96,3 +96,14 @@ Lemma subformula_iff_subformulas :
 Proof.
     intros. unfold subformulas. rewrite nodup_In. apply subformula_iff_subformulas_dup.
 Qed. 
+
+Lemma subformulas_trans :
+    forall {A B C : o},
+        In A (subformulas B) -> In B (subformulas C) -> In A (subformulas C).
+Proof.
+    intros.
+    apply subformula_iff_subformulas in H.
+    apply subformula_iff_subformulas in H0.
+    apply subformula_iff_subformulas.
+    eapply subformula_trans. apply H. apply H0.
+Qed.

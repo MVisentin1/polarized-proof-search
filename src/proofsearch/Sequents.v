@@ -30,6 +30,28 @@ Definition sequent_subformulas (S: sequent) : list o :=
     nodup o_eq_dec (flat_map subformulas (sequent_formulas S))
 .
 
+Lemma sequent_subformulas_transitivity :
+    forall {A: o} (B: o) {S: sequent},
+    subformula A B ->
+    In B (sequent_subformulas S) ->
+    In A (sequent_subformulas S).
+Proof.
+    intros.
+    unfold sequent_subformulas in*.
+    apply nodup_In.
+    apply in_flat_map.
+    apply nodup_In in H0.
+    apply in_flat_map in H0.
+    destruct H0.
+    eexists x.
+    destruct H0.
+    split.
+    apply H0.
+    eapply subformulas_trans.
+    apply subformula_iff_subformulas in H.
+    apply H. apply H1.
+Qed.
+
 Definition sequent_subformulas_positive (S: sequent) : list o :=
     filter positive_b (sequent_subformulas S)
 .
