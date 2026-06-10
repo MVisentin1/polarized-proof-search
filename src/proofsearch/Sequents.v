@@ -1,5 +1,5 @@
 From Stdlib Require Import List.
-From LJF Require Import SharedLogic Decidability Subformula Pndctx LJFPS_Rules.
+From LJF Require Import SharedLogic Decidability Predicates Subformula Pndctx LJFPS_Rules.
 
 Variant sequent : Type :=
 | Sbct : pndctx -> octx -> o -> sequent
@@ -31,15 +31,15 @@ Definition sequent_subformulas (S: sequent) : list o :=
 .
 
 Definition sequent_subformulas_positive (S: sequent) : list o :=
-    nodup o_eq_dec (flat_map subformulas_positive (sequent_formulas S))
+    filter positive_b (sequent_subformulas S)
 .
 
 Definition sequent_subformulas_negative (S: sequent) : list o :=
-    nodup o_eq_dec (flat_map subformulas_negative (sequent_formulas S))
+    filter negative_b (sequent_subformulas S)
 .
 
 Definition sequent_subformulas_permeable (S: sequent) : list o :=
-    nodup o_eq_dec (flat_map subformulas_permeable (sequent_formulas S))
+    filter permeable_b (sequent_subformulas S)
 .
 
 Definition subsequent (S S0: sequent) : Prop :=
