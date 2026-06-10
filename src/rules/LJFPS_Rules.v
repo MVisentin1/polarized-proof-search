@@ -30,18 +30,18 @@ with ept : pndctx -> octx -> o -> Prop :=
     rfc C P ->
     ept C nil P
 | ept_boxL :
-  forall {C: pndctx} {L: octx} (B: o) {K: o},
+  forall {C: pndctx} {L: octx} {B: o} {K: o},
     bracketable K ->
     permeable B ->
     ept (pndctx_insert B C) L K ->
     ept C (B :: L) K
 | ept_AndPL :
-  forall {C: pndctx} {L: octx} (B1 B2 : o) {K: o},
+  forall {C: pndctx} {L: octx} {B1 B2 : o} {K: o},
     bracketable K ->
     ept C (B2 :: B1 :: L) K ->
     ept C ((AndP B1 B2) :: L) K
 | ept_OrL :
-  forall {C: pndctx} {L: octx} (B1 B2 : o)  {K: o},
+  forall {C: pndctx} {L: octx} {B1 B2 : o}  {K: o},
     bracketable K ->
     ept C (B1 :: L) K ->
     ept C (B2 :: L) K ->

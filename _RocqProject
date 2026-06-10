@@ -27,6 +27,7 @@ src/definitions/Pndctx.v
 src/rules/LJFPS_Rules.v
 src/metatheory/LJFPS/LJFPS_Completeness.v
 src/metatheory/LJFPS/LJFPS_Soundness.v
+src/metatheory/LJFPS/LJFPS_Bracketable.v
 
 src/proofsearch/Subformula.v
 src/proofsearch/Sequents.v
