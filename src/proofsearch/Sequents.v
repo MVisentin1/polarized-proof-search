@@ -64,6 +64,10 @@ Definition sequent_subformulas_permeable (S: sequent) : list o :=
     filter permeable_b (sequent_subformulas S)
 .
 
+Definition sequent_subformulas_bracketable (S: sequent) : list o :=
+    filter bracketable_b (sequent_subformulas S)
+.
+
 Definition subsequent (S S0: sequent) : Prop :=
     match S with
     | Sbct C L K => 

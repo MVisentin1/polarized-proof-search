@@ -56,3 +56,22 @@ Proof.
     - intros. destruct A ; simpl ; try reflexivity ;
         try (inversion H; inversion H0; inversion H0).
 Qed.
+
+Definition bracketable_b (A : o) : bool :=
+    match A with
+    | Atom _ _ => true
+    | TT => true
+    | FF => true
+    | AndP _ _ => true
+    | Or _ _ => true
+    | _ => false
+    end
+.
+Lemma bracketable_b_iff : forall A, bracketable_b A = true <-> bracketable A.
+Proof.
+    intros. split.
+    - intros. destruct A ; try (inversion H) ; try (T_bracketable).
+        destruct p. T_bracketable. T_bracketable. 
+    - intros. destruct A ; simpl ; try reflexivity ;
+        try (inversion H; inversion H0; inversion H0).
+Qed.

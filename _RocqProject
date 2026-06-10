@@ -31,4 +31,5 @@ src/metatheory/LJFPS/LJFPS_Soundness.v
 src/proofsearch/Subformula.v
 src/proofsearch/Sequents.v
 src/proofsearch/Subsequent_Preservation.v
+src/proofsearch/Termination_Measures.v
 
