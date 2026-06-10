@@ -2,16 +2,16 @@ From Stdlib Require Import List.
 
 From LJF Require Import SharedLogic Decidability Predicates.
 
-Inductive subformula : o -> o -> Prop :=
-| Sub_Refl  : forall A, subformula A A
-| Sub_AndPL : forall A B C, subformula A B -> subformula A (AndP B C)
-| Sub_AndPR : forall A B C, subformula A C -> subformula A (AndP B C)
-| Sub_AndNL : forall A B C, subformula A B -> subformula A (AndN B C)
-| Sub_AndNR : forall A B C, subformula A C -> subformula A (AndN B C)
-| Sub_OrL : forall A B C, subformula A B -> subformula A (Or B C)
-| Sub_OrR : forall A B C, subformula A C -> subformula A (Or B C)
-| Sub_ImpL : forall A B C, subformula A B -> subformula A (Imp B C)
-| Sub_ImpR : forall A B C, subformula A C -> subformula A (Imp B C)
+Inductive subformula (A: o) : o -> Prop :=
+| Sub_Refl  : subformula A A
+| Sub_AndPL : forall B C, subformula A B -> subformula A (AndP B C)
+| Sub_AndPR : forall B C, subformula A C -> subformula A (AndP B C)
+| Sub_AndNL : forall B C, subformula A B -> subformula A (AndN B C)
+| Sub_AndNR : forall B C, subformula A C -> subformula A (AndN B C)
+| Sub_OrL : forall B C, subformula A B -> subformula A (Or B C)
+| Sub_OrR : forall B C, subformula A C -> subformula A (Or B C)
+| Sub_ImpL : forall B C, subformula A B -> subformula A (Imp B C)
+| Sub_ImpR : forall B C, subformula A C -> subformula A (Imp B C)
 .
 
 Lemma subformula_trans :
@@ -20,14 +20,14 @@ Lemma subformula_trans :
 Proof.
     intros A B C H0 H1. induction H1.
     - apply H0.
-    - apply Sub_AndPL. apply IHsubformula. apply H0.
-    - apply Sub_AndPR. apply IHsubformula. apply H0.
-    - apply Sub_AndNL. apply IHsubformula. apply H0.
-    - apply Sub_AndNR. apply IHsubformula. apply H0.
-    - apply Sub_OrL. apply IHsubformula. apply H0.
-    - apply Sub_OrR. apply IHsubformula. apply H0.
-    - apply Sub_ImpL. apply IHsubformula. apply H0.
-    - apply Sub_ImpR. apply IHsubformula. apply H0.
+    - apply Sub_AndPL. apply IHsubformula.
+    - apply Sub_AndPR. apply IHsubformula.
+    - apply Sub_AndNL. apply IHsubformula.
+    - apply Sub_AndNR. apply IHsubformula. 
+    - apply Sub_OrL. apply IHsubformula. 
+    - apply Sub_OrR. apply IHsubformula.
+    - apply Sub_ImpL. apply IHsubformula.
+    - apply Sub_ImpR. apply IHsubformula.
 Qed.
 
 Fixpoint subformulas_dup (A : o) : list o :=
@@ -52,20 +52,20 @@ Proof.
         + inversion H. left. reflexivity.
         + inversion H ; subst.
             apply in_eq.
-            apply in_cons. apply in_or_app. left. apply IHB1. apply H2.
-            apply in_cons. apply in_or_app. right. apply IHB2. apply H2.
+            apply in_cons. apply in_or_app. left. apply IHB1. apply H1.
+            apply in_cons. apply in_or_app. right. apply IHB2. apply H1.
         + inversion H ; subst.
             apply in_eq.
-            apply in_cons. apply in_or_app. left. apply IHB1. apply H2.
-            apply in_cons. apply in_or_app. right. apply IHB2. apply H2.
+            apply in_cons. apply in_or_app. left. apply IHB1. apply H1.
+            apply in_cons. apply in_or_app. right. apply IHB2. apply H1.
         + inversion H ; subst.
             apply in_eq.
-            apply in_cons. apply in_or_app. left. apply IHB1. apply H2.
-            apply in_cons. apply in_or_app. right. apply IHB2. apply H2.
+            apply in_cons. apply in_or_app. left. apply IHB1. apply H1.
+            apply in_cons. apply in_or_app. right. apply IHB2. apply H1.
         + inversion H ; subst.
             apply in_eq.
-            apply in_cons. apply in_or_app. left. apply IHB1. apply H2.
-            apply in_cons. apply in_or_app. right. apply IHB2. apply H2.
+            apply in_cons. apply in_or_app. left. apply IHB1. apply H1.
+            apply in_cons. apply in_or_app. right. apply IHB2. apply H1.
     - intros. induction B ; simpl in H.
         + destruct H. subst. apply Sub_Refl. inversion H.
         + destruct H. subst. apply Sub_Refl. inversion H.

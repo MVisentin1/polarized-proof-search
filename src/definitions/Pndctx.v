@@ -53,6 +53,7 @@ Proof.
   apply proof_irrelevance.
 Qed.
 
+
 Lemma pndctx_insert_rewrite_in :
   forall {B: o} {C: pndctx}, In B (pndctx_list C) ->
     pndctx_insert B C = C.

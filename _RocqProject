@@ -29,4 +29,5 @@ src/metatheory/LJFPS/LJFPS_Completeness.v
 src/metatheory/LJFPS/LJFPS_Soundness.v
 
 src/proofsearch/Subformula.v
+src/proofsearch/Sequents.v
 
