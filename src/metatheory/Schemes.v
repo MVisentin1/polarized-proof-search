@@ -36,3 +36,8 @@ Combined Scheme LJFO_mutind_async from bctO_mut_async, eptO_mut_async.
 Scheme bct_mut_async := Induction for bct Sort Prop
   with ept_mut_async := Induction for ept Sort Prop.
 Combined Scheme LJFPS_mutind_async from bct_mut_async, ept_mut_async.
+
+Scheme ept_bracketable_mut := Induction for ept Sort Prop
+  with lfc_bracketable_mut := Induction for lfc Sort Prop.
+Combined Scheme LJFPS_bracketable_mutind from 
+  ept_bracketable_mut, lfc_bracketable_mut.
