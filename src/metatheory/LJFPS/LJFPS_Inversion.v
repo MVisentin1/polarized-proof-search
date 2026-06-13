@@ -156,4 +156,13 @@ Proof.
     - right. apply H1.
 Qed.
 
+Lemma ept_focus_negative_inv : forall {C : pndctx} {K: o},
+    negative K ->
+    ept C nil K ->
+    exists N, lfc C N K.
+Proof.
+    intros. inversion H0 ; subst.
+    - exists N. apply H4.
+    - inversion H ; subst ; inversion H1.
+Qed.
 
