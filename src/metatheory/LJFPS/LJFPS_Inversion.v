@@ -1,6 +1,6 @@
 From Stdlib Require Import List.
 
-From LJF Require Import SharedLogic Decidability Pndctx LJFPS_Rules Sequents LJFPS_Bracketable.
+From LJF Require Import SharedLogic Predicates Decidability Pndctx LJFPS_Rules Sequents LJFPS_Bracketable.
 
 Lemma bct_boxR_inv : forall {C: pndctx} {L: octx} {D: o},
     bracketable D -> bct C L D -> ept C L D.
@@ -146,23 +146,40 @@ Proof.
     - inversion H2.
 Qed.
 
-Lemma ept_focus_inv : forall {C : pndctx} {K: o},
+Lemma ept_nil_inv : forall {C : pndctx} {K : o},
     ept C nil K ->
-    (exists N, lfc C N K)
-    \/ rfc C K.
+    (exists N, In N (pndctx_list C) /\ negative N /\ lfc C N K)
+    \/ (positive K /\ rfc C K).
 Proof.
-    intros. inversion H ; subst.
-    - left. eexists N. apply H3.
-    - right. apply H1.
+  intros. inversion H ; subst.
+  - left. exists N. split. assumption. split ; assumption.
+  - right. split ; assumption.
 Qed.
 
-Lemma ept_focus_negative_inv : forall {C : pndctx} {K: o},
-    negative K ->
-    ept C nil K ->
-    exists N, lfc C N K.
+Lemma ept_nil_disproof_pos : forall {C : pndctx} {K : o},
+    positive K -> ~ rfc C K ->
+    Forall (fun N => ~ lfc C N K) (filter negative_b (pndctx_list C)) ->
+    ~ ept C nil K.
 Proof.
-    intros. inversion H0 ; subst.
-    - exists N. apply H4.
-    - inversion H ; subst ; inversion H1.
+    intros. intro. destruct (ept_nil_inv H2).
+    - destruct H3. destruct H3. destruct H4.
+        rewrite Forall_forall in H1. 
+        apply (H1 x).
+        + apply filter_In. split. apply H3. apply negative_b_iff. apply H4.
+        + apply H5.
+    - destruct H3. contradiction.
 Qed.
 
+Lemma ept_nil_disproof_neg : forall {C : pndctx} {K : o},
+    ~ positive K ->
+    Forall (fun N => ~ lfc C N K) (filter negative_b (pndctx_list C)) ->
+    ~ ept C nil K.
+Proof.
+    intros. intro. destruct (ept_nil_inv H1).
+    - destruct H2. destruct H2. destruct H3.
+        rewrite Forall_forall in H0.
+        apply (H0 x).
+        + apply filter_In. split. apply H2. apply negative_b_iff. apply H3.
+        + apply H4.
+    - destruct H2. contradiction.
+Qed.

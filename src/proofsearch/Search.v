@@ -1,0 +1,224 @@
+From Stdlib Require Import List Arith Nat Lia.
+From LJF Require Import SharedLogic Decidability
+    Predicates Subformula Pndctx LJFPS_Rules Sequents Measures LJFPS_Bracketable
+    Termination_Measures LJFPS_Inversion.
+From Equations Require Import Equations.
+
+Equations try_Lf {C : pndctx} {K : o}
+    (try_one : forall N, option ({lfc C N K} + {~ lfc C N K}))
+    (negs : list o)
+    (HAll : Forall (fun N => In N (pndctx_list C) /\ negative N) negs)
+    : option ({ept C nil K} + {Forall (fun N => ~ lfc C N K) negs}) :=
+
+    try_Lf try_one nil _ := Some (right (Forall_nil (fun N => ~ lfc C N K))) ;
+    
+    try_Lf try_one (N :: negs') HAll with try_one N := {
+        | Some (left H1)   => 
+            Some (left (ept_Lf N (proj1 (Forall_inv HAll))
+                              (LJFPS_bracketable_goal_lfc H1)
+                              (proj2 (Forall_inv HAll)) H1))
+        | Some (right H1 ) with try_Lf try_one negs' (Forall_inv_tail HAll) := {
+            | Some (left H2)    => Some (left H2)
+            | Some (right H2)   => Some (right (Forall_cons N H1 H2))
+            | None              => None
+        }
+        | None             with try_Lf try_one negs' (Forall_inv_tail HAll) := {
+            | Some (left H2)    => Some (left H2)
+            | Some (right H2)   => None
+            | None              => None
+        }
+    }
+.
+
+Definition visited_eq (p q : pndctx * o) : Prop :=
+    pndctx_set_eq (fst p) (fst q) /\ snd p = snd q.
+
+Lemma visited_eq_dec : forall p q, {visited_eq p q} + {~ visited_eq p q}.
+Proof.
+    intros. unfold visited_eq.
+    destruct (pndctx_set_eq_dec (fst p) (fst q)) ;
+    destruct (o_eq_dec (snd p) (snd q)).
+    - left. split. apply p0. apply e.
+    - right. intro. destruct H. contradiction.
+    - right. intro. destruct H. contradiction. 
+    - right. intro. destruct H. contradiction.
+Qed. 
+
+Lemma filter_neg_Forall : forall (C : pndctx),
+    Forall (fun N => In N (pndctx_list C) /\ negative N)
+           (filter negative_b (pndctx_list C)).
+Proof.
+  intros. apply Forall_forall. intros.
+  apply filter_In in H. destruct H. split.
+  - apply H.
+  - apply negative_b_iff. apply H0. 
+Qed.
+
+Equations search (initial : sequent) (S: sequent) (visited : list (pndctx * o))
+    : option ({sequent_derivable S} + {~ sequent_derivable S})
+    by wf
+        (number_focus_decision initial - length visited, phase_ranking S, phase_measure S)
+        (lexprod _ _ (lexprod _ _ lt lt) lt) :=
+    
+    search initial (Sept C nil K) visited with in_dec (visited_eq_dec) (C, K) visited := {
+        | left Hin  => None
+        | right Hin with positive_dec K := {
+            | left PosK     with search initial (Srfc C K) ((C, K) :: visited) := {
+                | Some (left H1)    => left (ept_Rf PosK H1)
+                | Some (right H1)   with try_Lf 
+                        (fun N => search initial (Slfc C N K) ((C, K) :: visited))
+                        (filter negative_b (pndctx_list C))
+                        (filter_neg_Forall C) := {
+                            | Some (left H2)    => Some (left H2)
+                            | Some (right H2)   => Some (right (ept_nil_disproof_pos PosK H1 H2))
+                            | None              => None
+                        }
+                | None              with try_Lf 
+                        (fun N => search initial (Slfc C N K) ((C, K) :: visited))
+                        (filter negative_b (pndctx_list C))
+                        (filter_neg_Forall C) := {
+                            | Some (left H2)    => Some (left H2)
+                            | Some (right H2)   => None
+                            | None              => None
+                        }
+            }
+            | right PosK    with try_Lf
+                    (fun N => search initial (Slfc C N K) ((C, K) :: visited))
+                    (filter negative_b (pndctx_list C))
+                    (filter_neg_Forall) := {
+                        | Some (left H2)    => Some (left H2)
+                        | Some (right H2)   => Some (right (ept_nil_disproof_neg PosK H2))
+                        | None              => None
+                    }
+        }
+    }.
+
+
+
+(*
+    search initial (Sbct C L K) visited with bracketable_dec K := {
+        | left BrK with search initial (Sept C L K) visited := {
+            | left H1  => left (bct_boxR BrK H1)
+            | right H1 => right (fun H => H1 (bct_boxR_inv BrK H))
+            }
+        | right BrK with K := {
+            | Atom Pos n => False_rect _ (BrK (Bracketable_pos (Atom Pos n) (Pos_atom n)))
+            | Atom Neg n => False_rect _ (BrK (Bracketable_neg_atom (Atom Neg n) (Is_atom Neg n) (Neg_atom n)))
+            | TT         => False_rect _ (BrK (Bracketable_pos TT Pos_true))
+            | FF         => False_rect _ (BrK (Bracketable_pos FF Pos_false))
+            | AndP B1 B2 => False_rect _ (BrK (Bracketable_pos (AndP B1 B2) (Pos_and B1 B2)))
+            | Or B1 B2   => False_rect _ (BrK (Bracketable_pos (Or B1 B2) (Pos_or B1 B2)))
+            | AndN B1 B2 with search initial (Sbct C L B1) visited := {
+                | left H1 with search initial (Sbct C L B2) visited := {
+                    | left H2  => left (bct_AndNR H1 H2)
+                    | right H2 => right (fun H => H2 (proj2 (bct_AndNR_inv H)))
+                    }
+                | right H1 => right (fun H => H1 (proj1 (bct_AndNR_inv H)))
+                }
+            | Imp B1 B2 with search initial (Sbct C (B1 :: L) B2) visited := {
+                | left H1  => left (bct_ImpR H1)
+                | right H1 => right (fun H => H1 (bct_ImpR_inv H))
+                }
+            }
+        } ;
+        
+    search initial (Sept C (B :: L) K) visited with permeable_dec B := {
+        | left PrB with search initial (Sept (pndctx_insert B C) L K) visited := {
+            | left H1   => left (ept_boxL (LJFPS_bracketable_goal_ept H1) PrB H1)
+            | right H1  => right (fun H => H1 (ept_boxL_inv PrB H))
+            }
+        | right PrB with B := {
+            | Atom Pos n    => False_rect _ (PrB (Permeable_pos_atom (Atom Pos n) (Is_atom Pos n) (Pos_atom n)))
+            | Atom Neg n    => False_rect _ (PrB (Permeable_neg (Atom Neg n) (Neg_atom n)))
+            | AndN B1 B2    => False_rect _ (PrB (Permeable_neg (AndN B1 B2) (Neg_and B1 B2)))
+            | Imp B1 B2     => False_rect _ (PrB (Permeable_neg (Imp B1 B2) (Neg_imp B1 B2)))
+            | TT            with search initial (Sept C L K) visited := {
+                | left H1   => left (ept_TrueL (LJFPS_bracketable_goal_ept H1) H1)
+                | right H1  => right (fun H => H1 (ept_TrueL_inv H))
+                }
+            | FF            with bracketable_dec K := {
+                | left BrK  => left (ept_FalseL BrK)
+                | right BrK => right (fun H => BrK (LJFPS_bracketable_goal_ept H))
+                }
+            | AndP B1 B2    with search initial (Sept C (B2 :: B1 :: L) K) visited := {
+                | left H1   => left (ept_AndPL (LJFPS_bracketable_goal_ept H1) H1)
+                | right H1  => right (fun H => H1 (ept_AndPL_inv H))
+                }
+            | Or B1 B2      with search initial (Sept C (B1 :: L) K) visited := {
+                | left H1   with search initial (Sept C (B2 :: L) K) visited := {
+                    | left H2   => left (ept_OrL (LJFPS_bracketable_goal_ept H1) H1 H2)
+                    | right H2  => right (fun H => H2 (proj2 (ept_OrL_inv H)))
+                    }
+                | right H1  => right (fun H => H1 (proj1 (ept_OrL_inv H)))
+                }
+            }
+        } ;
+    
+    search initial (Slfc C N K) visited with positive_dec N := {
+        | left PN   with search initial (Sept C (N :: nil) K) visited := {
+            | left H1   => left (lfc_Rl (LJFPS_bracketable_goal_ept H1) PN H1)
+            | right H1  => right (fun H => H1 (lfc_Rl_inv PN H)) 
+            }
+        | right PN  with N := {
+            | Atom Pos n => False_rect _ (PN (Pos_atom n))
+            | TT         => False_rect _ (PN Pos_true)
+            | FF         => False_rect _ (PN Pos_false)
+            | AndP B1 B2 => False_rect _ (PN (Pos_and B1 B2))
+            | Or B1 B2   => False_rect _ (PN (Pos_or B1 B2))
+            | Atom Neg n with o_eq_dec (Atom Neg n) K := {
+                | left EK   => left (lfc_Il (Neg_atom n) (Is_atom Neg n))
+                | right EK  => right (fun H => EK (lfc_Il_NK_eq (Is_atom Neg n) (Neg_atom n) H))
+                }
+            | AndN B1 B2 with search initial (Slfc C B1 K) visited := {
+                | left H1   => left (lfc_AndNL_1 (LJFPS_bracketable_goal_lfc H1) H1)
+                | right H1  with search initial (Slfc C B2 K) visited := {
+                    | left H2   => left (lfc_AndNL_2 (LJFPS_bracketable_goal_lfc H2) H2)
+                    | right H2  => right (fun H => match lfc_AndNL_inv H with
+                        | or_introl HO => H1 HO
+                        | or_intror HO => H2 HO
+                        end)
+                    }
+                }
+            | Imp B1 B2 with search initial (Srfc C B1) visited := {
+                | left H1   with search initial (Slfc C B2 K) visited := {
+                    | left H2   => left (lfc_ImpL (LJFPS_bracketable_goal_lfc H2) H1 H2)
+                    | right H2  => right (fun H => H2 (proj2 (lfc_ImpL_inv H)))
+                    }
+                | right H1  => right (fun H => H1 (proj1 (lfc_ImpL_inv H)))
+                }
+            }
+        } ;
+    search initial (Srfc C K) visited with negative_dec K := {
+        | left NK with search initial (Sbct C nil K) visited := {
+            | left H1   => left (rfc_Rr NK H1)
+            | right H1  => right (fun H => H1 (rfc_Rr_inv NK H))
+            }
+        | right NK with K := {
+            | Atom Neg n    => False_rect _ (NK (Neg_atom n))
+            | AndN B1 B2    => False_rect _ (NK (Neg_and B1 B2))
+            | Imp B1 B2     => False_rect _ (NK (Neg_imp B1 B2))
+            | Atom Pos n    with in_dec (Atom Pos n) (pndctx_list C) := {
+                | left IP   => left (rfc_Ir IP (Pos_atom n) (Is_atom Pos n))
+                | right IP  => right (fun H => IP (rfc_Ir_inv (Pos_atom n) (Is_atom Pos n) H))
+                }
+            | TT            => left rfc_TrueR
+            | FF            => right rfc_FF_unprovable
+            | AndP B1 B2    with search initial (Srfc C B1) visited := {
+                | left H1   with search initial (Srfc C B2) visited := {
+                    | left H2   => left (rfc_AndPR H1 H2)
+                    | right H2  => right (fun H => H2 (proj2 (rfc_AndPR_inv H)))
+                    }
+                | right H1  => right (fun H => H1 (proj1 (rfc_AndPR_inv H)))
+                }
+            | Or B1 B2      with search initial (Srfc C B1) visited := {
+                | left H1   => left (rfc_OrR_1 H1)
+                | right H1  with search initial (Srfc C B2) visited := {
+                    | left H2   => left (rfc_OrR_2 H2)
+                    | right H2  => right (fun H => match rfc_OrR_inv H with 
+                        | or_introl HO  => H1 HO
+                        | or_intror HO  => H2 HO
+                        end)
+                    }
+                }
+            }
+        }.*)
