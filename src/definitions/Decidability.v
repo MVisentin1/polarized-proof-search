@@ -32,4 +32,46 @@ Proof.
     apply Forall_dec.
     apply permeable_dec.
 Defined.
+
+Lemma bracketable_dec : forall A : o, {bracketable A} + {~ bracketable A}.
+Proof.
+    intros. destruct A.
+    - destruct p.
+        + left. apply Bracketable_pos. apply Pos_atom.
+        + left. apply Bracketable_neg_atom. apply Is_atom. apply Neg_atom.
+    - left. apply Bracketable_pos. apply Pos_true.
+    - left. apply Bracketable_pos. apply Pos_false.
+    - left. apply Bracketable_pos. apply Pos_and.
+    - right. intro. inversion H. inversion H0. inversion H0.
+    - left. apply Bracketable_pos. apply Pos_or.
+    - right. intro. inversion H. inversion H0. inversion H0.
+Defined.
+
+Lemma positive_dec : forall A : o, {positive A} + {~ positive A}.
+Proof.
+    intros. destruct A.
+    - destruct p.
+        + left. apply Pos_atom.
+        + right. intro. inversion H.
+    - left. apply Pos_true.
+    - left. apply Pos_false.
+    - left. apply Pos_and.
+    - right. intro. inversion H.
+    - left. apply Pos_or. 
+    - right. intro. inversion H.
+Defined.
+    
+Lemma negative_dec : forall A : o, {negative A} + {~ negative A}.
+Proof.
+    intros. destruct A.
+    - destruct p.
+        + right. intro. inversion H.
+        + left. apply Neg_atom.
+    - right. intro. inversion H.
+    - right. intro. inversion H.
+    - right. intro. inversion H.
+    - left. apply Neg_and.
+    - right. intro. inversion H.
+    - left. apply Neg_imp. 
+Defined.
     

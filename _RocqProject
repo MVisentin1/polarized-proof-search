@@ -34,3 +34,5 @@ src/proofsearch/Sequents.v
 src/proofsearch/Subsequent_Preservation.v
 src/proofsearch/Termination_Measures.v
 
+src/metatheory/LJFPS/LJFPS_Inversion.v
+

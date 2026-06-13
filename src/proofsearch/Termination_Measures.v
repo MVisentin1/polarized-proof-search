@@ -31,7 +31,7 @@ Definition number_focus_decision (S: sequent) : nat :=
 Definition pndctx_set_eq (C1 C2 : pndctx) : Prop :=
    incl (pndctx_list C1) (pndctx_list C2) /\ incl (pndctx_list C2) (pndctx_list C1).
 
-Lemma pndctx_perm_eq_dec :
+Lemma pndctx_set_eq_dec :
     forall (C1 C2: pndctx), {pndctx_set_eq C1 C2} + {~ pndctx_set_eq C1 C2}.
 Proof.
     intros. unfold pndctx_set_eq.
@@ -77,22 +77,22 @@ Proof.
     destruct S1 as [p l k | p l k | p n k | p k]; 
     destruct S2 as [p0 l0 k0 | p0 l0 k0 | p0 n0 k0 | p0 k0]. 
     all : try (right ; intro ;apply H).
-    -   destruct (pndctx_perm_eq_dec p p0); 
+    -   destruct (pndctx_set_eq_dec p p0); 
         destruct (list_eq_dec o_eq_dec l l0);
         destruct (o_eq_dec k k0).
         all : try (right ; intro ; destruct H ; destruct H0 ; contradiction).
         left. auto.
-    -   destruct (pndctx_perm_eq_dec p p0); 
+    -   destruct (pndctx_set_eq_dec p p0); 
         destruct (list_eq_dec o_eq_dec l l0);
         destruct (o_eq_dec k k0).
         all : try (right ; intro ; destruct H ; destruct H0 ; contradiction).
         left. auto.
-    -   destruct (pndctx_perm_eq_dec p p0);
+    -   destruct (pndctx_set_eq_dec p p0);
         destruct (o_eq_dec n n0);
         destruct (o_eq_dec k k0).
         all : try (right ; intro ; destruct H ; destruct H0 ; contradiction).
         left. auto.
-    -   destruct (pndctx_perm_eq_dec p p0);
+    -   destruct (pndctx_set_eq_dec p p0);
         destruct (o_eq_dec k k0).
         all : try (right ; intro ; destruct H ; destruct H0 ; contradiction).
         left. auto.
