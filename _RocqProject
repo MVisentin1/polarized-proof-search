@@ -1,6 +1,7 @@
 -docroot LJF
 -R src LJF
 
+src/definitions/Sets.v
 src/definitions/SharedLogic.v
 src/definitions/Decidability.v
 src/definitions/Measures.v

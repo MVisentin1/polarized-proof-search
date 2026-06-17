@@ -28,34 +28,7 @@ Definition number_focus_decision (S: sequent) : nat :=
     2^per * neg * bra + 2^per * pos
 .
 
-Definition pndctx_set_eq (C1 C2 : pndctx) : Prop :=
-   incl (pndctx_list C1) (pndctx_list C2) /\ incl (pndctx_list C2) (pndctx_list C1).
-
-Lemma pndctx_set_eq_dec :
-    forall (C1 C2: pndctx), {pndctx_set_eq C1 C2} + {~ pndctx_set_eq C1 C2}.
-Proof.
-    intros. unfold pndctx_set_eq.
-    unfold incl.
-    destruct 
-        (Forall_dec (fun A => In A (pndctx_list C2)) 
-        (fun A => in_dec o_eq_dec A (pndctx_list C2)) 
-        (pndctx_list C1));
-    destruct 
-        (Forall_dec (fun A => In A (pndctx_list C1)) 
-        (fun A => in_dec o_eq_dec A (pndctx_list C1)) 
-        (pndctx_list C2)).
-    - left. split. 
-        eapply Forall_forall. apply f.
-        eapply Forall_forall. apply f0.
-    - right. intro. apply n.
-        destruct H. apply Forall_forall. apply H0.
-    - right. intro. apply n.
-        destruct H. apply Forall_forall. apply H.
-    - right. intro. apply n.
-        destruct H. apply Forall_forall. apply H.
-Qed.
-
-Definition sequent_eq (S1 S2 : sequent) : Prop :=
+(*Definition sequent_eq (S1 S2 : sequent) : Prop :=
     match S1, S2 with
     | Sbct C1 L1 K1, Sbct C2 L2 K2 =>
         pndctx_set_eq C1 C2 /\ L1 = L2 /\ K1 = K2
@@ -96,8 +69,4 @@ Proof.
         destruct (o_eq_dec k k0).
         all : try (right ; intro ; destruct H ; destruct H0 ; contradiction).
         left. auto.
-Qed.
-
-
-
-    
+Qed.*)

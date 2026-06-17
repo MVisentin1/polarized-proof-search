@@ -1,5 +1,6 @@
 From Stdlib Require Import List Permutation ProofIrrelevance.
-From LJF Require Import SharedLogic Decidability Predicates.  
+From LJF Require Import SharedLogic Decidability Predicates
+  Sets.  
 
 Definition raw_insert (A : o) (C : sctx) : sctx :=
   if permeable_dec A 
@@ -283,4 +284,14 @@ Proof.
       destruct (permeable_b B) eqn:H.
       -- apply permeable_b_iff in H. contradiction.
       -- reflexivity.
+Qed.
+
+Definition pndctx_set_eq (C1 C2 : pndctx) : Prop :=
+  set_eq (pndctx_list C1) (pndctx_list C2).
+
+Lemma pndctx_set_eq_dec :
+  forall (C1 C2: pndctx), {pndctx_set_eq C1 C2} + {~ pndctx_set_eq C1 C2}.
+Proof.
+  unfold pndctx_set_eq. intros.
+  apply set_eq_dec. apply o_eq_dec.
 Qed.

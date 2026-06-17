@@ -2,7 +2,7 @@ From Stdlib Require Import List.
 From LJF Require Import SharedLogic Predicates 
     Pndctx Decidability Subformula LJFPS_Rules Sequents.
 
-Lemma subsequent_preservation_bct_boxR : 
+Lemma subp_bct_boxR : 
     forall {C: pndctx} {L: octx} {D: o} {S: sequent},
     subsequent (Sbct C L D) S ->
     subsequent (Sept C L D) S.
@@ -10,7 +10,7 @@ Proof.
     intros. unfold subsequent in*. apply H. 
 Qed.
 
-Lemma subsequent_preservation_bct_AndNR : 
+Lemma subp_bct_AndNR : 
     forall {C: pndctx} {L: octx} {B1 B2: o} {S: sequent},
     subsequent (Sbct C L (AndN B1 B2)) S ->
     subsequent (Sbct C L B1) S /\ subsequent (Sbct C L B2) S. 
@@ -30,7 +30,7 @@ Proof.
     apply H1.
 Qed.
 
-Lemma subsequent_preservation_bct_ImpR :
+Lemma subp_bct_ImpR :
     forall {C: pndctx} {L: octx} {B1 B2: o} {S: sequent},
     subsequent (Sbct C L (Imp B1 B2)) S ->
     subsequent (Sbct C (B1 :: L) B2) S.
@@ -47,7 +47,7 @@ Proof.
     apply H1.
 Qed.
 
-Lemma subsequent_preservation_ept_Lf : 
+Lemma subp_ept_Lf : 
     forall {C: pndctx} {N K : o} {S: sequent},
     In N (pndctx_list C) ->
     subsequent (Sept C nil K) S ->
@@ -65,7 +65,7 @@ Proof.
     destruct H0. apply H0.
 Qed.
 
-Lemma subsequent_preservation_ept_Rf :
+Lemma subp_ept_Rf :
     forall {C: pndctx} {P: o} {S: sequent},
     subsequent (Sept C nil P) S -> 
     subsequent (Srfc C P) S.
@@ -74,7 +74,7 @@ Proof.
     split. apply H. apply H1.
 Qed.
 
-Lemma subsequent_preservation_ept_boxL:
+Lemma subp_ept_boxL:
     forall {C: pndctx} {L: octx} {B K: o} {S: sequent},
     subsequent (Sept C (B :: L) K) S ->
     subsequent (Sept (pndctx_insert B C) L K) S.
@@ -98,7 +98,7 @@ Proof.
         + apply H1.
 Qed.
     
-Lemma subsequent_preservation_ept_AndPL:
+Lemma subp_ept_AndPL:
     forall {C: pndctx} {L: octx} {B1 B2 : o} {K: o} {S: sequent},
     subsequent (Sept C ((AndP B1 B2) :: L) K) S ->
     subsequent (Sept C (B2 :: B1 :: L) K) S.
@@ -119,7 +119,7 @@ Proof.
         + inversion H0. subst. apply H5.
 Qed.
 
-Lemma subsequent_preservation_ept_OrL :
+Lemma subp_ept_OrL :
   forall {C: pndctx} {L: octx} {B1 B2 : o} {K: o} {S: sequent},
     subsequent (Sept C ((Or B1 B2) :: L) K) S ->
     subsequent (Sept C (B1 :: L) K) S /\ 
@@ -145,7 +145,7 @@ Proof.
         + apply H1.
 Qed.
 
-Lemma subsequent_preservation_ept_TrueL :
+Lemma subp_ept_TrueL :
   forall {C: pndctx} {L: octx} {K: o} {S: sequent},
     subsequent (Sept C (TT :: L) K) S ->
     subsequent (Sept C L K) S.
@@ -156,7 +156,7 @@ Proof.
     apply H1.
 Qed.
 
-Lemma subsequent_preservation_lfc_Rl :
+Lemma subp_lfc_Rl :
   forall {C : pndctx} {P : o}  {K : o} {S: sequent},
     subsequent (Slfc C P K) S ->
     subsequent (Sept C (P :: nil) K) S.
@@ -166,7 +166,7 @@ Proof.
     split. apply Forall_cons. apply H0. apply Forall_nil. apply H1.
 Qed.
 
-Lemma subsequent_preservation_lfc_AndNL_1 :
+Lemma subp_lfc_AndNL_1 :
   forall {C: pndctx} {B1 B2 : o}  {K : o} {S: sequent},
     subsequent (Slfc C (AndN B1 B2) K) S ->
     subsequent (Slfc C B1 K) S.
@@ -179,7 +179,7 @@ Proof.
     apply H1.
 Qed.
 
-Lemma subsequent_preservation_lfc_AndNL_2 :
+Lemma subp_lfc_AndNL_2 :
   forall {C: pndctx} {B1 B2 : o}  {K : o} {S: sequent},
     subsequent (Slfc C (AndN B1 B2) K) S ->
     subsequent (Slfc C B2 K) S.
@@ -193,7 +193,7 @@ Proof.
 Qed.
 
 
-Lemma subsequent_preservation_lfc_ImpL :
+Lemma subp_lfc_ImpL :
   forall {C: pndctx} {B1 B2 : o}  {K : o} {S: sequent},
     subsequent (Slfc C (Imp B1 B2) K) S ->
     subsequent (Srfc C B1) S /\ subsequent (Slfc C B2 K) S.
@@ -210,7 +210,7 @@ Proof.
     apply H1.
 Qed.
 
-Lemma subsequent_preservation_rfc_Rr :
+Lemma subp_rfc_Rr :
   forall {C: pndctx} {N: o} {S: sequent},
     subsequent (Srfc C N) S ->
     subsequent (Sbct C nil N) S.
@@ -220,7 +220,7 @@ Proof.
     split. apply Forall_nil. apply H0.
 Qed.
 
-Lemma subsequent_preservation_rfc_AndPR :
+Lemma subp_rfc_AndPR :
   forall {C: pndctx} {B1 B2: o} {S: sequent},
     subsequent (Srfc C (AndP B1 B2)) S ->
     subsequent (Srfc C B1) S /\
@@ -236,7 +236,7 @@ Proof.
     apply Sub_AndPR. apply Sub_Refl. apply H0.
 Qed.
 
-Lemma subsequent_preservation_rfc_OrR_1 :
+Lemma subp_rfc_OrR_1 :
   forall {C: pndctx} {B1 B2: o} {S: sequent},
     subsequent (Srfc C (Or B1 B2)) S ->
     subsequent (Srfc C B1) S.
@@ -247,7 +247,7 @@ Proof.
     apply Sub_OrL. apply Sub_Refl. apply H0.
 Qed.
 
-Lemma subsequent_preservation_rfc_OrR_2 :
+Lemma subp_rfc_OrR_2 :
   forall {C: pndctx} {B1 B2: o} {S: sequent},
     subsequent (Srfc C (Or B1 B2)) S ->
     subsequent (Srfc C B2) S.
