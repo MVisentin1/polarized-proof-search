@@ -1,7 +1,19 @@
-From Stdlib Require Import List.
+From Stdlib Require Import List RelationClasses.
+
+Search Equivalence.
 
 Definition set_eq [A: Type] (C1 C2 : list A) : Prop :=
    incl C1 C2 /\ incl C2 C1.
+
+#[export] Instance set_eq_Equivalence (A : Type) : Equivalence (@set_eq A).
+Proof.
+  split ; intros.
+  - unfold set_eq. split ; apply incl_refl.
+  - unfold set_eq. split ; destruct H. apply H0. apply H. 
+  - unfold set_eq. split ; destruct H ; destruct H0. 
+   eapply incl_tran. apply H. apply H0.
+   eapply incl_tran. apply H2. apply H1.
+Qed.
 
 Lemma set_eq_refl [A: Type] (C1: list A) : set_eq C1 C1.
 Proof.
@@ -51,19 +63,19 @@ Proof.
     + right. apply IHL. assumption.
 Qed.
 
-Fixpoint generate_subsets [A: Type] (L : list A) : list (list A) := 
+Fixpoint get_all_subsets [A: Type] (L : list A) : list (list A) := 
     match L with
     | nil       => nil :: nil
-    | B :: L'   => let L0 := generate_subsets L' in L0 ++ (prepend_all B L0)
+    | B :: L'   => let L0 := get_all_subsets L' in L0 ++ (prepend_all B L0)
     end
 .
 
-Lemma generate_subsets_nil {A: Type} :
-    @generate_subsets A nil = nil :: nil.
+Lemma get_all_subsets_nil {A: Type} :
+    @get_all_subsets A nil = nil :: nil.
 Proof. reflexivity. Qed.   
 
-Lemma generate_subsets_cons {A: Type} (a : A) (L : list A) :
-      generate_subsets (a :: L) = generate_subsets L ++ prepend_all a (generate_subsets L).
+Lemma get_all_subsets_cons {A: Type} (a : A) (L : list A) :
+      get_all_subsets (a :: L) = get_all_subsets L ++ prepend_all a (get_all_subsets L).
 Proof. reflexivity. Qed.
 
 Lemma incl_remove [A: Type] (X : forall (A1 A2 : A), {A1 = A2} + {~ A1 = A2}) :
@@ -82,18 +94,17 @@ Proof.
             ++ apply IHC. apply H0.
 Qed.
 
-
-Lemma generate_subsets_complete [A: Type] :
+Lemma get_all_subsets_complete [A: Type] :
    (forall (A1 A2 : A), {A1 = A2} + {~ A1 = A2}) ->
-   forall {C1 C0 : list A}, incl C0 C1 <-> Exists (fun C => set_eq C0 C) (generate_subsets C1).
+   forall {C1 C0 : list A}, incl C0 C1 <-> Exists (fun C => set_eq C0 C) (get_all_subsets C1).
 Proof.
    intros X C1. induction C1 ; intros ; split ; intros.
    - apply incl_l_nil in H. subst. apply Exists_exists. eexists nil. split.
-      rewrite generate_subsets_nil. apply in_eq. apply set_eq_refl.
-   - rewrite generate_subsets_nil in H. inversion H ; subst.
+      rewrite get_all_subsets_nil. apply in_eq. apply set_eq_refl.
+   - rewrite get_all_subsets_nil in H. inversion H ; subst.
       + inversion H1. apply incl_l_nil in H0. subst. apply incl_nil_l.
       + inversion H1.
-   - rewrite generate_subsets_cons. destruct (in_dec X a C0).
+   - rewrite get_all_subsets_cons. destruct (in_dec X a C0).
       + apply Exists_app. right.
          assert (incl (remove X a C0) C1).
          -- unfold incl. intros. apply in_remove in H0.
@@ -126,7 +137,7 @@ Proof.
             ++ apply H.
          -- apply IHC1 in H0.
             apply H0.
-   - rewrite generate_subsets_cons in H. 
+   - rewrite get_all_subsets_cons in H. 
       apply Exists_app in H.
       destruct H.
       ++ specialize (IHC1 C0). destruct IHC1. specialize (H1 H).
@@ -139,6 +150,7 @@ Proof.
          --- apply incl_cons. apply in_eq. apply incl_tl. apply IHC1.
             apply Exists_exists. eexists x0. split. apply H1. apply set_eq_refl.
 Qed.
+
 
 
          

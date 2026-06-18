@@ -77,11 +77,11 @@ Definition subsequent (S S0: sequent) : Prop :=
     | Sept C L K => 
         Forall (fun A => In A (sequent_subformulas_permeable S0)) (pndctx_list C) /\
         Forall (fun A => In A (sequent_subformulas S0)) L /\
-        In K (sequent_subformulas S0)
+        In K (sequent_subformulas_bracketable S0)
     | Slfc C N K => 
         Forall (fun A => In A (sequent_subformulas_permeable S0)) (pndctx_list C) /\
         In N (sequent_subformulas S0) /\
-        In K (sequent_subformulas S0)
+        In K (sequent_subformulas_bracketable S0)
     | Srfc C K   => 
         Forall (fun A => In A (sequent_subformulas_permeable S0)) (pndctx_list C) /\
         In K (sequent_subformulas S0)

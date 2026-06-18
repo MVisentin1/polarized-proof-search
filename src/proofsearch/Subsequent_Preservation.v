@@ -4,10 +4,14 @@ From LJF Require Import SharedLogic Predicates
 
 Lemma subp_bct_boxR : 
     forall {C: pndctx} {L: octx} {D: o} {S: sequent},
+    bracketable D ->
     subsequent (Sbct C L D) S ->
     subsequent (Sept C L D) S.
 Proof.
-    intros. unfold subsequent in*. apply H. 
+    intros. simpl. destruct H0. destruct H1.
+    split. apply H0. split. apply H1. 
+    unfold sequent_subformulas_bracketable.
+    apply filter_In. split. apply H2. apply bracketable_b_iff. apply H.
 Qed.
 
 Lemma subp_bct_AndNR : 
@@ -71,7 +75,8 @@ Lemma subp_ept_Rf :
     subsequent (Srfc C P) S.
 Proof.
     intros. unfold subsequent in*. destruct H. destruct H0.
-    split. apply H. apply H1.
+    split. apply H. unfold sequent_subformulas_bracketable in H1.
+    apply filter_In in H1. destruct H1. apply H1.
 Qed.
 
 Lemma subp_ept_boxL:

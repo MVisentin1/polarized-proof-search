@@ -20,14 +20,6 @@ Definition phase_measure (S: sequent) : nat :=
     end
 .
 
-Definition number_focus_decision (S: sequent) : nat :=
-    let neg := length (sequent_subformulas_negative S) in
-    let pos := length (sequent_subformulas_positive S) in
-    let per := length (sequent_subformulas_permeable S) in
-    let bra := length (sequent_subformulas_bracketable S) in
-    2^per * neg * bra + 2^per * pos
-.
-
 (*Definition sequent_eq (S1 S2 : sequent) : Prop :=
     match S1, S2 with
     | Sbct C1 L1 K1, Sbct C2 L2 K2 =>

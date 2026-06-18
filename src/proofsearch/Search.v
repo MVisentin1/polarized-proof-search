@@ -1,4 +1,4 @@
-From Stdlib Require Import List Arith Nat Lia.
+From Stdlib Require Import List Arith.PeanoNat Lia.
 From LJF Require Import SharedLogic Decidability
     Predicates Subformula Pndctx LJFPS_Rules Sequents Measures LJFPS_Bracketable
     Termination_Measures LJFPS_Inversion.
@@ -29,20 +29,6 @@ Equations try_Lf {C : pndctx} {K : o}
         }
 .
 
-Definition visited_eq (p q : pndctx * o) : Prop :=
-    pndctx_set_eq (fst p) (fst q) /\ snd p = snd q.
-
-Lemma visited_eq_dec : forall p q, {visited_eq p q} + {~ visited_eq p q}.
-Proof.
-    intros. unfold visited_eq.
-    destruct (pndctx_set_eq_dec (fst p) (fst q)) ;
-    destruct (o_eq_dec (snd p) (snd q)).
-    - left. split. apply p0. apply e.
-    - right. intro. destruct H. contradiction.
-    - right. intro. destruct H. contradiction. 
-    - right. intro. destruct H. contradiction.
-Qed. 
-
 Lemma filter_neg_Forall : forall (C : pndctx),
     Forall (fun N => In N (pndctx_list C) /\ negative N)
            (filter negative_b (pndctx_list C)).
@@ -53,7 +39,11 @@ Proof.
   - apply negative_b_iff. apply H0. 
 Qed.
 
-Equations search (initial : sequent) (S: sequent) (visited : list (pndctx * o))
+Equations search 
+    (initial S: sequent)  
+    (visited : list (pndctx * o))
+    (Hsub : subsequent S initial)
+    (Hwf  : visited_wf initial visited)
     : option ({sequent_derivable S} + {~ sequent_derivable S})
     by wf
         (number_focus_decision initial - length visited, phase_ranking S, phase_measure S)
@@ -90,8 +80,8 @@ Equations search (initial : sequent) (S: sequent) (visited : list (pndctx * o))
                         | None              => None
                         }
             }
-        } ;
-
+        } .
+(*
     search initial (Sept C (B :: L) K) visited with permeable_dec B := {
         | left Pb   with search initial (Sept (pndctx_insert B C) L K) visited := {
             | Some (left H1)    => Some (left (ept_boxL (LJFPS_bracketable_goal_ept H1) Pb H1))
@@ -257,3 +247,16 @@ Equations search (initial : sequent) (S: sequent) (visited : list (pndctx * o))
                 }
             }
         } .
+
+Next Obligation.
+    right. apply Nat.lt_succ_r. apply Nat.le_add_r.
+Qed.
+Next Obligation.
+    right. apply Nat.lt_succ_r. apply Nat.le_add_l.
+Qed.
+Next Obligation.
+    right. apply Nat.lt_succ_r. apply Nat.le_add_l.
+Qed.
+
+
+*)
