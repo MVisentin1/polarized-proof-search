@@ -1,6 +1,6 @@
-From Stdlib Require Import List RelationClasses PeanoNat.
+From Stdlib Require Import List RelationClasses SetoidList.
 From LJF Require Import SharedLogic Decidability 
-    Predicates Subformula Pndctx LJFPS_Rules Sequents Measures Sets.
+    Pndctx Sequents Sets.
 
 Fixpoint get_all_pairs_1 (a : list o) (LB : list o) : list ((list o) * o) :=
     match LB with
@@ -95,8 +95,6 @@ Proof.
             apply IHLA. apply H.
             apply IHLA. apply H.
 Qed.
-            
-
 
 Definition get_all_visited (S: sequent) : list ((list o) * o) :=
     let per := sequent_subformulas_permeable S in
@@ -136,6 +134,8 @@ Proof.
             -- apply Forall_nil.
             -- apply H1.
 Qed.
+
+
         
 
             
