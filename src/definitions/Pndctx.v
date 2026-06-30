@@ -1,6 +1,6 @@
-From Stdlib Require Import List Permutation ProofIrrelevance.
-From LJF Require Import SharedLogic Decidability Predicates
-  Sets.  
+From Stdlib Require Import List RelationClasses SetoidList Permutation
+ ProofIrrelevance.
+From LJF Require Import SharedLogic Decidability Predicates SetoidList_Extended.  
 
 Definition raw_insert (A : o) (C : sctx) : sctx :=
   if permeable_dec A 
@@ -287,11 +287,11 @@ Proof.
 Qed.
 
 Definition pndctx_set_eq (C1 C2 : pndctx) : Prop :=
-  set_eq (pndctx_list C1) (pndctx_list C2).
+  equivlistA eq (pndctx_list C1) (pndctx_list C2).
 
 Lemma pndctx_set_eq_dec :
   forall (C1 C2: pndctx), {pndctx_set_eq C1 C2} + {~ pndctx_set_eq C1 C2}.
 Proof.
   unfold pndctx_set_eq. intros.
-  apply set_eq_dec. apply o_eq_dec.
+  apply equivlistA_dec. apply eq_equivalence. apply o_eq_dec.
 Qed.
