@@ -1,4 +1,4 @@
-From Stdlib Require Import List RelationClasses SetoidList.
+From Stdlib Require Import List RelationClasses SetoidList PeanoNat.
 
 Lemma equivlistA_dec [A: Type] (eqA : relation A) `{Equivalence A eqA}
     (eqA_dec : forall x y, {eqA x y} + {~ eqA x y}) :
@@ -172,3 +172,71 @@ Proof.
     + apply (inclA_removeA eqA_dec H1).
     + apply (inclA_cons_2 B H1).
 Qed.
+
+Lemma inclA_nil [A: Type] {eqA : relation A} `{Equivalence A eqA} :
+  forall {L : list A}, inclA eqA L nil -> L = nil.
+Proof.
+  intros. destruct L.
+  - reflexivity.
+  - assert (eqA a a). reflexivity.
+    exfalso. apply (proj1 (InA_nil eqA a) (H0 a (InA_cons_hd L H1))).
+Qed.
+
+Lemma NoDupA_removeA [A: Type] {eqA : relation A} `{Equivalence A eqA} 
+  (eqA_dec : forall x y, {eqA x y} + {~ eqA x y}) :
+  forall (B: A) {L : list A},
+  NoDupA eqA L ->
+  NoDupA eqA (removeA eqA_dec B L).
+Proof.
+  induction L ; intros.
+  - simpl. apply NoDupA_nil.
+  - simpl. destruct (eqA_dec B a).
+    + inversion H0. subst. apply (IHL H4).
+    + inversion H0. subst. apply NoDupA_cons.
+      -- intro. destruct (proj1 (removeA_InA H eqA_dec L B a) H1). contradiction.
+      -- apply (IHL H4).
+Qed.
+
+
+Lemma NoDupA_removeA_length [A: Type] {eqA : relation A} `{Equivalence A eqA} 
+  (eqA_dec : forall x y, {eqA x y} + {~ eqA x y}) :
+  forall (B: A) {L : list A},
+  NoDupA eqA L -> 
+    (InA eqA B L /\ length L = S (length (removeA eqA_dec B L))) \/
+    (~InA eqA B L /\ length L = length (removeA eqA_dec B L)).
+Proof.
+  induction L.
+  - intros. simpl. right. split. intro. inversion H1. reflexivity.
+  - intros. inversion H0 ; subst. destruct (IHL H4).
+    + destruct H1. left. split. apply (InA_cons_tl a H1).
+      simpl. destruct (eqA_dec B a).
+      -- rewrite e in H1. contradiction. 
+      -- simpl. apply (f_equal S H2).
+    + destruct H1. simpl. destruct (eqA_dec B a).
+      -- left. split.
+        ++ apply (InA_cons_hd L e).
+        ++ apply (f_equal S H2).
+      -- right. split.
+        ++ intro. inversion H5 ; subst. contradiction. contradiction.
+        ++ simpl. apply (f_equal S H2).
+Qed. 
+
+Lemma NoDupA_inclA_length [A: Type] {eqA : relation A} `{Equivalence A eqA} 
+  (eqA_dec : forall x y, {eqA x y} + {~ eqA x y}) :
+  forall {L1 L2 : list A},
+  NoDupA eqA L1 -> 
+  inclA eqA L1 L2 ->
+  length L1 <= length L2.
+Proof.
+  intros L1 L2. revert L1. induction L2.
+  - intros. apply inclA_nil in H1. subst. simpl. reflexivity. apply H.
+  - intros. destruct (proj1 (inclA_removeA_iff eqA_dec) H1) ; destruct H2.
+    + specialize (NoDupA_removeA eqA_dec a H0) ; intro.
+      specialize (IHL2 _ H4 H3).
+      destruct (NoDupA_removeA_length eqA_dec a H0) ; destruct H5.
+      -- simpl. transitivity (S (length (removeA (eqA:=eqA) eqA_dec a L1))).
+        apply (Nat.eq_le_incl _ _ H6). apply (le_n_S _ _ IHL2).
+      -- simpl. contradiction.
+    + specialize (IHL2 L1 H0 H3). simpl. apply (le_S _ _ IHL2).
+Qed.
+
