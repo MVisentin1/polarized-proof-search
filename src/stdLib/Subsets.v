@@ -37,8 +37,8 @@ Proof.
          subst. eexists x. split. reflexivity. apply in_cons. apply H1.
 Qed.
 
-Lemma NoDupA_prepend_all [A: Type] 
-  {B: A} {L: list (list A)} {eqA : relation A} `{Equivalence A eqA}:
+Lemma NoDupA_prepend_all [A: Type] {eqA : relation A} `{Equivalence A eqA} :
+  forall {B: A} {L: list (list A)},
   NoDupA (equivlistA eqA) L -> 
   Forall (fun a => ~ InA eqA B a) L -> 
   NoDupA (equivlistA eqA) (prepend_all B L).
@@ -119,9 +119,37 @@ Proof.
         ++ apply (InA_cons_hd L2 H7).
         ++ apply (InA_cons_tl a (H5 x H7)).
 Qed.
-      
+
+Lemma NoDupA_get_all_subsets [A: Type] {eqA : relation A} `{Equivalence A eqA}
+  (eqA_dec : forall x y, {eqA x y} + {~ eqA x y}):
+  forall {L: list A},
+  NoDupA eqA L -> 
+  NoDupA (equivlistA eqA) (get_all_subsets L).
+Proof.
+  induction L.
+  - intro. simpl. apply NoDupA_singleton.
+  - intro. inversion H0 ; subst.
+    specialize (IHL H4).
+    simpl. apply NoDupA_app.
+    + apply (equivlist_equiv H).
+    + apply IHL.
+    + apply NoDupA_prepend_all.
+      -- apply H.
+      -- apply IHL.
+      -- apply Forall_forall. intros. intro. apply H3.
+        assert (InA (equivlistA eqA) x (get_all_subsets L)).
+        ++ apply InA_alt. eexists x. split. reflexivity. apply H1.
+        ++ apply (proj2 (inclA_iff_get_all_subsets eqA_dec) H5). apply H2.
+    + intros. apply H3.
+      destruct (proj1 (InA_alt _ _ _) H2) as [y [H5 H6]].
+      destruct (prepend_all_inv H6) as [z [-> H7]].
+      apply (proj2 (inclA_iff_get_all_subsets eqA_dec) H1 ).
+      specialize (proj2 (H5 a)). intro.
+      apply H8. apply (InA_cons_hd). reflexivity.
+Qed.
 
 
+  
 
 
       
