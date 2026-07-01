@@ -289,6 +289,14 @@ Qed.
 Definition pndctx_set_eq (C1 C2 : pndctx) : Prop :=
   equivlistA eq (pndctx_list C1) (pndctx_list C2).
 
+#[export] Instance pndctx_set_eq_Equivalence : Equivalence pndctx_set_eq.
+Proof.
+  unfold pndctx_set_eq. constructor.
+  - intro C. reflexivity.
+  - intros C1 C2 H. symmetry. assumption.
+  - intros C1 C2 C3 H1 H2. etransitivity ; eauto.
+Qed.
+
 Lemma pndctx_set_eq_dec :
   forall (C1 C2: pndctx), {pndctx_set_eq C1 C2} + {~ pndctx_set_eq C1 C2}.
 Proof.

@@ -8,10 +8,11 @@ Lemma subp_bct_boxR :
     subsequent (Sbct C L D) S ->
     subsequent (Sept C L D) S.
 Proof.
-    intros. simpl. destruct H0. destruct H1.
-    split. apply H0. split. apply H1. 
-    unfold sequent_subformulas_bracketable.
-    apply filter_In. split. apply H2. apply bracketable_b_iff. apply H.
+    intros. destruct H0. destruct H1. repeat split.
+    - apply H0.
+    - apply H1.
+    - unfold sequent_subformulas_bracketable. 
+        apply (proj2 (filter_In _ _ _) (conj H2 (proj2 (bracketable_b_iff D) H))).
 Qed.
 
 Lemma subp_bct_AndNR : 
@@ -19,19 +20,13 @@ Lemma subp_bct_AndNR :
     subsequent (Sbct C L (AndN B1 B2)) S ->
     subsequent (Sbct C L B1) S /\ subsequent (Sbct C L B2) S. 
 Proof.
-    intros. unfold subsequent in H. destruct H. destruct H0.
-    unfold subsequent. split. all : split.
-    apply H.
-    split. apply H0.
-    apply sequent_subformulas_transitivity with (B:= AndN B1 B2).
-    apply Sub_AndNL. apply Sub_Refl.
-    apply H1.
-    apply H.
-    split.
-    apply H0.
-    apply sequent_subformulas_transitivity with (B:= AndN B1 B2).
-    apply Sub_AndNR. apply Sub_Refl.
-    apply H1.
+    intros. destruct H. destruct H0. repeat split.
+    - apply H.
+    - apply H0.
+    - apply (sequent_subformulas_transitivity (AndN B1 B2) (Sub_AndNL B1 B1 B2 (Sub_Refl B1)) H1).
+    - apply H.
+    - apply H0.
+    - apply (sequent_subformulas_transitivity (AndN B1 B2) (Sub_AndNR B2 B1 B2 (Sub_Refl B2)) H1).
 Qed.
 
 Lemma subp_bct_ImpR :
@@ -39,16 +34,12 @@ Lemma subp_bct_ImpR :
     subsequent (Sbct C L (Imp B1 B2)) S ->
     subsequent (Sbct C (B1 :: L) B2) S.
 Proof.
-    intros. unfold subsequent in H. destruct H. destruct H0.
-    unfold subsequent. split. apply H.
-    split. apply Forall_cons.
-    apply sequent_subformulas_transitivity with (B:= Imp B1 B2).
-    apply Sub_ImpL. apply Sub_Refl.
-    apply H1.
-    apply H0.
-    apply sequent_subformulas_transitivity with (B:= Imp B1 B2).
-    apply Sub_ImpR. apply Sub_Refl.
-    apply H1.
+    intros. destruct H. destruct H0. unfold subsequent. repeat split.
+    - apply H.
+    - apply incl_cons.
+        + apply (sequent_subformulas_transitivity (Imp B1 B2) (Sub_ImpL B1 B1 B2 (Sub_Refl B1)) H1).
+        + apply H0.
+    - apply (sequent_subformulas_transitivity (Imp B1 B2) (Sub_ImpR B2 B1 B2 (Sub_Refl B2)) H1). 
 Qed.
 
 Lemma subp_ept_Lf : 
@@ -57,16 +48,11 @@ Lemma subp_ept_Lf :
     subsequent (Sept C nil K) S ->
     subsequent (Slfc C N K) S.
 Proof.
-    intros. unfold subsequent in*.
-    destruct H0. destruct H1.
-    split. apply H0.
-    split. 2: apply H2.
-    rewrite Forall_forall in H0.
-    specialize (H0 N).
-    specialize (H0 H).
-    unfold sequent_subformulas_permeable in H0.
-    apply filter_In in H0.
-    destruct H0. apply H0.
+    intros. destruct H0. destruct H1. repeat split.
+    - apply H0.
+    - unfold sequent_subformulas_permeable in H0.
+        specialize (H0 N H). apply (proj1 (filter_In _ _ _) H0).
+    - apply H2.
 Qed.
 
 Lemma subp_ept_Rf :
@@ -74,9 +60,9 @@ Lemma subp_ept_Rf :
     subsequent (Sept C nil P) S -> 
     subsequent (Srfc C P) S.
 Proof.
-    intros. unfold subsequent in*. destruct H. destruct H0.
-    split. apply H. unfold sequent_subformulas_bracketable in H1.
-    apply filter_In in H1. destruct H1. apply H1.
+    intros. destruct H. destruct H0. repeat split.
+    - apply H.
+    - unfold sequent_subformulas_bracketable in H1. apply (proj1 (filter_In _ _ _) H1).
 Qed.
 
 Lemma subp_ept_boxL:
@@ -84,23 +70,18 @@ Lemma subp_ept_boxL:
     subsequent (Sept C (B :: L) K) S ->
     subsequent (Sept (pndctx_insert B C) L K) S.
 Proof.
-    intros. unfold subsequent in*. destruct H. destruct H0.
-    inversion H0. subst.
-    split.
-    - unfold pndctx_insert.
-        unfold pndctx_list.
-        simpl. unfold raw_insert.
-        destruct permeable_dec.
-        + destruct in_dec.
+    intros. destruct H. destruct H0. repeat split.
+    - unfold pndctx_list. unfold pndctx_insert. unfold raw_insert. simpl.
+        destruct (permeable_dec B).
+        + destruct (in_dec o_eq_dec B (pndctx_list C)).
             -- apply H.
-            -- apply Forall_cons.
+            -- apply incl_cons.
                 ++ unfold sequent_subformulas_permeable.
-                    apply filter_In. split. apply H4. apply permeable_b_iff. apply p.
+                    apply (proj2 (filter_In _ _ _) (conj (H0 B (in_eq B L)) (proj2 (permeable_b_iff B) p))).
                 ++ apply H.
         + apply H.
-    - split.
-        + eapply Forall_cons_iff. apply H0.
-        + apply H1.
+    - apply (incl_cons_inv H0).
+    - apply H1.
 Qed.
     
 Lemma subp_ept_AndPL:
@@ -108,20 +89,14 @@ Lemma subp_ept_AndPL:
     subsequent (Sept C ((AndP B1 B2) :: L) K) S ->
     subsequent (Sept C (B2 :: B1 :: L) K) S.
 Proof.
-    intros. unfold subsequent in*. destruct H. destruct H0.
-    split. apply H.
-    split. 2: apply H1.
-    apply Forall_cons.
-    - inversion H0. subst. 
-        eapply sequent_subformulas_transitivity with (B:= AndP B1 B2).
-        apply Sub_AndPR. apply Sub_Refl.
-        apply H4.
-    - apply Forall_cons.
-        +  inversion H0. subst. 
-            eapply sequent_subformulas_transitivity with (B:= AndP B1 B2).
-            apply Sub_AndPL. apply Sub_Refl.
-            apply H4.
-        + inversion H0. subst. apply H5.
+    intros. destruct H. destruct H0. repeat split.
+    - apply H.
+    - destruct (incl_cons_inv H0). apply incl_cons.
+        + apply (sequent_subformulas_transitivity (AndP B1 B2) (Sub_AndPR B2 B1 B2 (Sub_Refl B2)) H2).
+        + apply incl_cons.
+            -- apply (sequent_subformulas_transitivity (AndP B1 B2) (Sub_AndPL B1 B1 B2 (Sub_Refl B1)) H2).
+            -- apply H3. 
+    - apply H1.
 Qed.
 
 Lemma subp_ept_OrL :
@@ -130,24 +105,19 @@ Lemma subp_ept_OrL :
     subsequent (Sept C (B1 :: L) K) S /\ 
     subsequent (Sept C (B2 :: L) K) S.
 Proof.
-    intros. unfold subsequent in*. destruct H. destruct H0.
-    split.
-    - split. apply H.
-        inversion H0. subst. split.
-        + apply Forall_cons.
-            -- eapply sequent_subformulas_transitivity with (B:= Or B1 B2).
-                apply Sub_OrL. apply Sub_Refl.
-                apply H4.
-            -- apply H5.
-        + apply H1.
-    - split. apply H.
-        inversion H0. subst. split.
-        + apply Forall_cons.
-            -- eapply sequent_subformulas_transitivity with (B:= Or B1 B2).
-                apply Sub_OrR. apply Sub_Refl.
-                apply H4.
-            -- apply H5.
-        + apply H1.
+    intros. destruct H. destruct H0. repeat split.
+    - apply H.
+    - destruct (incl_cons_inv H0).
+        apply incl_cons.
+        + apply (sequent_subformulas_transitivity (Or B1 B2) (Sub_OrL B1 B1 B2 (Sub_Refl B1)) H2).
+        + apply H3.
+    - apply H1.
+    - apply H.
+    - destruct (incl_cons_inv H0).
+        apply incl_cons.
+        + apply (sequent_subformulas_transitivity (Or B1 B2) (Sub_OrR B2 B1 B2 (Sub_Refl B2)) H2).
+        + apply H3.
+    - apply H1.
 Qed.
 
 Lemma subp_ept_TrueL :
@@ -155,20 +125,23 @@ Lemma subp_ept_TrueL :
     subsequent (Sept C (TT :: L) K) S ->
     subsequent (Sept C L K) S.
 Proof.
-    intros. unfold subsequent in*. destruct H. destruct H0.
-    split. apply H.
-    split. inversion H0. subst. apply H5.
-    apply H1.
+    intros. destruct H. destruct H0. repeat split.
+    - apply H.
+    - destruct (incl_cons_inv H0). apply H3.
+    - apply H1.
 Qed.
 
 Lemma subp_lfc_Rl :
   forall {C : pndctx} {P : o}  {K : o} {S: sequent},
     subsequent (Slfc C P K) S ->
-    subsequent (Sept C (P :: nil) K) S.
+    subsequent (Sept C (P :: nil) K) S. 
 Proof.
-    intros. unfold subsequent in*. destruct H. destruct H0.
-    split. apply H.
-    split. apply Forall_cons. apply H0. apply Forall_nil. apply H1.
+    intros. destruct H. destruct H0. repeat split.
+    - apply H.
+    - apply incl_cons.
+        + apply H0.
+        + apply incl_nil_l.
+    - apply H1.
 Qed.
 
 Lemma subp_lfc_AndNL_1 :
@@ -176,12 +149,10 @@ Lemma subp_lfc_AndNL_1 :
     subsequent (Slfc C (AndN B1 B2) K) S ->
     subsequent (Slfc C B1 K) S.
 Proof.
-    intros. unfold subsequent in*. destruct H. destruct H0.
-    split. apply H.
-    split. eapply sequent_subformulas_transitivity with (B:= AndN B1 B2).
-    apply Sub_AndNL. apply Sub_Refl.
-    apply H0.
-    apply H1.
+    intros. destruct H. destruct H0. repeat split.
+    - apply H.
+    - apply (sequent_subformulas_transitivity (AndN B1 B2) (Sub_AndNL B1 B1 B2 (Sub_Refl B1)) H0).
+    - apply H1.
 Qed.
 
 Lemma subp_lfc_AndNL_2 :
@@ -189,30 +160,23 @@ Lemma subp_lfc_AndNL_2 :
     subsequent (Slfc C (AndN B1 B2) K) S ->
     subsequent (Slfc C B2 K) S.
 Proof.
-    intros. unfold subsequent in*. destruct H. destruct H0.
-    split. apply H.
-    split. eapply sequent_subformulas_transitivity with (B:= AndN B1 B2).
-    apply Sub_AndNR. apply Sub_Refl.
-    apply H0.
-    apply H1.
+    intros. destruct H. destruct H0. repeat split.
+    - apply H.
+    - apply (sequent_subformulas_transitivity (AndN B1 B2) (Sub_AndNR B2 B1 B2 (Sub_Refl B2)) H0).
+    - apply H1.
 Qed.
-
 
 Lemma subp_lfc_ImpL :
   forall {C: pndctx} {B1 B2 : o}  {K : o} {S: sequent},
     subsequent (Slfc C (Imp B1 B2) K) S ->
     subsequent (Srfc C B1) S /\ subsequent (Slfc C B2 K) S.
 Proof.
-    intros. unfold subsequent in*. destruct H. destruct H0.
-    split ; split.
-    apply H.
-    eapply sequent_subformulas_transitivity with (B:= Imp B1 B2).
-    apply Sub_ImpL. apply Sub_Refl. apply H0.
-    apply H.
-    split.
-    eapply sequent_subformulas_transitivity with (B:= Imp B1 B2).
-    apply Sub_ImpR. apply Sub_Refl. apply H0.
-    apply H1.
+    intros. destruct H. destruct H0. repeat split.
+    - apply H.
+    - apply (sequent_subformulas_transitivity (Imp B1 B2) (Sub_ImpL B1 B1 B2 (Sub_Refl B1)) H0).
+    - apply H.
+    - apply (sequent_subformulas_transitivity (Imp B1 B2) (Sub_ImpR B2 B1 B2 (Sub_Refl B2)) H0).
+    - apply H1.
 Qed.
 
 Lemma subp_rfc_Rr :
@@ -220,9 +184,10 @@ Lemma subp_rfc_Rr :
     subsequent (Srfc C N) S ->
     subsequent (Sbct C nil N) S.
 Proof.
-    intros. unfold subsequent in*. destruct H.
-    split. apply H.
-    split. apply Forall_nil. apply H0.
+    intros. destruct H. repeat split.
+    - apply H.
+    - apply incl_nil_l.
+    - apply H0.
 Qed.
 
 Lemma subp_rfc_AndPR :
@@ -231,14 +196,11 @@ Lemma subp_rfc_AndPR :
     subsequent (Srfc C B1) S /\
     subsequent (Srfc C B2) S.
 Proof.
-    intros. unfold subsequent in*. destruct H.
-    split ; split.
-    apply H.
-    eapply sequent_subformulas_transitivity with (B:= AndP B1 B2).
-    apply Sub_AndPL. apply Sub_Refl. apply H0.
-    apply H.
-    eapply sequent_subformulas_transitivity with (B:= AndP B1 B2).
-    apply Sub_AndPR. apply Sub_Refl. apply H0.
+    intros. destruct H. repeat split.
+    - apply H.
+    - apply (sequent_subformulas_transitivity (AndP B1 B2) (Sub_AndPL B1 B1 B2 (Sub_Refl B1)) H0).
+    - apply H.
+    - apply (sequent_subformulas_transitivity (AndP B1 B2) (Sub_AndPR B2 B1 B2 (Sub_Refl B2)) H0).
 Qed.
 
 Lemma subp_rfc_OrR_1 :
@@ -246,10 +208,9 @@ Lemma subp_rfc_OrR_1 :
     subsequent (Srfc C (Or B1 B2)) S ->
     subsequent (Srfc C B1) S.
 Proof.
-    intros. unfold subsequent in*. destruct H.
-    split. apply H.
-    eapply sequent_subformulas_transitivity with (B:= Or B1 B2).
-    apply Sub_OrL. apply Sub_Refl. apply H0.
+    intros. destruct H. repeat split.
+    - apply H.
+    - apply (sequent_subformulas_transitivity (Or B1 B2) (Sub_OrL B1 B1 B2 (Sub_Refl B1)) H0).
 Qed.
 
 Lemma subp_rfc_OrR_2 :
@@ -257,9 +218,7 @@ Lemma subp_rfc_OrR_2 :
     subsequent (Srfc C (Or B1 B2)) S ->
     subsequent (Srfc C B2) S.
 Proof.
-    intros. unfold subsequent in*. destruct H.
-    split. apply H.
-    eapply sequent_subformulas_transitivity with (B:= Or B1 B2).
-    apply Sub_OrR. apply Sub_Refl. apply H0.
+    intros. destruct H. repeat split.
+    - apply H.
+    - apply (sequent_subformulas_transitivity (Or B1 B2) (Sub_OrR B2 B1 B2 (Sub_Refl B2)) H0).
 Qed.
-

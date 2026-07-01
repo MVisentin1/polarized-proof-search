@@ -36,8 +36,7 @@ Lemma sequent_subformulas_transitivity :
     In B (sequent_subformulas S) ->
     In A (sequent_subformulas S).
 Proof.
-    intros.
-    unfold sequent_subformulas in*.
+    intros. unfold sequent_subformulas in*.
     apply nodup_In.
     apply in_flat_map.
     apply nodup_In in H0.
@@ -67,23 +66,21 @@ Definition sequent_subformulas_permeable (S: sequent) : list o :=
 Definition sequent_subformulas_bracketable (S: sequent) : list o :=
     filter bracketable_b (sequent_subformulas S)
 .
-
 Definition subsequent (S S0: sequent) : Prop :=
     match S with
     | Sbct C L K => 
-        Forall (fun A => In A (sequent_subformulas_permeable S0)) (pndctx_list C) /\
-        Forall (fun A => In A (sequent_subformulas S0)) L /\
+        incl (pndctx_list C) (sequent_subformulas_permeable S0) /\
+        incl L (sequent_subformulas S0) /\
         In K (sequent_subformulas S0)
     | Sept C L K => 
-        Forall (fun A => In A (sequent_subformulas_permeable S0)) (pndctx_list C) /\
-        Forall (fun A => In A (sequent_subformulas S0)) L /\
+        incl (pndctx_list C) (sequent_subformulas_permeable S0) /\
+        incl L (sequent_subformulas S0) /\
         In K (sequent_subformulas_bracketable S0)
     | Slfc C N K => 
-        Forall (fun A => In A (sequent_subformulas_permeable S0)) (pndctx_list C) /\
+        incl (pndctx_list C) (sequent_subformulas_permeable S0) /\
         In N (sequent_subformulas S0) /\
         In K (sequent_subformulas_bracketable S0)
     | Srfc C K   => 
-        Forall (fun A => In A (sequent_subformulas_permeable S0)) (pndctx_list C) /\
+        incl (pndctx_list C) (sequent_subformulas_permeable S0) /\
         In K (sequent_subformulas S0)
-    end
-.
+    end.
