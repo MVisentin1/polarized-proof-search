@@ -1,6 +1,6 @@
 From Stdlib Require Import List RelationClasses SetoidList.
 From LJF Require Import SharedLogic Decidability 
-    Pndctx Sequents SetoidList_Extended Subsets.
+    Pndctx Sequents SetoidList_Extended Subsets SetoidList_Extended.
 
 Definition pndctx_o_eq (P1 P2 : pndctx * o) : Prop :=
   pndctx_set_eq (fst P1) (fst P2) /\ snd P1 = snd P2.
@@ -106,7 +106,76 @@ Proof.
       + apply incl_nil_l.
       + apply H3.
 Qed.
-          
+
+Definition pndctx_to_ctx (p : pndctx * o) : list o * o := (pndctx_list (fst p), snd p).
+
+Lemma pndctx_o_eq_iff_ctx_o_eq :
+  forall {p1 p2 : pndctx * o}, pndctx_o_eq p1 p2 <-> ctx_o_eq (pndctx_to_ctx p1) (pndctx_to_ctx p2).
+Proof.
+  intros. destruct p1. destruct p2. 
+  unfold pndctx_o_eq. unfold ctx_o_eq. 
+  unfold pndctx_to_ctx.
+  unfold pndctx_set_eq. simpl.
+  reflexivity.
+Qed.
+
+Lemma stack_inclA_get_all_focus_decision 
+  (init : sequent)
+  (stack : list (pndctx * o))
+  (Hstack_sub : Forall (fun e => subsequent (Sept (fst e) nil (snd e)) init) stack) :
+  inclA ctx_o_eq (map pndctx_to_ctx stack) (get_all_focus_decision init).
+Proof.
+  intro x. intro.
+  apply InA_alt in H as [y [-> H]] ; clear x.
+  apply (in_map_iff _ _ _) in H as [x [H H0]].
+  apply (proj1 (Forall_forall _ _) Hstack_sub x) in H0.
+  unfold pndctx_to_ctx in H. destruct y. destruct H.
+  apply (proj1 (get_all_focus_decision_iff_subsequent) H0).
+Qed.
+
+Lemma NoDupA_pndctx_o_eq_iff_ctx_o_eq 
+  (stack : list (pndctx * o))
+  (Hstack_NoDup : NoDupA pndctx_o_eq stack) :
+  NoDupA ctx_o_eq (map pndctx_to_ctx stack).
+Proof.
+  induction stack.
+  - simpl. apply NoDupA_nil.
+  - simpl. apply NoDupA_cons.
+    + intro. apply InA_alt in H as [y [H H0]]. 
+      inversion Hstack_NoDup ; subst.
+      apply H3. apply InA_alt.
+      apply (in_map_iff _ _ _) in H0 as [x [H1 H2]].
+      symmetry in H1. rewrite H1 in*.
+      apply pndctx_o_eq_iff_ctx_o_eq in H.
+      eexists x. split. apply H. apply H2.
+    + inversion Hstack_NoDup ; subst.
+      apply (IHstack H2).
+Qed.
+
+Lemma stack_length_bound 
+  (init : sequent) (C: pndctx) (K: o)
+  (Hsub : subsequent (Sept C nil K) init)
+  (stack : list (pndctx * o))
+  (Hstack_NoDup : NoDupA pndctx_o_eq stack)
+  (Hstack_sub : Forall (fun e => subsequent (Sept (fst e) nil (snd e)) init) stack) :
+  ~ InA pndctx_o_eq (C, K) stack ->
+  length stack < length (get_all_focus_decision init).
+Proof.
+  intros. specialize (length_map (pndctx_to_ctx) stack) ; intro.
+  symmetry in H0. rewrite H0. 
+  apply (NoDupA_inclA_length_lt ctx_o_eq_dec (pndctx_to_ctx (C, K))).
+  - apply (NoDupA_pndctx_o_eq_iff_ctx_o_eq stack Hstack_NoDup).
+  - apply (stack_inclA_get_all_focus_decision init stack Hstack_sub).
+  - apply (proj1 get_all_focus_decision_iff_subsequent Hsub).
+  - intro.
+    apply InA_alt in H1 as [y [H1 H2]].
+    apply (in_map_iff _ _ _) in H2 as [x [H2 H3]].
+    symmetry in H2 ; subst.
+    apply pndctx_o_eq_iff_ctx_o_eq in H1.
+    apply H. apply InA_alt.
+    eexists x. split. apply H1. apply H3.
+Qed.
+   
 
 
 
