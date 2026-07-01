@@ -51,7 +51,7 @@ Proof.
   - right. intros [? _]. contradiction.
 Qed.
 
-Definition get_all_visited (S: sequent) : list ((list o) * o) :=
+Definition get_all_focus_decision (S: sequent) : list ((list o) * o) :=
     let per := sequent_subformulas_permeable S in
     let bra := sequent_subformulas_bracketable S in
     list_prod (get_all_subsets per) bra.
@@ -77,12 +77,12 @@ Proof.
     apply (proj2 InA_eq_iff_in H).
 Qed. 
 
-Lemma get_all_visited_iff_subsequent :
+Lemma get_all_focus_decision_iff_subsequent :
     forall {C: pndctx} {K: o} {S : sequent},
-        subsequent (Sept C nil K) S <-> InA ctx_o_eq (pndctx_list C, K) (get_all_visited S).
+        subsequent (Sept C nil K) S <-> InA ctx_o_eq (pndctx_list C, K) (get_all_focus_decision S).
 Proof.
     intros. split ; intros.
-    - destruct H. destruct H0. unfold get_all_visited.
+    - destruct H. destruct H0. unfold get_all_focus_decision.
       assert (inclA eq (pndctx_list C) (sequent_subformulas_permeable S)).
       + intro x. intros. rewrite InA_alt in*.
         destruct H2 as [y [-> H2]].
@@ -92,7 +92,7 @@ Proof.
         apply InA_alt. eexists (x, K). split.
         -- unfold ctx_o_eq. simpl. split. apply H4. reflexivity.
         -- apply (in_prod _ _ _ _ H5 H1).
-    - unfold get_all_visited in H. 
+    - unfold get_all_focus_decision in H. 
       destruct (proj1 (InA_alt _ _ _) H) as [x [H0 H1]].
       destruct x.
       unfold ctx_o_eq in H0. simpl in H0. destruct H0. subst.
