@@ -239,4 +239,3 @@ Proof.
       -- simpl. contradiction.
     + specialize (IHL2 L1 H0 H3). simpl. apply (le_S _ _ IHL2).
 Qed.
-
