@@ -221,7 +221,7 @@ Proof.
         ++ simpl. apply (f_equal S H2).
 Qed. 
 
-Lemma NoDupA_inclA_length [A: Type] {eqA : relation A} `{Equivalence A eqA} 
+Lemma NoDupA_inclA_length_le [A: Type] {eqA : relation A} `{Equivalence A eqA} 
   (eqA_dec : forall x y, {eqA x y} + {~ eqA x y}) :
   forall {L1 L2 : list A},
   NoDupA eqA L1 -> 
@@ -238,4 +238,30 @@ Proof.
         apply (Nat.eq_le_incl _ _ H6). apply (le_n_S _ _ IHL2).
       -- simpl. contradiction.
     + specialize (IHL2 L1 H0 H3). simpl. apply (le_S _ _ IHL2).
+Qed.
+
+Lemma NoDupA_inclA_length_lt [A: Type] {eqA : relation A} `{Equivalence A eqA} 
+  (eqA_dec : forall x y, {eqA x y} + {~ eqA x y}) :
+  forall (B : A) {L1 L2 : list A},
+  NoDupA eqA L1 -> 
+  inclA eqA L1 L2 ->
+  InA eqA B L2  ->
+  ~ InA eqA B L1 ->
+  length L1 < length L2.
+Proof.
+  intros B L1 L2. revert L1. induction L2.
+  - intros. inversion H2.
+  - intros. destruct (proj1 (inclA_removeA_iff eqA_dec) H1) ; destruct H4.
+    + destruct (eqA_dec B a).
+      -- rewrite e in H3. contradiction.
+      -- inversion H2 ; subst.
+        ++ contradiction.
+        ++ assert (~ InA eqA B (removeA eqA_dec a L1)).
+          --- intro. destruct (proj1 (removeA_InA H eqA_dec _ _ _) H6). contradiction.
+          --- specialize (IHL2 _ (NoDupA_removeA eqA_dec a H0) H5 H7 H6).
+            simpl. destruct (NoDupA_removeA_length eqA_dec a H0) ; destruct H8.
+            +++ rewrite H9. apply (proj1 (Nat.succ_lt_mono _ _) IHL2).
+            +++ contradiction.
+    + simpl. specialize (NoDupA_inclA_length_le eqA_dec H0 H5) ; intro.
+      apply (proj2 (Nat.lt_succ_r _ _) H6).
 Qed.
