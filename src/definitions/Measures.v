@@ -1,4 +1,4 @@
-From Stdlib Require Import List.
+From Stdlib Require Import List Lia.
 From LJF Require Import SharedLogic.
 
 Fixpoint osize (A : o) : nat :=
@@ -13,9 +13,16 @@ Fixpoint osize (A : o) : nat :=
     end
 .
 
+Lemma osize_positive :
+    forall (A : o), 0 < osize A.
+Proof.
+    intros. destruct A ; simpl ; lia.
+Qed.
+
 Fixpoint octx_size (L : octx) : nat :=
     match L with
     | nil      => 0
     | A :: L'  => osize A + octx_size L'
     end
 .
+
