@@ -41,5 +41,5 @@ src/proofsearch/Focus_Decision_Set.v
 src/metatheory/LJFPS/LJFPS_Inversion.v
 
 src/proofsearch/Search_Procedure.v
-src/proofsearch/Utility.v
+src/proofsearch/Search_Wrapper.v
 

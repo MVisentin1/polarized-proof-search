@@ -17,5 +17,3 @@ Definition decide_sequent (seq : sequent) : option ({sequent_derivable seq} + {~
       | right Hbr => Some (right (fun H => Hbr (LJFPS_bracketable_goal_lfc H)))
       end
   end.
-
-
