@@ -1,0 +1,9 @@
+From Stdlib Require Import List.
+From LJF Require Import SharedLogic Sequents Pndctx Search_Procedure Search_Wrapper.
+
+Require Import ExtrOcamlBasic.
+Require Import ExtrOcamlNatInt.
+
+Require Extraction.
+Extraction Language OCaml.
+Extraction "ljfps_search.ml" decide_sequent.

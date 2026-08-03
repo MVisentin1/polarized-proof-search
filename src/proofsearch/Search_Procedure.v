@@ -130,7 +130,11 @@ Equations search
             | None              => None
             }
         | Some (right H1)   => Some (right (fun H => H1 (proj1 (ept_OrL_inv H)))) ;
-        | None              => None
+        | None              with search init (Sept C (B2 :: L) K) (proj2 (subp_ept_OrL Hsub)) stack Hstack_NoDup Hstack_sub := {
+            | Some (left H2)    => None
+            | Some (right H2)   => Some (right (fun H => H2 (proj2 (ept_OrL_inv H)))) ;
+            | None              => None
+            }
     } ;
 
     search init (Sept C (TT :: L) K) Hsub stack Hstack_NoDup Hstack_sub 
@@ -202,7 +206,11 @@ Equations search
             | None              => None
             }
         | Some (right H1)   => Some (right (fun H => H1 (proj1 (bct_AndNR_inv H))))
-        | None              => None
+        | None              with search init (Sbct C L B2) (proj2 (subp_bct_AndNR Hsub)) stack Hstack_NoDup Hstack_sub := {
+            | Some (left H2)    => None
+            | Some (right H2)   => Some (right (fun H => H2 (proj2 (bct_AndNR_inv H))))
+            | None              => None
+            }
     } ;
     
     search init (Sbct C L (Imp B1 B2)) Hsub stack Hstack_NoDup Hstack_sub 
@@ -267,12 +275,16 @@ Equations search
         | Some (right H1)   with search init (Slfc C B2 K) (subp_lfc_AndNL_2 Hsub) stack Hstack_NoDup Hstack_sub := {
             | Some (left H2)    => Some (left (lfc_AndNL_2 (LJFPS_bracketable_goal_lfc H2) H2))
             | Some (right H2)   => Some (right (fun H => match lfc_AndNL_inv H with
-                | or_introl H3       => H1 H3
+                | or_introl H3      => H1 H3
                 | or_intror H3      => H2 H3
                 end ))
             | None              => None
             }
-        | None              => None
+        | None              with search init (Slfc C B2 K) (subp_lfc_AndNL_2 Hsub) stack Hstack_NoDup Hstack_sub := {
+            | Some (left H2)    => Some (left (lfc_AndNL_2 (LJFPS_bracketable_goal_lfc H2) H2))
+            | Some (right H2)   => None
+            | None              => None                
+            }
     } ;
 
     search init (Slfc C (Imp B1 B2) K) Hsub stack Hstack_NoDup Hstack_sub
@@ -283,7 +295,11 @@ Equations search
             | None              => None
             }
         | Some (right H1)   => Some (right (fun H => H1 (proj1 (lfc_ImpL_inv H))))
-        | None              => None
+        | None              with search init (Slfc C B2 K) (proj2 (subp_lfc_ImpL Hsub)) stack Hstack_NoDup Hstack_sub := {
+            | Some (left H2)    => None
+            | Some (right H2)   => Some (right (fun H => H2 (proj2 (lfc_ImpL_inv H))))
+            | None              => None
+            }
     } ;
 
     search init (Srfc C (Atom Neg n)) Hsub stack Hstack_NoDup Hstack_sub :=
@@ -324,7 +340,11 @@ Equations search
             | None              => None
             }
         | Some (right H1)   => Some (right (fun H => H1 (proj1 (rfc_AndPR_inv H))))
-        | None              => None
+        | None              with search init (Srfc C B2) (proj2 (subp_rfc_AndPR Hsub)) stack Hstack_NoDup Hstack_sub := {
+            | Some (left H2)    => None
+            | Some (right H2)   => Some (right (fun H => H2 (proj2 (rfc_AndPR_inv H))))
+            | None              => None
+            }
     } ;
 
     search init (Srfc C (Or B1 B2)) Hsub stack Hstack_NoDup Hstack_sub 
@@ -338,13 +358,20 @@ Equations search
                 end ))
             | None              => None
             }
-        | None                  => None
+        | None              with search init (Srfc C B2) (subp_rfc_OrR_2 Hsub) stack Hstack_NoDup Hstack_sub := {
+            | Some (left H2)    => Some (left (rfc_OrR_2 H2))
+            | Some (right H2)   => None
+            | None              => None
+            }
     } ;
 
     search init (Srfc C TT) Hsub stack Hstack_NoDup Hstack_sub := Some (left (rfc_TrueR)) ;
 
     search init (Srfc C FF) Hsub stack Hstack_NoDup Hstack_sub := Some (right (rfc_FF_unprovable)).
 
+Next Obligation.
+    right. lia.
+Qed.
 Next Obligation.
     right. lia.
 Qed.
@@ -394,6 +421,9 @@ Next Obligation.
     right. lia.
 Qed.
 Next Obligation.
+    right. lia.
+Qed.
+Next Obligation.
     left. right. lia.
 Qed.
 Next Obligation.
@@ -412,7 +442,19 @@ Next Obligation.
     right. lia.
 Qed.
 Next Obligation.
+    right. lia.
+Qed. 
+Next Obligation.
     left. right. lia.
+Qed.
+Next Obligation.
+    right. lia.
+Qed.
+Next Obligation.
+    right. lia.
+Qed.
+Next Obligation.
+    right. lia.
 Qed.
 Next Obligation.
     right. lia.
