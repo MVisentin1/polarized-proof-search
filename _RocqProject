@@ -42,3 +42,6 @@ src/metatheory/LJFPS/LJFPS_Inversion.v
 
 src/rules/LJFn_Rules.v
 
+src/metatheory/LJFn/LJFn_Monotone.v
+src/metatheory/LJFn/LJFn_Completeness.v
+

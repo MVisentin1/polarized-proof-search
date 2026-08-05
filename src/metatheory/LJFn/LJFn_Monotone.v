@@ -30,3 +30,19 @@ Proof.
     - destruct n0. inversion H0. apply (rfcn_OrR_2 (H n0 (le_S_n n n0 H0))).
     - destruct n0. inversion H. apply (rfcn_TrueR n0).
 Qed.    
+
+Lemma LJFn_monotone_bctn : 
+    forall {m: nat} {C: pndctx} {L: octx} {K: o}, bctn m C L K -> forall {n: nat}, m <= n -> bctn n C L K.
+Proof. destruct LJFn_monotone. apply H. Qed.
+
+Lemma LJFn_monotone_eptn : 
+    forall {m: nat} {C: pndctx} {L: octx} {K: o}, eptn m C L K -> forall {n: nat}, m <= n -> eptn n C L K.
+Proof. destruct LJFn_monotone. destruct H0. apply H0. Qed.
+
+Lemma LJFn_monotone_lfcn : 
+    forall {m: nat} {C: pndctx} {N K: o}, lfcn m C N K -> forall {n: nat}, m <= n -> lfcn n C N K.
+Proof. destruct LJFn_monotone. destruct H0. destruct H1. apply H1. Qed.
+
+Lemma LJFn_monotone_rfcn : 
+    forall {m: nat} {C: pndctx} {K: o}, rfcn m C K -> forall {n: nat}, m <= n -> rfcn n C K.
+Proof. destruct LJFn_monotone. destruct H0. destruct H1. apply H2. Qed.
