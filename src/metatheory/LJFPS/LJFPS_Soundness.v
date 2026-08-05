@@ -2,7 +2,7 @@ From Stdlib Require Import List Permutation.
 
 From LJF Require Import SharedLogic Decidability Pndctx LJFO_Rules LJFO_Weakening LJFPS_Rules Schemes.
 
-Theorem LJFC_soundness :
+Theorem LJFPS_soundness :
     (forall {C: pndctx} {L: octx} {K: o}, bct C L K -> bctO (pndctx_list C) L K) /\
     (forall {C: pndctx} {L: octx} {K: o}, ept C L K -> eptO (pndctx_list C) L K) /\
     (forall {C: pndctx} {N K: o}, lfc C N K -> lfcO (pndctx_list C) N K) /\
