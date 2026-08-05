@@ -52,7 +52,7 @@ with eptn : nat -> pndctx -> octx -> o -> Prop :=
     eptn n C L K ->
     eptn (S n) C (TT :: L) K
 | eptn_FalseL :
-  forall {n: nat} {C: pndctx} {L: octx} {K: o},
+  forall (n: nat) {C: pndctx} {L: octx} {K: o},
     bracketable K ->
     eptn (S n) C (FF :: L) K
 with lfcn : nat -> pndctx -> o -> o -> Prop :=
@@ -63,7 +63,7 @@ with lfcn : nat -> pndctx -> o -> o -> Prop :=
     eptn n C (P :: nil) K ->
     lfcn (S n) C P K
 | lfcn_Il :
-  forall {n: nat} {C: pndctx} {N : o},
+  forall (n: nat) {C: pndctx} {N : o},
     negative N ->
     atomic N ->
     lfcn (S n) C N N
@@ -90,7 +90,7 @@ with rfcn : nat -> pndctx -> o -> Prop :=
     bctn n C nil N ->
     rfcn (S n) C N
 | rfcn_Ir :
-  forall {n: nat} {C: pndctx} {P: o},
+  forall (n: nat) {C: pndctx} {P: o},
     In P (pndctx_list C) ->
     positive P ->
     atomic P ->
@@ -109,6 +109,6 @@ with rfcn : nat -> pndctx -> o -> Prop :=
     rfcn n C B2 ->
     rfcn (S n) C (Or B1 B2)
 | rfcn_TrueR :
-  forall {n: nat} {C: pndctx},
+  forall (n: nat) {C: pndctx},
     rfcn (S n) C TT
 .
