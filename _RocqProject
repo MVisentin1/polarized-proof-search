@@ -44,4 +44,8 @@ src/rules/LJFn_Rules.v
 
 src/metatheory/LJFn/LJFn_Monotone.v
 src/metatheory/LJFn/LJFn_Completeness.v
+src/metatheory/LJFn/LJFn_MinimalHeight.v
+src/metatheory/LJFn/LJFn_Soundness.v
+
+src/rules/LJFh_Rules.v
 

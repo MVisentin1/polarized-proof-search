@@ -1,4 +1,4 @@
-From Stdlib Require Import List Permutation ProofIrrelevance.
+From Stdlib Require Import List Permutation.
 From LJF Require Import SharedLogic Pndctx.
 
 Inductive bct : pndctx -> octx -> o -> Prop :=
@@ -57,7 +57,7 @@ with ept : pndctx -> octx -> o -> Prop :=
     ept C (FF :: L) K
 with lfc : pndctx -> o -> o -> Prop :=
 | lfc_Rl :
-  forall {C : pndctx} {P : o}  {K : o},
+  forall {C: pndctx} {P : o}  {K : o},
     bracketable K ->
     positive P ->
     ept C (P :: nil) K ->

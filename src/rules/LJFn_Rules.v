@@ -1,4 +1,4 @@
-From Stdlib Require Import List Permutation ProofIrrelevance.
+From Stdlib Require Import List Permutation.
 From LJF Require Import SharedLogic Pndctx.
 
 Inductive bctn : nat -> pndctx -> octx -> o -> Prop :=

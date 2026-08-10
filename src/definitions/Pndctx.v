@@ -303,3 +303,27 @@ Proof.
   unfold pndctx_set_eq. intros.
   apply equivlistA_dec. apply eq_equivalence. apply o_eq_dec.
 Qed.
+
+Definition pndctx_o_eq (P1 P2 : pndctx * o) : Prop :=
+  pndctx_set_eq (fst P1) (fst P2) /\ snd P1 = snd P2.
+
+#[export] Instance pndctx_o_eq_Equivalence : Equivalence pndctx_o_eq.
+Proof.
+  unfold pndctx_o_eq. constructor.
+  - intro P. split ; reflexivity.
+  - intros P1 P2 [H1 H2]. split ; symmetry ; assumption.
+  - intros P1 P2 P3 [H1 H2] [H3 H4]. split.
+    + etransitivity ; eauto.
+    + etransitivity ; eauto.
+Qed.
+
+Lemma pndctx_o_eq_dec :
+  forall (P1 P2 : pndctx * o), {pndctx_o_eq P1 P2} + {~ pndctx_o_eq P1 P2}.
+Proof.
+  unfold pndctx_o_eq. intros [C1 o1] [C2 o2]. simpl.
+  destruct (pndctx_set_eq_dec C1 C2) ; destruct (o_eq_dec o1 o2).
+  - left. split ; assumption.
+  - right. intros [_ ?]. contradiction.
+  - right. intros [? _]. contradiction.
+  - right. intros [? _]. contradiction.
+Qed.
