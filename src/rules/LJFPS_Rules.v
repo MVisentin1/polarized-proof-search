@@ -1,4 +1,4 @@
-From Stdlib Require Import List Permutation.
+From Stdlib Require Import List.
 From LJF Require Import SharedLogic Pndctx.
 
 Inductive bct : pndctx -> octx -> o -> Prop :=

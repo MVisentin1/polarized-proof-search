@@ -1,4 +1,4 @@
-From Stdlib Require Import List Permutation SetoidList.
+From Stdlib Require Import List SetoidList.
 From LJF Require Import SharedLogic Pndctx.
 
 Notation hist := (list (pndctx * o)).
