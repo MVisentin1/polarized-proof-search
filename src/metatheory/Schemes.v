@@ -1,4 +1,4 @@
-From LJF Require Import LJF_Rules LJF4_Rules LJFO_Rules LJFPS_Rules LJFn_Rules.
+From LJF Require Import LJF_Rules LJF4_Rules LJFO_Rules LJFPS_Rules LJFn_Rules LJFh_Rules.
 
 Scheme ufcL_mut := Induction for ufcL Sort Prop
   with lfcL_mut := Induction for lfcL Sort Prop
@@ -47,3 +47,9 @@ Scheme bctn_mut := Induction for bctn Sort Prop
   with lfcn_mut := Induction for lfcn Sort Prop
   with rfcn_mut := Induction for rfcn Sort Prop.
 Combined Scheme LJFn_mutind_all from bctn_mut, eptn_mut, lfcn_mut, rfcn_mut.
+
+Scheme bcth_mut := Induction for bcth Sort Prop
+  with epth_mut := Induction for epth Sort Prop
+  with lfch_mut := Induction for lfch Sort Prop
+  with rfch_mut := Induction for rfch Sort Prop.
+Combined Scheme LJFh_mutind_all from bcth_mut, epth_mut, lfch_mut, rfch_mut.

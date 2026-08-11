@@ -40,6 +40,9 @@ src/proofsearch/Focus_Decision_Set.v
 
 src/metatheory/LJFPS/LJFPS_Inversion.v
 
+src/proofsearch/Search_Procedure.v
+src/proofsearch/Search_Wrapper.v
+
 src/rules/LJFn_Rules.v
 
 src/metatheory/LJFn/LJFn_Monotone.v
