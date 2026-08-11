@@ -49,4 +49,4 @@ src/metatheory/LJFn/LJFn_Soundness.v
 src/metatheory/LJFn/LJFn_Exchange.v
 
 src/rules/LJFh_Rules.v
-
+src/metatheory/LJFh/LJFh_Completeness.v

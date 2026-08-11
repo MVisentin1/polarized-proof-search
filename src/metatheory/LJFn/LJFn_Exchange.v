@@ -48,3 +48,9 @@ Proof.
     - apply (rfcn_OrR_2 (H C0 H0)).
     - apply (rfcn_TrueR n).
 Qed.
+
+
+Lemma LJFn_exchange_structural_eptn :
+    forall {n: nat} {C: pndctx} {L: octx} {K: o}, eptn n C L K -> 
+    forall {C0: pndctx}, pndctx_set_eq C C0 -> eptn n C0 L K.
+Proof. destruct LJFn_exchange_structural. destruct H0. apply H0. Qed.
