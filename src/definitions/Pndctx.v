@@ -295,6 +295,33 @@ Proof.
   - intro C. reflexivity.
   - intros C1 C2 H. symmetry. assumption.
   - intros C1 C2 C3 H1 H2. etransitivity ; eauto.
+Qed. 
+
+Lemma pndctx_set_eq_pndctx_insert :
+  forall {C1 C2: pndctx} {B: o},
+    pndctx_set_eq C1 C2 -> pndctx_set_eq (pndctx_insert B C1) (pndctx_insert B C2).
+Proof.
+  intros. 
+  unfold pndctx_set_eq in* ; 
+  unfold pndctx_list in* ; simpl ;
+  unfold raw_insert in*.
+  destruct permeable_dec.
+  - destruct in_dec ;destruct in_dec.
+    + intro x. apply (H x).
+    + exfalso. apply n ; clear n.
+      specialize (H B) as [H H0].
+      specialize (proj1 (InA_alt eq B (pndctx_list C2))) ; intro.
+      destruct H1.
+      -- apply H. apply InA_alt. eexists B. split. reflexivity. apply i.
+      -- destruct H1 as [-> H1]. apply H1.
+    + exfalso. apply n ; clear n.
+      specialize (H B) as [H H0].
+      specialize (proj1 (InA_alt eq B (pndctx_list C1))) ; intro.
+      destruct H1.
+      -- apply H0. apply InA_alt. eexists B. split. reflexivity. apply i.
+      -- destruct H1 as [-> H1]. apply H1.
+    + apply equivlistA_cons_cons. apply eq_equivalence. apply H.
+  - apply H.
 Qed.
 
 Lemma pndctx_set_eq_dec :

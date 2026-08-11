@@ -1,11 +1,11 @@
 From Stdlib Require Import List PeanoNat Wf_nat Classical_Prop.
 From LJF Require Import SharedLogic Pndctx LJFn_Rules Schemes.
 
-Definition min_height_eptn (m: nat) (C: pndctx) (L: octx) (K: o) :=
-    eptn m C L K /\ forall (n: nat), n < m -> ~ (eptn n C L K).
+Definition min_height_eptn (m: nat) (C: pndctx) (K: o) :=
+    eptn m C nil K /\ forall (n: nat), n < m -> ~ (eptn n C nil K).
 
 Lemma min_height_exists : forall (m: nat) (C: pndctx) (K: o),
-  eptn m C nil K -> exists (n: nat), n <= m /\ min_height_eptn n C nil K.
+  eptn m C nil K -> exists (n: nat), n <= m /\ min_height_eptn n C K.
 Proof.
     induction m as [m IH] using (well_founded_ind lt_wf).
     intros C K H. 

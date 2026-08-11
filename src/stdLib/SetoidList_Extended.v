@@ -265,3 +265,20 @@ Proof.
     + simpl. specialize (NoDupA_inclA_length_le eqA_dec H0 H5) ; intro.
       apply (proj2 (Nat.lt_succ_r _ _) H6).
 Qed.
+
+Lemma equivlistA_cons_cons [A: Type] {eqA : relation A} `{Equivalence A eqA}  : 
+  forall {C1 C2 : list A} {B: A}, 
+    equivlistA eqA C1 C2 -> equivlistA eqA (B :: C1) (B :: C2).
+Proof.
+  intros. intro. split.
+  - intro. rewrite InA_alt in H1. destruct H1 as [y [-> H1]] ; clear x.
+    inversion H1.
+    + subst. apply InA_cons_hd. reflexivity.
+    + apply InA_cons_tl. specialize (H0 y). destruct H0.
+      apply H0. apply InA_alt. eexists y. split. reflexivity. apply H2.
+  - intro. rewrite InA_alt in H1. destruct H1 as [y [-> H1]] ; clear x.
+    inversion H1.
+    + subst. apply InA_cons_hd. reflexivity.
+    + apply InA_cons_tl. specialize (H0 y). destruct H0.
+      apply H3. apply InA_alt. eexists y. split. reflexivity. apply H2.
+Qed.
