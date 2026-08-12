@@ -36,6 +36,8 @@ Proof.
     - specialize (pndctx_list_mk_commute C) ; intro ; rewrite H0.
         apply (CPr (pndctx_list C) K (COr (pndctx_list C) K (C4r (pndctx_list C) K H))).
 Qed. 
+
+Print Assumptions LJFPS_Sound_And_Complete_To_LJF.
     
 Theorem Derivable_iff_Search_Returns_Some_left :
     forall (s : sequent), sequent_derivable s <-> returns_some_proof (decide_sequent s).
@@ -58,6 +60,8 @@ Proof.
     - unfold returns_some_proof in H. destruct (decide_sequent (Srfc C K)). destruct s. apply s. contradiction. contradiction.
 Qed.
 
+Print Assumptions Derivable_iff_Search_Returns_Some_left.
+
 Theorem Underivable_iff_Search_Returns_Some_Right_or_None :
     forall (s : sequent), ~ sequent_derivable s <-> returns_some_disproof (decide_sequent s) \/ returns_none (decide_sequent s).
 Proof.
@@ -71,6 +75,8 @@ Proof.
         + simpl in*. intro. apply (H0 H2).
 Qed.
 
+Print Assumptions Underivable_iff_Search_Returns_Some_Right_or_None.
+
 Definition decide (s : sequent) : {sequent_derivable s} + {~ sequent_derivable s}.
 Proof.
     destruct (decide_sequent s) as [[s0 | s0] | ] eqn:E.
@@ -80,3 +86,6 @@ Proof.
         apply (proj1 (Derivable_iff_Search_Returns_Some_left s)) in H.
         rewrite E in H. contradiction.
 Defined.
+
+Print Assumptions decide.
+
