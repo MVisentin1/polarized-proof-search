@@ -1,6 +1,6 @@
 From Stdlib Require Import List.
 
-From LJF Require Import SharedLogic Predicates Decidability Pndctx LJFPS_Rules Sequents LJFPS_Bracketable.
+From LJF Require Import SharedLogic Predicates Pndctx LJFPS_Rules.
 
 Lemma bct_boxR_inv : forall {C: pndctx} {L: octx} {D: o},
     bracketable D -> bct C L D -> ept C L D.

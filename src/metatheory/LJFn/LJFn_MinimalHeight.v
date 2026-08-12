@@ -1,5 +1,5 @@
 From Stdlib Require Import List PeanoNat Wf_nat Classical_Prop.
-From LJF Require Import SharedLogic Pndctx LJFn_Rules Schemes.
+From LJF Require Import SharedLogic Pndctx LJFn_Rules.
 
 Definition min_height_eptn (m: nat) (C: pndctx) (K: o) :=
     eptn m C nil K /\ forall (n: nat), n < m -> ~ (eptn n C nil K).

@@ -1,5 +1,5 @@
 From Stdlib Require Import List SetoidList Wf_nat.
-From LJF Require Import SharedLogic Pndctx LJFh_Rules  LJFn_Rules Schemes LJFn_MinimalHeight LJFn_Exchange.
+From LJF Require Import SharedLogic Pndctx LJFh_Rules LJFn_Rules LJFn_MinimalHeight LJFn_Exchange.
 
 Definition hist_height_bound (Hs : hist) (n : nat) : Prop :=
   forall (C: pndctx) (K: o), InA pndctx_o_eq (C, K) Hs -> 

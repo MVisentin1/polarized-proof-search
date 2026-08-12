@@ -1,6 +1,5 @@
 From Stdlib Require Import List SetoidList.
-From LJF Require Import SharedLogic Decidability
-    Predicates Subformula Pndctx LJFPS_Rules Sequents Search_Procedure LJFPS_Bracketable.
+From LJF Require Import Decidability Sequents Search_Procedure LJFPS_Bracketable.
 
 Definition decide_sequent (seq : sequent) : option ({sequent_derivable seq} + {~ sequent_derivable seq}) :=
   match seq as s return option ({sequent_derivable s} + {~ sequent_derivable s}) with

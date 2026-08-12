@@ -1,5 +1,5 @@
 From Stdlib Require Import List Permutation.
-From LJF Require Import LJF_Rules LJF4_Rules SharedLogic Schemes.
+From LJF Require Import LJF4_Rules SharedLogic Schemes.
 
 Lemma LJF4_exchange_structural :
   (forall {C: sctx} {L: lctx} {K: o}, bct4 C L K -> forall C1, Permutation C C1 -> bct4 C1 L K) /\

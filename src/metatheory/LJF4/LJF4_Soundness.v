@@ -1,5 +1,5 @@
 From Stdlib Require Import List Permutation.
-From LJF Require Import SharedLogic LJF_Rules LJF4_Rules LJF4_Exchange Schemes.
+From LJF Require Import SharedLogic LJF_Rules LJF4_Rules Schemes.
 
 Theorem LJF4_soundness : 
   (forall {C: sctx} {L: lctx} {K: o}, bct4 C L K -> ufcL C L K Unbracketed) /\

@@ -1,7 +1,7 @@
 From Stdlib Require Import List PeanoNat SetoidList Lia.
 From LJF Require Import SharedLogic Decidability
-    Predicates Subformula Pndctx LJFPS_Rules Sequents Measures LJFPS_Bracketable
-    Termination_Measures LJFPS_Inversion Subsequent_Preservation Subsets SetoidList_Extended Focus_Decision_Set.
+    Predicates Pndctx LJFPS_Rules Sequents LJFPS_Bracketable
+    Termination_Measures LJFPS_Inversion Subsequent_Preservation Focus_Decision_Set.
 From Equations Require Import Equations.
 
 Equations try_Lf {C : pndctx} {K : o}

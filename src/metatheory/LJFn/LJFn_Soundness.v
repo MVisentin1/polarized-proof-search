@@ -1,5 +1,5 @@
 From Stdlib Require Import List PeanoNat.
-From LJF Require Import SharedLogic Pndctx LJFPS_Rules LJFn_Rules LJFn_Monotone Schemes.
+From LJF Require Import SharedLogic Pndctx LJFPS_Rules LJFn_Rules Schemes.
 
 Theorem LJFn_soundness :
     (forall {n: nat} {C: pndctx} {L: octx} {K: o}, bctn n C L K -> bct C L K) /\

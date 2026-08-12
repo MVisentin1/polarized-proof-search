@@ -1,6 +1,5 @@
 From Stdlib Require Import List PeanoNat.
-From LJF Require Import SharedLogic Decidability 
-    Predicates Subformula Pndctx LJFPS_Rules Sequents Measures.
+From LJF Require Import Sequents Measures.
 
 Definition phase_ranking (S: sequent) : nat :=
     match S with

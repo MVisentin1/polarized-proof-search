@@ -1,6 +1,6 @@
 From Stdlib Require Import List.
-From LJF Require Import SharedLogic Predicates 
-    Pndctx Decidability Subformula LJFPS_Rules Sequents.
+From LJF Require Import SharedLogic Predicates
+    Pndctx Decidability Subformula Sequents.
 
 Lemma subp_bct_boxR : 
     forall {C: pndctx} {L: octx} {D: o} {S: sequent},

@@ -1,6 +1,6 @@
 From Stdlib Require Import List.
 
-From LJF Require Import SharedLogic Decidability Predicates.
+From LJF Require Import SharedLogic Decidability.
 
 Inductive subformula (A: o) : o -> Prop :=
 | Sub_Refl  : subformula A A
