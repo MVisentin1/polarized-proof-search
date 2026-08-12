@@ -1,6 +1,5 @@
 From Stdlib Require Import List SetoidList Wf_nat.
-From LJF Require Import SharedLogic Pndctx LJFPS_Rules LJFh_Rules 
-  LJFn_Completeness LJFn_Rules Schemes LJFn_MinimalHeight LJFn_Exchange.
+From LJF Require Import SharedLogic Pndctx LJFh_Rules  LJFn_Rules Schemes LJFn_MinimalHeight LJFn_Exchange.
 
 Definition hist_height_bound (Hs : hist) (n : nat) : Prop :=
   forall (C: pndctx) (K: o), InA pndctx_o_eq (C, K) Hs -> 
@@ -106,20 +105,15 @@ Qed.
 Lemma hist_height_bound_nil : forall (n: nat), hist_height_bound nil n.
 Proof. intros n C K H. inversion H. Qed.
 
-Lemma LJFh_completeness_nil :
-  (forall {C: pndctx} {L: octx} {K: o}, bct C L K -> bcth nil C L K) /\
-  (forall {C: pndctx} {L: octx} {K: o}, ept C L K -> epth nil C L K) /\
-  (forall {C: pndctx} {N K: o},        lfc C N K -> lfch nil C N K) /\
-  (forall {C: pndctx} {K: o},          rfc C K   -> rfch nil C K).
+Theorem LJFh_completeness_alt :
+  (forall {n: nat} {C: pndctx} {L: octx} {K: o}, bctn n C L K -> forall {Hs: hist}, hist_height_bound Hs n -> bcth Hs C L K) /\
+  (forall {n: nat} {C: pndctx} {L: octx} {K: o}, eptn n C L K -> forall {Hs: hist}, hist_height_bound Hs n -> epth Hs C L K) /\
+  (forall {n: nat} {C: pndctx} {N K: o}, lfcn n C N K -> forall {Hs: hist}, hist_height_bound Hs n -> lfch Hs C N K) /\
+  (forall {n: nat} {C: pndctx} {K: o}, rfcn n C K -> forall {Hs: hist}, hist_height_bound Hs n -> rfch Hs C K).
 Proof.
-  destruct LJFn_completeness as [Cb [Ce [Cl Cr]]].
-  repeat split ; intros.
-  - destruct (Cb C L K H). destruct (LJFh_completeness x) as [Hb [He [Hl Hr]]].
-    apply (Hb C L K H0 nil (hist_height_bound_nil x)).
-  - destruct (Ce C L K H). destruct (LJFh_completeness x) as [Hb [He [Hl Hr]]].
-    apply (He C L K H0 nil (hist_height_bound_nil x)).
-  - destruct (Cl C N K H). destruct (LJFh_completeness x) as [Hb [He [Hl Hr]]].
-    apply (Hl C N K H0 nil (hist_height_bound_nil x)).
-  - destruct (Cr C K H). destruct (LJFh_completeness x) as [Hb [He [Hl Hr]]].
-    apply (Hr C K H0 nil (hist_height_bound_nil x)).
+  repeat split.
+  - intro n. destruct (LJFh_completeness n) as [Chb [Che [Chl Chr]]]. apply Chb.
+  - intro n. destruct (LJFh_completeness n) as [Chb [Che [Chl Chr]]]. apply Che.
+  - intro n. destruct (LJFh_completeness n) as [Chb [Che [Chl Chr]]]. apply Chl.
+  - intro n. destruct (LJFh_completeness n) as [Chb [Che [Chl Chr]]]. apply Chr.
 Qed.

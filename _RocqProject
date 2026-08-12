@@ -54,3 +54,5 @@ src/metatheory/LJFn/LJFn_Exchange.v
 src/rules/LJFh_Rules.v
 src/metatheory/LJFh/LJFh_Completeness.v
 src/proofsearch/Search_Completeness.v
+
+src/Global_Results.v

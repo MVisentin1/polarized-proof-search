@@ -354,3 +354,39 @@ Proof.
   - right. intros [? _]. contradiction.
   - right. intros [? _]. contradiction.
 Qed.
+
+Lemma nodup_id : forall (l : list o), NoDup l -> nodup o_eq_dec l = l.
+Proof.
+  induction l as [| a l IH] ; intro H.
+  - reflexivity.
+  - inversion H ; subst. simpl.
+    destruct (in_dec o_eq_dec a l) as [Hin | Hnin].
+    + contradiction.
+    + f_equal. apply IH. assumption.
+Qed.
+
+Lemma filter_permeable_id :
+  forall (l : list o), permeable_ctx l -> filter permeable_b l = l.
+Proof.
+  induction l as [| a l IH] ; intro H.
+  - reflexivity.
+  - inversion H ; subst. simpl.
+    destruct (permeable_b a) eqn:E.
+    + f_equal. apply IH. assumption.
+    + apply (proj2 (permeable_b_iff a)) in H2. congruence.
+Qed.
+
+Lemma mk_pndctx_list_id :
+  forall (l : list o), NoDup l -> permeable_ctx l ->
+    filter permeable_b (nodup o_eq_dec l) = l.
+Proof.
+  intros l HN HP. rewrite (nodup_id l HN). apply (filter_permeable_id l HP).
+Qed.
+
+Lemma pndctx_list_mk_commute :
+  forall (C : pndctx), C = mk_pndctx (pndctx_list C).
+Proof.
+  intro C. symmetry. apply pndctx_eq. simpl.
+  apply (mk_pndctx_list_id (pndctx_list C) (pndctx_nodup C) (pndctx_permeable_ctx C)).
+Qed.
+  

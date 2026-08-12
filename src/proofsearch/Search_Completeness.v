@@ -5,6 +5,12 @@ From Equations Require Import Equations.
 Definition returns_some_proof {A B : Prop} (r : option ({A} + {B})) : Prop :=
   match r with Some (left _) => True | _ => False end.
 
+Definition returns_some_disproof {A B : Prop} (r : option ({A} + {B})) : Prop :=
+  match r with Some (right _) => True | _ => False end.
+
+Definition returns_none {A B : Prop} (r : option ({A} + {B})) : Prop :=
+  match r with None => True | _ => False end.
+
 Lemma returns_some_proof_inv {A B : Prop} {r : option ({A} + {B})} :
   returns_some_proof r -> exists p : A, r = Some (left p).
 Proof.
@@ -50,7 +56,7 @@ Proof.
     - apply H1.
 Qed. 
 
-Theorem search_complete_H :
+Theorem search_complete :
     (forall {Hstack: hist} {C: pndctx} {L: octx} {K: o}, 
         bcth Hstack C L K ->
         forall (init : sequent) 
