@@ -1,7 +1,7 @@
 From Stdlib Require Import List SetoidList.
 From LJF Require Import Decidability Sequents Search_Procedure LJFPS_Bracketable.
 
-Definition decide_sequent (seq : sequent) : option ({sequent_derivable seq} + {~ sequent_derivable seq}) :=
+Definition try_decide_sequent  (seq : sequent) : option ({sequent_derivable seq} + {~ sequent_derivable seq}) :=
   match seq as s return option ({sequent_derivable s} + {~ sequent_derivable s}) with
   | Sbct C L K => search (Sbct C L K) (Sbct C L K) (subsequent_refl (Sbct C L K) I) nil (NoDupA_nil _) (Forall_nil _)
   | Srfc C K   => search (Srfc C K) (Srfc C K) (subsequent_refl (Srfc C K) I) nil (NoDupA_nil _) (Forall_nil _)
