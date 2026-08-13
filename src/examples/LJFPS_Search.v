@@ -6,4 +6,4 @@ Require Import ExtrOcamlNatInt.
 
 Require Extraction.
 Extraction Language OCaml.
-Extraction "ljfps_search.ml" decide_sequent.
+Extraction "ljfps_search.ml" try_decide_sequent.

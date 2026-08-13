@@ -41,7 +41,7 @@ Qed.
 Print Assumptions LJFPS_Sound_And_Complete_To_LJF.
     
 Theorem Derivable_iff_Search_Returns_Some_left :
-    forall (s : sequent), sequent_derivable s <-> returns_some_proof (try_decide_sequent  s).
+    forall (s : sequent), sequent_derivable s <-> returns_some_proof (try_decide_sequent s).
 Proof.
     destruct LJFn_completeness as [Cnb [Cne [Cnl Cnr]]].
     destruct LJFh_completeness_alt as [Chb [Che [Chl Chr]]].
