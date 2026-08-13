@@ -162,18 +162,18 @@ let pndctx_insert a c =
 let pndctx_set_eq_dec c1 c2 =
   equivlistA_dec o_eq_dec (pndctx_list c1) (pndctx_list c2)
 
-type sequent =
-| Sbct of pndctx * o list * o
-| Sept of pndctx * o list * o
-| Slfc of pndctx * o * o
-| Srfc of pndctx * o
-
 (** val pndctx_o_eq_dec : (pndctx * o) -> (pndctx * o) -> bool **)
 
 let pndctx_o_eq_dec p1 p2 =
   let (p, o0) = p1 in
   let (p0, o1) = p2 in
   let s = pndctx_set_eq_dec p p0 in if s then o_eq_dec o0 o1 else false
+
+type sequent =
+| Sbct of pndctx * o list * o
+| Sept of pndctx * o list * o
+| Slfc of pndctx * o * o
+| Srfc of pndctx * o
 
 (** val try_Lf :
     pndctx -> o -> (o -> __ -> bool option) -> o list -> bool option **)
@@ -311,9 +311,9 @@ let search a a0 a1 =
         | x0 -> search0 init (Sbct (p, [], x0)) stack __))
   in fix_F (a,(a0,(__,(a1,(__,__)))))
 
-(** val decide_sequent : sequent -> bool option **)
+(** val try_decide_sequent : sequent -> bool option **)
 
-let decide_sequent = function
+let try_decide_sequent = function
 | Sept (c, l, k) ->
   if bracketable_dec k
   then search (Sept (c, l, k)) (Sept (c, l, k)) []

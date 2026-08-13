@@ -60,13 +60,13 @@ val pndctx_insert : o -> pndctx -> pndctx
 
 val pndctx_set_eq_dec : pndctx -> pndctx -> bool
 
+val pndctx_o_eq_dec : (pndctx * o) -> (pndctx * o) -> bool
+
 type sequent =
 | Sbct of pndctx * o list * o
 | Sept of pndctx * o list * o
 | Slfc of pndctx * o * o
 | Srfc of pndctx * o
-
-val pndctx_o_eq_dec : (pndctx * o) -> (pndctx * o) -> bool
 
 val try_Lf : pndctx -> o -> (o -> __ -> bool option) -> o list -> bool option
 
@@ -74,4 +74,4 @@ val try_Lf_wrapper : pndctx -> o -> (o -> __ -> bool option) -> bool option
 
 val search : sequent -> sequent -> (pndctx * o) list -> bool option
 
-val decide_sequent : sequent -> bool option
+val try_decide_sequent : sequent -> bool option
