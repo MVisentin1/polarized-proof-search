@@ -42,9 +42,6 @@ src/metatheory/LJFPS/LJFPS_Inversion.v
 
 src/proofsearch/ProofTerms.v
 
-src/proofsearch/Search_Procedure.v
-src/proofsearch/Search_Wrapper.v
-
 src/rules/LJFn_Rules.v
 
 src/metatheory/LJFn/LJFn_Monotone.v
@@ -55,7 +52,3 @@ src/metatheory/LJFn/LJFn_Exchange.v
 
 src/rules/LJFh_Rules.v
 src/metatheory/LJFh/LJFh_Completeness.v
-src/proofsearch/Search_Completeness.v
-
-src/examples/LJFPS_Search.v
-src/Global_Results.v
