@@ -329,7 +329,7 @@ Lemma pndctx_set_eq_dec :
 Proof.
   unfold pndctx_set_eq. intros.
   apply equivlistA_dec. apply eq_equivalence. apply o_eq_dec.
-Qed.
+Defined.
 
 Definition pndctx_o_eq (P1 P2 : pndctx * o) : Prop :=
   pndctx_set_eq (fst P1) (fst P2) /\ snd P1 = snd P2.
@@ -353,7 +353,7 @@ Proof.
   - right. intros [_ ?]. contradiction.
   - right. intros [? _]. contradiction.
   - right. intros [? _]. contradiction.
-Qed.
+Defined.
 
 Lemma nodup_id : forall (l : list o), NoDup l -> nodup o_eq_dec l = l.
 Proof.

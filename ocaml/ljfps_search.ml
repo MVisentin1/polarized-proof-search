@@ -2,6 +2,12 @@
 type __ = Obj.t
 let __ = let rec f _ = Obj.repr f in Obj.repr f
 
+type ('a, 'b) sum =
+| Inl of 'a
+| Inr of 'b
+
+
+
 type 'a sig0 = 'a
   (* singleton inductive, whose constructor was exist *)
 
@@ -175,26 +181,63 @@ type sequent =
 | Slfc of pndctx * o * o
 | Srfc of pndctx * o
 
+type pterm =
+| Pbct_boxR of pterm
+| Pbct_AndNR of pterm * pterm
+| Pbct_ImpR of pterm
+| Pept_Lf of o * pterm
+| Pept_Rf of pterm
+| Pept_boxL of pterm
+| Pept_AndPL of pterm
+| Pept_OrL of pterm * pterm
+| Pept_TrueL of pterm
+| Pept_FalseL
+| Plfc_Rl of pterm
+| Plfc_Il
+| Plfc_AndNL_1 of pterm
+| Plfc_AndNL_2 of pterm
+| Plfc_ImpL of pterm * pterm
+| Prfc_Rr of pterm
+| Prfc_Ir
+| Prfc_AndPR of pterm * pterm
+| Prfc_OrR_1 of pterm
+| Prfc_OrR_2 of pterm
+| Prfc_TrueR
+
 (** val try_Lf :
-    pndctx -> o -> (o -> __ -> bool option) -> o list -> bool option **)
+    pndctx -> o -> (o -> __ -> (pterm, __) sum option) -> o list -> (pterm,
+    __) sum option **)
 
 let rec try_Lf c k try_N = function
-| [] -> Some false
+| [] -> Some (Inr __)
 | o0 :: l ->
   (match try_N o0 __ with
-   | Some s -> if s then Some true else try_Lf c k try_N l
+   | Some s ->
+     (match s with
+      | Inl s0 -> Some (Inl (Pept_Lf (o0, s0)))
+      | Inr _ ->
+        (match try_Lf c k try_N l with
+         | Some s0 ->
+           (match s0 with
+            | Inl s1 -> Some (Inl s1)
+            | Inr _ -> Some (Inr __))
+         | None -> None))
    | None ->
      (match try_Lf c k try_N l with
-      | Some s -> if s then Some true else None
+      | Some s -> (match s with
+                   | Inl s0 -> Some (Inl s0)
+                   | Inr _ -> None)
       | None -> None))
 
 (** val try_Lf_wrapper :
-    pndctx -> o -> (o -> __ -> bool option) -> bool option **)
+    pndctx -> o -> (o -> __ -> (pterm, __) sum option) -> (pterm, __) sum
+    option **)
 
 let try_Lf_wrapper c k try_N =
   try_Lf c k try_N (filter negative_b (pndctx_list c))
 
-(** val search : sequent -> sequent -> (pndctx * o) list -> bool option **)
+(** val search :
+    sequent -> sequent -> (pndctx * o) list -> (pterm, __) sum option **)
 
 let search a a0 a1 =
   let rec fix_F x =
@@ -213,13 +256,36 @@ let search a a0 a1 =
         | AndN (o1, o2) ->
           (match search0 init (Sbct (p, l, o1)) stack __ with
            | Some s ->
-             if s then search0 init (Sbct (p, l, o2)) stack __ else Some false
+             (match s with
+              | Inl s0 ->
+                (match search0 init (Sbct (p, l, o2)) stack __ with
+                 | Some s1 ->
+                   (match s1 with
+                    | Inl s2 -> Some (Inl (Pbct_AndNR (s0, s2)))
+                    | Inr _ -> Some (Inr __))
+                 | None -> None)
+              | Inr _ -> Some (Inr __))
            | None ->
              (match search0 init (Sbct (p, l, o2)) stack __ with
-              | Some s -> if s then None else Some false
+              | Some s ->
+                (match s with
+                 | Inl _ -> None
+                 | Inr _ -> Some (Inr __))
               | None -> None))
-        | Imp (o1, o2) -> search0 init (Sbct (p, (o1 :: l), o2)) stack __
-        | x0 -> search0 init (Sept (p, l, x0)) stack __)
+        | Imp (o1, o2) ->
+          (match search0 init (Sbct (p, (o1 :: l), o2)) stack __ with
+           | Some s ->
+             (match s with
+              | Inl s0 -> Some (Inl (Pbct_ImpR s0))
+              | Inr _ -> Some (Inr __))
+           | None -> None)
+        | x0 ->
+          (match search0 init (Sept (p, l, x0)) stack __ with
+           | Some s ->
+             (match s with
+              | Inl s0 -> Some (Inl (Pbct_boxR s0))
+              | Inr _ -> Some (Inr __))
+           | None -> None))
      | Sept (p, l, o0) ->
        (match l with
         | [] ->
@@ -228,98 +294,215 @@ let search a a0 a1 =
           else if positive_dec o0
                then (match search0 init (Srfc (p, o0)) ((p, o0) :: stack) __ with
                      | Some s ->
-                       if s
-                       then Some true
-                       else try_Lf_wrapper p o0 (fun n _ ->
-                              search0 init (Slfc (p, n, o0)) ((p,
-                                o0) :: stack) __)
+                       (match s with
+                        | Inl s0 -> Some (Inl (Pept_Rf s0))
+                        | Inr _ ->
+                          (match try_Lf_wrapper p o0 (fun n _ ->
+                                   search0 init (Slfc (p, n, o0)) ((p,
+                                     o0) :: stack) __) with
+                           | Some s0 ->
+                             (match s0 with
+                              | Inl s1 -> Some (Inl s1)
+                              | Inr _ -> Some (Inr __))
+                           | None -> None))
                      | None ->
                        (match try_Lf_wrapper p o0 (fun n _ ->
                                 search0 init (Slfc (p, n, o0)) ((p,
                                   o0) :: stack) __) with
-                        | Some s -> if s then Some true else None
+                        | Some s ->
+                          (match s with
+                           | Inl s0 -> Some (Inl s0)
+                           | Inr _ -> None)
                         | None -> None))
-               else try_Lf_wrapper p o0 (fun n _ ->
-                      search0 init (Slfc (p, n, o0)) ((p, o0) :: stack) __)
+               else (match try_Lf_wrapper p o0 (fun n _ ->
+                             search0 init (Slfc (p, n, o0)) ((p,
+                               o0) :: stack) __) with
+                     | Some s ->
+                       (match s with
+                        | Inl s0 -> Some (Inl s0)
+                        | Inr _ -> Some (Inr __))
+                     | None -> None)
         | o1 :: l0 ->
           (match o1 with
-           | TT -> search0 init (Sept (p, l0, o0)) stack __
-           | FF -> Some (bracketable_dec o0)
+           | TT ->
+             (match search0 init (Sept (p, l0, o0)) stack __ with
+              | Some s ->
+                (match s with
+                 | Inl s0 -> Some (Inl (Pept_TrueL s0))
+                 | Inr _ -> Some (Inr __))
+              | None -> None)
+           | FF ->
+             if bracketable_dec o0
+             then Some (Inl Pept_FalseL)
+             else Some (Inr __)
            | AndP (o2, o3) ->
-             search0 init (Sept (p, (o3 :: (o2 :: l0)), o0)) stack __
+             (match search0 init (Sept (p, (o3 :: (o2 :: l0)), o0)) stack __ with
+              | Some s ->
+                (match s with
+                 | Inl s0 -> Some (Inl (Pept_AndPL s0))
+                 | Inr _ -> Some (Inr __))
+              | None -> None)
            | Or (o2, o3) ->
              (match search0 init (Sept (p, (o2 :: l0), o0)) stack __ with
               | Some s ->
-                if s
-                then search0 init (Sept (p, (o3 :: l0), o0)) stack __
-                else Some false
+                (match s with
+                 | Inl s0 ->
+                   (match search0 init (Sept (p, (o3 :: l0), o0)) stack __ with
+                    | Some s1 ->
+                      (match s1 with
+                       | Inl s2 -> Some (Inl (Pept_OrL (s0, s2)))
+                       | Inr _ -> Some (Inr __))
+                    | None -> None)
+                 | Inr _ -> Some (Inr __))
               | None ->
                 (match search0 init (Sept (p, (o3 :: l0), o0)) stack __ with
-                 | Some s -> if s then None else Some false
+                 | Some s ->
+                   (match s with
+                    | Inl _ -> None
+                    | Inr _ -> Some (Inr __))
                  | None -> None))
-           | x0 -> search0 init (Sept ((pndctx_insert x0 p), l0, o0)) stack __))
+           | x0 ->
+             (match search0 init (Sept ((pndctx_insert x0 p), l0, o0)) stack
+                      __ with
+              | Some s ->
+                (match s with
+                 | Inl s0 -> Some (Inl (Pept_boxL s0))
+                 | Inr _ -> Some (Inr __))
+              | None -> None)))
      | Slfc (p, o0, o1) ->
        (match o0 with
         | Atom (p0, n) ->
           (match p0 with
            | Pos ->
-             search0 init (Sept (p, ((Atom (Pos, n)) :: []), o1)) stack __
-           | Neg -> Some (o_eq_dec (Atom (Neg, n)) o1))
+             (match search0 init (Sept (p, ((Atom (Pos, n)) :: []), o1))
+                      stack __ with
+              | Some s ->
+                (match s with
+                 | Inl s0 -> Some (Inl (Plfc_Rl s0))
+                 | Inr _ -> Some (Inr __))
+              | None -> None)
+           | Neg ->
+             if o_eq_dec (Atom (Neg, n)) o1
+             then Some (Inl Plfc_Il)
+             else Some (Inr __))
         | AndN (o2, o3) ->
           (match search0 init (Slfc (p, o2, o1)) stack __ with
            | Some s ->
-             if s then Some true else search0 init (Slfc (p, o3, o1)) stack __
+             (match s with
+              | Inl s0 -> Some (Inl (Plfc_AndNL_1 s0))
+              | Inr _ ->
+                (match search0 init (Slfc (p, o3, o1)) stack __ with
+                 | Some s0 ->
+                   (match s0 with
+                    | Inl s1 -> Some (Inl (Plfc_AndNL_2 s1))
+                    | Inr _ -> Some (Inr __))
+                 | None -> None))
            | None ->
              (match search0 init (Slfc (p, o3, o1)) stack __ with
-              | Some s -> if s then Some true else None
+              | Some s ->
+                (match s with
+                 | Inl s0 -> Some (Inl (Plfc_AndNL_2 s0))
+                 | Inr _ -> None)
               | None -> None))
         | Imp (o2, o3) ->
           (match search0 init (Srfc (p, o2)) stack __ with
            | Some s ->
-             if s
-             then search0 init (Slfc (p, o3, o1)) stack __
-             else Some false
+             (match s with
+              | Inl s0 ->
+                (match search0 init (Slfc (p, o3, o1)) stack __ with
+                 | Some s1 ->
+                   (match s1 with
+                    | Inl s2 -> Some (Inl (Plfc_ImpL (s0, s2)))
+                    | Inr _ -> Some (Inr __))
+                 | None -> None)
+              | Inr _ -> Some (Inr __))
            | None ->
              (match search0 init (Slfc (p, o3, o1)) stack __ with
-              | Some s -> if s then None else Some false
+              | Some s ->
+                (match s with
+                 | Inl _ -> None
+                 | Inr _ -> Some (Inr __))
               | None -> None))
-        | x0 -> search0 init (Sept (p, (x0 :: []), o1)) stack __)
+        | x0 ->
+          (match search0 init (Sept (p, (x0 :: []), o1)) stack __ with
+           | Some s ->
+             (match s with
+              | Inl s0 -> Some (Inl (Plfc_Rl s0))
+              | Inr _ -> Some (Inr __))
+           | None -> None))
      | Srfc (p, o0) ->
        (match o0 with
         | Atom (p0, n) ->
           (match p0 with
-           | Pos -> Some (in_dec o_eq_dec (Atom (Pos, n)) (pndctx_list p))
-           | Neg -> search0 init (Sbct (p, [], (Atom (Neg, n)))) stack __)
-        | TT -> Some true
-        | FF -> Some false
+           | Pos ->
+             if in_dec o_eq_dec (Atom (Pos, n)) (pndctx_list p)
+             then Some (Inl Prfc_Ir)
+             else Some (Inr __)
+           | Neg ->
+             (match search0 init (Sbct (p, [], (Atom (Neg, n)))) stack __ with
+              | Some s ->
+                (match s with
+                 | Inl s0 -> Some (Inl (Prfc_Rr s0))
+                 | Inr _ -> Some (Inr __))
+              | None -> None))
+        | TT -> Some (Inl Prfc_TrueR)
+        | FF -> Some (Inr __)
         | AndP (o1, o2) ->
           (match search0 init (Srfc (p, o1)) stack __ with
            | Some s ->
-             if s then search0 init (Srfc (p, o2)) stack __ else Some false
+             (match s with
+              | Inl s0 ->
+                (match search0 init (Srfc (p, o2)) stack __ with
+                 | Some s1 ->
+                   (match s1 with
+                    | Inl s2 -> Some (Inl (Prfc_AndPR (s0, s2)))
+                    | Inr _ -> Some (Inr __))
+                 | None -> None)
+              | Inr _ -> Some (Inr __))
            | None ->
              (match search0 init (Srfc (p, o2)) stack __ with
-              | Some s -> if s then None else Some false
+              | Some s ->
+                (match s with
+                 | Inl _ -> None
+                 | Inr _ -> Some (Inr __))
               | None -> None))
         | Or (o1, o2) ->
           (match search0 init (Srfc (p, o1)) stack __ with
            | Some s ->
-             if s then Some true else search0 init (Srfc (p, o2)) stack __
+             (match s with
+              | Inl s0 -> Some (Inl (Prfc_OrR_1 s0))
+              | Inr _ ->
+                (match search0 init (Srfc (p, o2)) stack __ with
+                 | Some s0 ->
+                   (match s0 with
+                    | Inl s1 -> Some (Inl (Prfc_OrR_2 s1))
+                    | Inr _ -> Some (Inr __))
+                 | None -> None))
            | None ->
              (match search0 init (Srfc (p, o2)) stack __ with
-              | Some s -> if s then Some true else None
+              | Some s ->
+                (match s with
+                 | Inl s0 -> Some (Inl (Prfc_OrR_2 s0))
+                 | Inr _ -> None)
               | None -> None))
-        | x0 -> search0 init (Sbct (p, [], x0)) stack __))
+        | x0 ->
+          (match search0 init (Sbct (p, [], x0)) stack __ with
+           | Some s ->
+             (match s with
+              | Inl s0 -> Some (Inl (Prfc_Rr s0))
+              | Inr _ -> Some (Inr __))
+           | None -> None)))
   in fix_F (a,(a0,(__,(a1,(__,__)))))
 
-(** val try_decide_sequent : sequent -> bool option **)
+(** val try_decide_sequent : sequent -> (pterm, __) sum option **)
 
 let try_decide_sequent = function
 | Sept (c, l, k) ->
   if bracketable_dec k
   then search (Sept (c, l, k)) (Sept (c, l, k)) []
-  else Some false
+  else Some (Inr __)
 | Slfc (c, n, k) ->
   if bracketable_dec k
   then search (Slfc (c, n, k)) (Slfc (c, n, k)) []
-  else Some false
+  else Some (Inr __)
 | x -> search x x []

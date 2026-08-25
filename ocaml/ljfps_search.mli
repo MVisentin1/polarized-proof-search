@@ -1,6 +1,12 @@
 
 type __ = Obj.t
 
+type ('a, 'b) sum =
+| Inl of 'a
+| Inr of 'b
+
+
+
 type 'a sig0 = 'a
   (* singleton inductive, whose constructor was exist *)
 
@@ -68,10 +74,36 @@ type sequent =
 | Slfc of pndctx * o * o
 | Srfc of pndctx * o
 
-val try_Lf : pndctx -> o -> (o -> __ -> bool option) -> o list -> bool option
+type pterm =
+| Pbct_boxR of pterm
+| Pbct_AndNR of pterm * pterm
+| Pbct_ImpR of pterm
+| Pept_Lf of o * pterm
+| Pept_Rf of pterm
+| Pept_boxL of pterm
+| Pept_AndPL of pterm
+| Pept_OrL of pterm * pterm
+| Pept_TrueL of pterm
+| Pept_FalseL
+| Plfc_Rl of pterm
+| Plfc_Il
+| Plfc_AndNL_1 of pterm
+| Plfc_AndNL_2 of pterm
+| Plfc_ImpL of pterm * pterm
+| Prfc_Rr of pterm
+| Prfc_Ir
+| Prfc_AndPR of pterm * pterm
+| Prfc_OrR_1 of pterm
+| Prfc_OrR_2 of pterm
+| Prfc_TrueR
 
-val try_Lf_wrapper : pndctx -> o -> (o -> __ -> bool option) -> bool option
+val try_Lf :
+  pndctx -> o -> (o -> __ -> (pterm, __) sum option) -> o list -> (pterm, __)
+  sum option
 
-val search : sequent -> sequent -> (pndctx * o) list -> bool option
+val try_Lf_wrapper :
+  pndctx -> o -> (o -> __ -> (pterm, __) sum option) -> (pterm, __) sum option
 
-val try_decide_sequent : sequent -> bool option
+val search : sequent -> sequent -> (pndctx * o) list -> (pterm, __) sum option
+
+val try_decide_sequent : sequent -> (pterm, __) sum option

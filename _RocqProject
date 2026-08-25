@@ -55,3 +55,4 @@ src/metatheory/LJFh/LJFh_Completeness.v
 
 src/proofsearch/Search_Procedure.v
 src/proofsearch/Search_Wrapper.v
+src/proofsearch/Search_Completeness.v
