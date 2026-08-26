@@ -50,9 +50,12 @@ src/metatheory/LJFn/LJFn_Completeness.v
 src/metatheory/LJFn/LJFn_MinimalHeight.v
 src/metatheory/LJFn/LJFn_Soundness.v
 src/metatheory/LJFn/LJFn_Exchange.v
+src/metatheory/LJFn/LJFn_Inversion.v
+
 src/rules/LJFh_Rules.v
 src/metatheory/LJFh/LJFh_Completeness.v
 
 src/proofsearch/Search_Procedure.v
 src/proofsearch/Search_Wrapper.v
 src/proofsearch/Search_Completeness.v
+src/Global_Results.v

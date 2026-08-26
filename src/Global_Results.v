@@ -8,6 +8,7 @@ From LJF Require Import LJF4_Completeness LJFO_Completeness LJFPS_Completeness L
 From LJF Require Import LJFPS_Bracketable.
 
 From LJF Require Import Search_Procedure Search_Wrapper Search_Completeness.
+From LJF Require Import ProofTerms ProofTerms_Soundness ProofTerms_Completeness.
 
 Print Assumptions try_decide_sequent .
 
@@ -48,17 +49,21 @@ Proof.
     destruct search_complete as [Csb [Cse [Csl Csr]]].
     destruct s as [C L K | C L K | C N K | C K] ; unfold sequent_derivable ; split ; intros.
     - apply Csb. destruct (Cnb C L K H) as [n H0]. apply (Chb n C L K H0 nil (hist_height_bound_nil n)). 
-    - unfold returns_some_proof in H. destruct (try_decide_sequent  (Sbct C L K)). destruct s. apply s. contradiction. contradiction.
+    - unfold returns_some_proof in H. destruct (try_decide_sequent  (Sbct C L K)). destruct s as [s | s].
+        destruct s. apply (verify_soundness v). contradiction. contradiction.
     - unfold try_decide_sequent . destruct (Decidability.bracketable_dec K).
         + apply Cse. destruct (Cne C L K H) as [n H0]. apply (Che n C L K H0 nil (hist_height_bound_nil n)).
         + destruct (n (LJFPS_bracketable_goal_ept H)).
-    - unfold returns_some_proof in H. destruct (try_decide_sequent  (Sept C L K)). destruct s. apply s. contradiction. contradiction.
+    - unfold returns_some_proof in H. destruct (try_decide_sequent  (Sept C L K)). destruct s as [s | s].
+        destruct s. apply (verify_soundness v). contradiction. contradiction.
     - unfold try_decide_sequent . destruct (Decidability.bracketable_dec K).
         + apply Csl. destruct (Cnl C N K H) as [n H0]. apply (Chl n C N K H0 nil (hist_height_bound_nil n)).
         + destruct (n (LJFPS_bracketable_goal_lfc H)).
-    - unfold returns_some_proof in H. destruct (try_decide_sequent  (Slfc C N K)). destruct s. apply s. contradiction. contradiction.
+    - unfold returns_some_proof in H. destruct (try_decide_sequent  (Slfc C N K)). destruct s as [s | s].
+        destruct s. apply (verify_soundness v). contradiction. contradiction.
     - apply Csr. destruct (Cnr C K H) as [n H0]. apply (Chr n C K H0 nil (hist_height_bound_nil n)).
-    - unfold returns_some_proof in H. destruct (try_decide_sequent  (Srfc C K)). destruct s. apply s. contradiction. contradiction.
+    - unfold returns_some_proof in H. destruct (try_decide_sequent  (Srfc C K)). destruct s as [s | s].
+        destruct s. apply (verify_soundness v). contradiction. contradiction.
 Qed.
 
 Print Assumptions Derivable_iff_Search_Returns_Some_left.
@@ -67,8 +72,8 @@ Theorem Underivable_iff_Search_Returns_Some_Right_or_None :
     forall (s : sequent), ~ sequent_derivable s <-> returns_some_disproof (try_decide_sequent  s) \/ returns_none (try_decide_sequent  s).
 Proof.
     intro s. split.
-    - destruct (try_decide_sequent  s) as [[s0 | s0] | ] ; intro.
-        + contradiction.
+    - destruct (try_decide_sequent s) as [[s0 | s0] | ] ; intro.
+        + destruct s0. specialize (verify_soundness v). intro. contradiction.
         + left. apply I.
         + right. apply I.
     - intros. destruct (Derivable_iff_Search_Returns_Some_left s). destruct H ; destruct (try_decide_sequent  s) as [[s0 | s0] | ] ; simpl in H ; try contradiction.
@@ -81,7 +86,7 @@ Print Assumptions Underivable_iff_Search_Returns_Some_Right_or_None.
 Definition decide (s : sequent) : {sequent_derivable s} + {~ sequent_derivable s}.
 Proof.
     destruct (try_decide_sequent  s) as [[s0 | s0] | ] eqn:E.
-    - left. apply s0.
+    - left. destruct s0. apply (verify_soundness v).
     - right. apply s0.
     - right. intro H.
         apply (proj1 (Derivable_iff_Search_Returns_Some_left s)) in H.
