@@ -1,6 +1,7 @@
-From Stdlib Require Import List PeanoNat Wf_nat Classical_Prop.
-From LJF Require Import SharedLogic Predicates Decidability Sequents Pndctx LJFn_Rules LJFn_Inversion LJFn_Bracketable.
+From Stdlib Require Import List PeanoNat Wf_nat.
+From LJF Require Import SharedLogic Predicates Decidability Sequents Pndctx LJFn_Rules LJFn_Inversion LJFn_Bracketable LJFn_Monotone.
 From Equations Require Import Equations.
+
 
 Definition min_height_eptn (m: nat) (C: pndctx) (K: o) :=
     eptn m C nil K /\ forall (n: nat), n < m -> ~ (eptn n C nil K).
@@ -29,6 +30,18 @@ Definition nsequent_height (seq : nsequent) : nat :=
     | Srfcn n _ _   => n
     end
 .
+
+Definition nsequent_map (n: nat) (seq : sequent) : nsequent :=
+    match seq with
+    | Sbct C L K => Sbctn n C L K
+    | Sept C L K => Septn n C L K
+    | Slfc C N K => Slfcn n C N K
+    | Srfc C K   => Srfcn n C K
+    end
+.
+
+Definition min_height (m: nat) (seq : sequent) :=
+    nsequent_derivable (nsequent_map m seq)  /\ forall (n: nat), n < m -> ~ nsequent_derivable (nsequent_map n seq).
 
 Lemma LJFn_unprovable_at_0_height :
     (forall (C: pndctx)  (L: octx)(K: o), ~ bctn 0 C L K) /\
@@ -352,20 +365,48 @@ Equations LJFn_decider (seq : nsequent) : {nsequent_derivable seq} + {~ nsequent
         }
     }.
 
+Lemma nsequent_derivable_monotone : forall (m n : nat) (seq : sequent),
+    m <= n ->
+    nsequent_derivable (nsequent_map m seq) ->
+    nsequent_derivable (nsequent_map n seq).
+Proof.
+    intros m n seq Hmn H. destruct seq ; simpl in *.
+    - exact (LJFn_monotone_bctn H Hmn).
+    - exact (LJFn_monotone_eptn H Hmn).
+    - exact (LJFn_monotone_lfcn H Hmn).
+    - exact (LJFn_monotone_rfcn H Hmn).
+Qed.
+
+Equations LJFn_find_min_height (m: nat) (seq : sequent)
+    (Hd : nsequent_derivable (nsequent_map m seq)) : {n: nat | n <= m /\ min_height n seq}
+    by wf m lt :=
+
+    LJFn_find_min_height 0 seq Hd :=
+        False_rect _
+          (match seq as s return nsequent_derivable (nsequent_map 0 s) -> False with
+           | Sbct C L K => fun h => LJFn_unprovable_at_0_height_bctn C L K h
+           | Sept C L K => fun h => LJFn_unprovable_at_0_height_eptn C L K h
+           | Slfc C N K => fun h => LJFn_unprovable_at_0_height_lfcn C N K h
+           | Srfc C K   => fun h => LJFn_unprovable_at_0_height_rfcn C K h
+           end Hd) ;
+
+    LJFn_find_min_height (S m) seq Hd with LJFn_decider (nsequent_map m seq) := {
+        | left H1   with LJFn_find_min_height m seq H1 := {
+            | exist _ n (conj Hle Hmin) => exist _ n (conj (le_S n m Hle) Hmin)
+        }
+        | right H1  =>
+            exist _ (S m)
+              (conj (le_n (S m))
+                    (conj Hd
+                          (fun n Hn Hderiv =>
+                             H1 (nsequent_derivable_monotone n m seq (le_S_n n m Hn) Hderiv))))
+    }
+.
+
+
 Lemma min_height_exists : forall (m: nat) (C: pndctx) (K: o),
   eptn m C nil K -> exists (n: nat), n <= m /\ min_height_eptn n C K.
 Proof.
-    induction m as [m IH] using (well_founded_ind lt_wf).
-    intros C K H.
-
-     
-    destruct (classic (exists y, y < m /\ eptn y C nil K)).
-    - destruct H0 as [y [H0 H1]].
-        destruct (IH y H0 C K H1) as [x [H2 H3]].
-        eexists x. split.
-        + transitivity y. apply H2. apply (Nat.lt_le_incl y m H0).
-        + apply H3.
-    - eexists m. split. reflexivity. split.
-        + apply H.
-        + intros. intro. exact (H0 (ex_intro _ n (conj H1 H2))).
+    intros m C K H. destruct (LJFn_find_min_height m (Sept C nil K) H).
+    eexists x. apply a.
 Qed.
