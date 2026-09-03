@@ -11,34 +11,121 @@
    alone never re-extracts; both steps are needed, in that order.)
 
    try_decide_sequent returns:
-     Some (Inl p)  derivable      - p : pterm is a machine-checked derivation
+     Some (Inl p)  derivable      - p : pterm is a machine-checked derivation,
+                                     well-typed by the `verify p seq` relation
+                                     that mirrors the LJFPS rules one-to-one.
      Some (Inr _)  not derivable  - a machine-checked refutation (no witness
-                                     data survives extraction, just the tag)
-     None          inconclusive   - no branch yielded a proof, and every branch
-                                     was either refuted or inconclusive, with at
-                                     least one inconclusive (the search revisited
-                                     a focus decision). A refutation needs *all*
-                                     alternatives refuted, so none could be
-                                     assembled. By Underivable_iff_Search_Returns_Some_Right_or_None
+                                     data survives extraction, just the tag).
+     None          inconclusive   - no branch yielded a proof, and no full
+                                     refutation could be assembled because the
+                                     search revisited a focus decision. By
+                                     Underivable_iff_Search_Returns_Some_Right_or_None
                                      this still means not derivable, but no
                                      witness is produced.
 *)
 
 open Ljfps_search
 
+(* ------------------------------------------------------------------ *)
+(* Formula / sequent pretty-printing                                   *)
+(* ------------------------------------------------------------------ *)
+
+let atom_name pl i =
+  Printf.sprintf "%s%d" (match pl with Pos -> "p" | Neg -> "n") i
+
+(* precedence levels: 0 = Imp (right assoc), 1 = Or, 2 = AndP/AndN, 3 = atomic *)
+let rec pp_o prec f =
+  let wrap lvl s = if lvl < prec then "(" ^ s ^ ")" else s in
+  match f with
+  | Atom (pl, i) -> atom_name pl i
+  | TT           -> "T"
+  | FF           -> "F"
+  | AndP (x, y)  -> wrap 2 (pp_o 3 x ^ " /\\+ " ^ pp_o 3 y)
+  | AndN (x, y)  -> wrap 2 (pp_o 3 x ^ " /\\- " ^ pp_o 3 y)
+  | Or   (x, y)  -> wrap 1 (pp_o 2 x ^ " \\/ "  ^ pp_o 2 y)
+  | Imp  (x, y)  -> wrap 0 (pp_o 1 x ^ " -> " ^ pp_o 0 y)
+
+let string_of_o = pp_o 0
+
+let string_of_list = function
+  | [] -> "."
+  | l  -> String.concat ", " (List.map string_of_o l)
+
+let string_of_ctx c = string_of_list (pndctx_list c)
+
+let string_of_sequent = function
+  | Sbct (c, l, k) ->
+    Printf.sprintf "%s ; %s  ==>  %s        [bct]" (string_of_ctx c) (string_of_list l) (string_of_o k)
+  | Sept (c, l, k) ->
+    Printf.sprintf "%s ; [%s]  ==>  %s      [ept]" (string_of_ctx c) (string_of_list l) (string_of_o k)
+  | Slfc (c, n, k) ->
+    Printf.sprintf "%s ; [%s]  ==>  %s      [lfc]" (string_of_ctx c) (string_of_o n) (string_of_o k)
+  | Srfc (c, k) ->
+    Printf.sprintf "%s  ==>  [%s]           [rfc]" (string_of_ctx c) (string_of_o k)
+
+(* ------------------------------------------------------------------ *)
+(* pterm pretty-printing: render the derivation as a rule tree.        *)
+(* Each node maps to (rule label, list of premise subterms), matching  *)
+(* the constructors of `verify` in src/proofsearch/ProofTerms.v.       *)
+(* ------------------------------------------------------------------ *)
+
+let pterm_node : pterm -> string * pterm list = function
+  | Pbct_boxR p       -> "bct_boxR",    [p]
+  | Pbct_AndNR (p, q) -> "bct_AndNR",   [p; q]
+  | Pbct_ImpR p       -> "bct_ImpR",    [p]
+  | Pept_Lf (n, p)    -> Printf.sprintf "ept_Lf  (focus on %s)" (string_of_o n), [p]
+  | Pept_Rf p         -> "ept_Rf",      [p]
+  | Pept_boxL p       -> "ept_boxL",    [p]
+  | Pept_AndPL p      -> "ept_AndPL",   [p]
+  | Pept_OrL (p, q)   -> "ept_OrL",     [p; q]
+  | Pept_TrueL p      -> "ept_TrueL",   [p]
+  | Pept_FalseL       -> "ept_FalseL",  []
+  | Plfc_Rl p         -> "lfc_Rl  (release focus)", [p]
+  | Plfc_Il           -> "lfc_Il  (init)",    []
+  | Plfc_AndNL_1 p    -> "lfc_AndNL_1", [p]
+  | Plfc_AndNL_2 p    -> "lfc_AndNL_2", [p]
+  | Plfc_ImpL (p, q)  -> "lfc_ImpL",    [p; q]
+  | Prfc_Rr p         -> "rfc_Rr  (release focus)", [p]
+  | Prfc_Ir           -> "rfc_Ir  (init)",    []
+  | Prfc_AndPR (p, q) -> "rfc_AndPR",   [p; q]
+  | Prfc_OrR_1 p      -> "rfc_OrR_1",   [p]
+  | Prfc_OrR_2 p      -> "rfc_OrR_2",   [p]
+  | Prfc_TrueR        -> "rfc_TrueR",   []
+
+let print_pterm ?(indent = "  ") (p : pterm) =
+  let rec go prefix is_last t =
+    let label, kids = pterm_node t in
+    Printf.printf "%s%s%s\n" prefix (if is_last then "`- " else "|- ") label;
+    let sub = prefix ^ (if is_last then "   " else "|  ") in
+    let n = List.length kids in
+    List.iteri (fun i k -> go sub (i = n - 1) k) kids
+  in
+  let label, kids = pterm_node p in
+  Printf.printf "%s%s\n" indent label;
+  let n = List.length kids in
+  List.iteri (fun i k -> go indent (i = n - 1) k) kids
+
+(* ------------------------------------------------------------------ *)
+(* Examples                                                           *)
+(* ------------------------------------------------------------------ *)
+
 let empty_ctx : pndctx = []
 
-let a = Atom (Pos, 0)
-let b = Atom (Pos, 1)
-let c = Atom (Pos, 2)
-
-let seq = Sbct (empty_ctx, [a; Imp (a, b)], c)
+let p0 = Atom (Pos, 0)
+let p1 = Atom (Pos, 1)
+let p2 = Atom (Pos, 2)
 
 let show name seq =
-  match try_decide_sequent seq with
-  | Some (Inl _p) -> Printf.printf "%s: Derivable\n" name
-  | Some (Inr _)  -> Printf.printf "%s: Not derivable - with a witness\n" name
-  | None          -> Printf.printf "%s: Not derivable - without a witness\n" name
+  Printf.printf "%-8s %s\n" (name ^ ":") (string_of_sequent seq);
+  (match try_decide_sequent seq with
+   | Some (Inl p) ->
+     Printf.printf "  => derivable  (verified pterm):\n";
+     print_pterm p
+   | Some (Inr _) ->
+     Printf.printf "  => not derivable  (verified refutation, no witness)\n"
+   | None ->
+     Printf.printf "  => not derivable  (search revisited a focus decision, no witness)\n");
+  print_newline ()
 
 let () =
-  show "seq" seq;
+  show "currying" (Sbct (empty_ctx, [Imp (AndP (p0, p1), p2)], Imp (p0, Imp (p1, p2))));
