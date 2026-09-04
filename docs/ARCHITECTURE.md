@@ -13,18 +13,31 @@ re-checks the emitted `pterm` against the LJFPS rules directly.
 
 ```
         LJF_Rules.v          ufcL / lfcL / rfcL           the spec (Liang–Miller LJF)
-           │  LJF4_Soundness  ▲  LJF4_Completeness
+           │                  ▲  
+           | LJF4_Soundness   |   LJF4_Completeness
+           ▼                  |
         LJF4_Rules.v          bct4 / ept4 / lfc4 / rfc4   split the async phase into two judgments
-           │  LJFO_Soundness  ▲  LJFO_Completeness
+           │                  ▲  
+           | LJFO_Soundness   |   LJFO_Completeness
+           ▼                  |
         LJFO_Rules.v          bctO / eptO / lfcO / rfcO   process the linear context in list order
-           │  LJFPS_Soundness ▲  LJFPS_Completeness
+           │                  ▲  
+           | LJFPS_Soundness  |   LJFPS_Completeness
+           ▼                  |
         LJFPS_Rules.v         bct  / ept  / lfc  / rfc    unrestricted context = a finite dedup'd set
-                              ▲  LJFn_Completeness        (completeness only — no soundness leg needed)
+                              ▲  
+                              | LJFn_Completeness        (completeness only — no soundness needed, proven regardless)
+                              |
         LJFn_Rules.v          bctn / eptn / lfcn / rfcn   add an explicit derivation-height index
-                              ▲  LJFh_Completeness
+                              ▲ 
+                              | LJFPS_Completeness        (completeness only — no soundness needed)
+                              |
         LJFh_Rules.v          bcth / epth / lfch / rfch   carry a history; forbid revisiting a focus point
-                              ▲  Search_Completeness
+                              ▲  
+                              | Search_Completeness
+                              |
         Search_Procedure.v    search / try_decide_sequent an Equations function on a well-founded measure
+                              |
                               │  ProofTerms_Soundness (verify_soundness)   ← the only soundness leg below LJFPS
                               ▼
                               back to LJFPS derivability
@@ -236,11 +249,14 @@ leg from LJFh (or LJFn) back to LJFPS would be redundant.
 - [`Termination_Measures.v`](../src/proofsearch/Termination_Measures.v) —
   `phase_ranking` (ept 0 < bct 1 < rfc 2 < lfc 3) and `phase_measure` (goal /
   linear-context size).
-- [`ProofTerms.v`](../src/proofsearch/ProofTerms.v) — `pterm` (first-order proof
-  term, one constructor per LJFPS rule) and `verify : pterm → sequent → Prop`
-  (a checker mirroring the rules); soundness/completeness of `verify` in
-  [`ProofTerms_Soundness.v`](../src/proofsearch/ProofTerms_Soundness.v),
-  [`ProofTerms_Completeness.v`](../src/proofsearch/ProofTerms_Completeness.v).
+- [`ProofTerms.v`](../src/proofsearch/ProofTerms.v) — `pterm`, a first-order
+  proof-term syntax in sort **`Type`** (one constructor per LJFPS rule), and
+  `verify : pterm → sequent → Prop`, a checker relation mirroring the rules.
+  `verify_soundness` ([`ProofTerms_Soundness.v`](../src/proofsearch/ProofTerms_Soundness.v))
+  : `verify p seq → sequent_derivable seq`; `verify_completeness`
+  ([`ProofTerms_Completeness.v`](../src/proofsearch/ProofTerms_Completeness.v))
+  is the converse. `pterm` sits in `Type`, not `Prop`, precisely so it survives
+  extraction — see [Extraction](#extraction).
 - [`Search_Procedure.v`](../src/proofsearch/Search_Procedure.v) — `search`,
   defined by `Equations` well-founded recursion on the lexicographic triple
 
@@ -269,3 +285,14 @@ leg from LJFh (or LJFn) back to LJFPS would be redundant.
 `_RocqProject`**, so `make` never re-extracts — see [BUILDING.md](BUILDING.md).
 [`ocaml/driver.ml`](../ocaml/driver.ml) pretty-prints a sequent and renders the
 returned `pterm` as a rule tree.
+
+**Why the procedure returns a `pterm`, not an LJFPS proof.** `search`'s success
+type is `{p : pterm | verify p seq}`. `pterm` is in `Type`, so it survives to
+OCaml as an ordinary data structure; the `verify p seq` component and the LJFPS
+derivation `sequent_derivable seq` are in `Prop`, which extraction erases. The
+extracted OCaml therefore hands back only the `pterm` — the runtime-visible
+skeleton of the derivation. Its correctness is **not** re-established at runtime:
+`verify_soundness : verify p seq → sequent_derivable seq` is proved once, in
+`Prop`, inside the development, and `Derivable_iff_Search_Returns_Some_left` ties
+the returned `pterm` back to real LJFPS derivability. Returning the LJFPS `Prop`
+witness directly would be pointless — extraction would erase it to `()`.

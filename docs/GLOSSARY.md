@@ -92,7 +92,7 @@ and the atoms are both. `permeable_ctx C := Forall permeable C`.
 | `hist` | `list (pndctx * o)` — visited focus points (LJFh); called `stack` in `search` |
 | `get_all_focus_decision init` | finite superset of all reachable focus points = subsets(permeable subformulas) × bracketable subformulas |
 | `phase_ranking` / `phase_measure` | 2nd / 3rd components of the termination triple |
-| `pterm` | first-order proof term, one constructor per LJFPS rule (`pbct_boxR`, `pept_Lf`, …) |
-| `verify p seq` | checker relation: `p` is a valid LJFPS derivation of `seq` |
+| `pterm` | first-order proof term, one constructor per LJFPS rule (`pbct_boxR`, `pept_Lf`, …). In sort `Type`, so it survives extraction — the `Prop` derivation would erase to `()` |
+| `verify p seq` | a `Prop`: `p` is a valid LJFPS derivation of `seq`. `verify_soundness` links it to `sequent_derivable`; checked once in Rocq, never at OCaml runtime |
 | `try_decide_sequent s` | entry point → `Some (inl {p \| verify p s})` \| `Some (inr ¬deriv)` \| `None` |
 | `returns_some_proof` / `_disproof` / `returns_none` | predicates classifying that result |

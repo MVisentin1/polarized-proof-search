@@ -42,10 +42,8 @@ propositional intuitionistic logic LJ**.
 ## The idea in one line
 
     LJF  ⇄  LJF4  ⇄  LJFO  ⇄  LJFPS  ──→  LJFn  ──→  LJFh  ──→  search()
-            split    fix      finite    +height   +history     │
-            state    ctx      ctx set   index     (no revisit)  │ verify
-            out      order                                      ▼
-                                                              LJFPS
+                                  ▲                                 |
+                                  |_________________________________|
 
 `⇄` = a proved soundness + completeness pair on derivability, so the prefix
 `LJF … LJFPS` proves the same sequents. `LJFPS ──→ LJFn ──→ LJFh ──→ search()`
@@ -54,9 +52,8 @@ derivability under successively finer invariants (bounded height, then a
 loop-free history) to feed `search_complete`. No soundness leg runs back through
 them — it isn't needed, because the return arrow `search() ──→ LJFPS` is
 `verify_soundness`: every `pterm` the procedure emits is re-checked against the
-LJFPS rules. (`LJFn_Soundness.v` proves the height-erasure lemma but is unused
-and off the build path; there is no `LJFh_Soundness`.) So a "yes" answer is
-trustworthy on its own, and a "no" answer is backed by the completeness chain.
+LJFPS rules. So a "yes" answer is trustworthy on its own, and a "no" answer 
+is backed by the completeness chain.
 
 See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the full tour.
 
@@ -113,18 +110,15 @@ cd ocaml && dune exec ./driver.exe
 ## Acknowledgements
 
 This project began as a team assignment for **COMP 527** (McGill), by Dean
-Barry, Melvyn Depeyrot, and the author. That phase built an unverified,
-tactic-based proof procedure for a focused intuitionistic calculus — in the same
-spirit as the extracted `search` here — carried the calculus chain as far as
-**LJF4**, and was written up in a course paper. No metatheory was mechanized at
+Barry, Melvyn Depeyrot, and me. That phase built an unverified,
+tactic-based proof procedure for **LJF4**, which was proven sound and
+complete with regards to LJF on paper in a course paper. No metatheory was mechanized at
 that stage.
 
-- This repository is a fork of the team repository; everything below is the
-  author's own work.
-- That earlier solver survives here, adapted from LJF4 to LJFPS, as
-  [`src/tactics/LJFPS_Prover.v`](src/tactics/LJFPS_Prover.v) — kept to show the
-  extent of the team-phase work. It is unverified, does not terminate on
-  many sequents, and is off the build path.
+That earlier solver survives here, adapted from LJF4 to LJFPS, as
+[`src/tactics/LJFPS_Prover.v`](src/tactics/LJFPS_Prover.v) — kept to show the
+extent of the team-phase work. It is unverified, does not terminate on
+many sequents, and is off the build path.
 
 Everything past the team phase is my own. That is the verified decision procedure with its
 `pterm` / `verify` certificates, the further intermediate calculi (LJFO, LJFPS,

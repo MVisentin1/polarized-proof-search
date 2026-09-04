@@ -60,7 +60,14 @@ dune exec ./driver.exe
 
 [`ocaml/driver.ml`](../ocaml/driver.ml) builds sequents by hand, calls
 `try_decide_sequent`, pretty-prints the sequent, and renders the returned
-`pterm` as a rule tree (`bct_boxR`, `ept_Lf (focus on …)`, …). Add your own
+`pterm` as a rule tree (`bct_boxR`, `ept_Lf (focus on …)`, …). The OCaml value
+you get on success is a `pterm` and nothing else: it is in sort `Type` so it
+survives extraction, whereas the `verify p seq` proof and the LJFPS derivation
+are in `Prop` and are erased. Correctness was settled in Rocq
+(`verify_soundness`), not at runtime — see the "Extraction" note in
+[ARCHITECTURE.md](ARCHITECTURE.md). 
+
+Add your own
 cases at the bottom of `driver.ml`; the constructors are `Atom (Pos, n)`,
 `AndP`, `AndN`, `Or`, `Imp`, `TT`, `FF`, and sequents `Sbct/Sept/Slfc/Srfc`.
 Start from `Sbct` with an **empty context** and your hypotheses in the linear
