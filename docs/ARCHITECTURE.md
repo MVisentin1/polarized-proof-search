@@ -13,31 +13,31 @@ re-checks the emitted `pterm` against the LJFPS rules directly.
 
 ```
         LJF_Rules.v          ufcL / lfcL / rfcL           the spec (Liang–Miller LJF)
-           │                  ▲  
+           ▲                  |  
            | LJF4_Soundness   |   LJF4_Completeness
-           ▼                  |
+           |                  ▼
         LJF4_Rules.v          bct4 / ept4 / lfc4 / rfc4   split the async phase into two judgments
-           │                  ▲  
+           ▲                  |  
            | LJFO_Soundness   |   LJFO_Completeness
-           ▼                  |
+           |                  ▼
         LJFO_Rules.v          bctO / eptO / lfcO / rfcO   process the linear context in list order
-           │                  ▲  
+           ▲                  |  
            | LJFPS_Soundness  |   LJFPS_Completeness
-           ▼                  |
+           |                  ▼
         LJFPS_Rules.v         bct  / ept  / lfc  / rfc    unrestricted context = a finite dedup'd set
-                              ▲  
+                              | 
                               | LJFn_Completeness        (completeness only — no soundness needed, proven regardless)
-                              |
+                              ▼
         LJFn_Rules.v          bctn / eptn / lfcn / rfcn   add an explicit derivation-height index
-                              ▲ 
+                              |
                               | LJFPS_Completeness        (completeness only — no soundness needed)
-                              |
+                              ▼
         LJFh_Rules.v          bcth / epth / lfch / rfch   carry a history; forbid revisiting a focus point
-                              ▲  
+                              |  
                               | Search_Completeness
-                              |
+                              ▼
         Search_Procedure.v    search / try_decide_sequent an Equations function on a well-founded measure
-                              |
+                              | 
                               │  ProofTerms_Soundness (verify_soundness)   ← the only soundness leg below LJFPS
                               ▼
                               back to LJFPS derivability
