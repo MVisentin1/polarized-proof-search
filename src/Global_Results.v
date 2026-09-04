@@ -10,6 +10,7 @@ From LJF Require Import LJFPS_Bracketable.
 From LJF Require Import Search_Procedure Search_Wrapper Search_Completeness.
 From LJF Require Import ProofTerms ProofTerms_Soundness ProofTerms_Completeness.
 
+Goal True. idtac "==== Assumptions of the extracted decision function try_decide_sequent ====". Abort.
 Print Assumptions try_decide_sequent .
 
 Theorem LJFPS_Sound_And_Complete_To_LJF :
@@ -39,6 +40,7 @@ Proof.
         apply (CPr (pndctx_list C) K (COr (pndctx_list C) K (C4r (pndctx_list C) K H))).
 Qed. 
 
+Goal True. idtac "==== Assumptions of result 1: LJFPS_Sound_And_Complete_To_LJF ====". Abort.
 Print Assumptions LJFPS_Sound_And_Complete_To_LJF.
     
 Theorem Derivable_iff_Search_Returns_Some_left :
@@ -66,6 +68,7 @@ Proof.
         destruct s. apply (verify_soundness v). contradiction. contradiction.
 Qed.
 
+Goal True. idtac "==== Assumptions of result 2: Derivable_iff_Search_Returns_Some_left ====". Abort.
 Print Assumptions Derivable_iff_Search_Returns_Some_left.
 
 Theorem Underivable_iff_Search_Returns_Some_Right_or_None :
@@ -81,6 +84,7 @@ Proof.
         + simpl in*. intro. apply (H0 H2).
 Qed.
 
+Goal True. idtac "==== Assumptions of result 3: Underivable_iff_Search_Returns_Some_Right_or_None ====". Abort.
 Print Assumptions Underivable_iff_Search_Returns_Some_Right_or_None.
 
 Definition decide (s : sequent) : {sequent_derivable s} + {~ sequent_derivable s}.
@@ -93,5 +97,6 @@ Proof.
         rewrite E in H. contradiction.
 Defined.
 
+Goal True. idtac "==== Assumptions of result 4: decide ====". Abort.
 Print Assumptions decide.
 
