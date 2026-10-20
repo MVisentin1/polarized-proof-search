@@ -20,7 +20,10 @@ removed (commit `b677fa0`). What remains is two axioms: `proof_irrelevance`
 (Stdlib `ProofIrrelevance`, used once in
 [`Pndctx.v`](src/definitions/Pndctx.v) to equate two `pndctx` values with the
 same underlying list) and functional extensionality, pulled in by the
-`Equations` plugin for the well-founded-recursion definitions. See
+`Equations` plugin for the well-founded-recursion definitions. The extracted
+function and the soundness of LJF-PS with respect to LJF use no axioms at all;
+completeness of LJF-PS uses only `proof_irrelevance`, and the three search
+results use only functional extensionality. See
 [docs/KEY_RESULTS.md](docs/KEY_RESULTS.md).
 
 ---

@@ -31,19 +31,19 @@ read:
 | Item | Axioms reported |
 |---|---|
 | `try_decide_sequent` (the extracted function) | none — *Closed under the global context* |
-| result 1a — `LJFPS_Sound_With_Respect_To_LJF` | to confirm on rebuild (see below) |
-| result 1b — `LJFPS_Complete_With_Respect_To_LJF` | `proof_irrelevance` only (expected, through `LJFPS_Completeness.v`; confirm on rebuild) |
+| result 1a — `LJFPS_Sound_With_Respect_To_LJF` | none — *Closed under the global context* |
+| result 1b — `LJFPS_Complete_With_Respect_To_LJF` | `proof_irrelevance` only |
 | result 2 — `Derivable_iff_Search_Returns_Some_left` | `functional_extensionality_dep` only |
 | result 3 — `Underivable_iff_Search_Returns_Some_Right_or_None` | `functional_extensionality_dep` only |
 | result 4 — `decide` | `functional_extensionality_dep` only |
 
-Neither axiom is used everywhere: the spec-equivalence results need at most
-proof irrelevance (through `pndctx_eq`, used in
-[`LJFPS_Completeness.v`](../src/metatheory/LJFPS/LJFPS_Completeness.v)), and the three
-procedure results need only functional extensionality (through the `Equations`
-well-founded definitions). Rebuild to confirm; in particular, result 1a has
-not been checked separately since the result was split, and its soundness
-chain may need no axiom at all.
+Neither axiom is used everywhere. Soundness of LJF-PS with respect to LJF
+(result 1a) is axiom-free. Completeness (result 1b) needs only proof
+irrelevance, through `pndctx_eq` in
+[`LJFPS_Completeness.v`](../src/metatheory/LJFPS/LJFPS_Completeness.v), since
+it builds a `pndctx` from a raw context with `mk_pndctx`. The three procedure
+results need only functional extensionality, through the `Equations`
+well-founded definitions.
 
 ---
 
