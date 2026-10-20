@@ -30,6 +30,9 @@ Proof.
     - apply (S4r (pndctx_list C) K (SOr (pndctx_list C) K (SPr C K H))).
 Qed. 
 
+Goal True. idtac "==== Assumptions of result 1: LJFPS_Sound_With_Respect_To_LJF ====". Abort.
+Print Assumptions LJFPS_Sound_With_Respect_To_LJF.
+
 Theorem LJFPS_Complete_With_Respect_To_LJF :
     (forall {C: octx} {L: octx} {K: o}, ufcL C L K Unbracketed -> bct (mk_pndctx C) L K) /\
     (forall {C: octx} {L: octx} {K: o}, ufcL C L K Bracketed -> ept (mk_pndctx C) L K) /\
@@ -46,8 +49,8 @@ Proof.
     - apply (CPr C K (COr C K (C4r C K H))).
 Qed. 
 
-Goal True. idtac "==== Assumptions of result 1: LJFPS_Sound_And_Complete_To_LJF ====". Abort.
-Print Assumptions LJFPS_Sound_And_Complete_To_LJF.
+Goal True. idtac "==== Assumptions of result 2: LJFPS_Complete_With_Respect_To_LJF ====". Abort.
+Print Assumptions LJFPS_Complete_With_Respect_To_LJF.
     
 Theorem Derivable_iff_Search_Returns_Some_left :
     forall (s : sequent), sequent_derivable s <-> returns_some_proof (try_decide_sequent s).
@@ -74,7 +77,7 @@ Proof.
         destruct s. apply (verify_soundness v). contradiction. contradiction.
 Qed.
 
-Goal True. idtac "==== Assumptions of result 2: Derivable_iff_Search_Returns_Some_left ====". Abort.
+Goal True. idtac "==== Assumptions of result 3: Derivable_iff_Search_Returns_Some_left ====". Abort.
 Print Assumptions Derivable_iff_Search_Returns_Some_left.
 
 Theorem Underivable_iff_Search_Returns_Some_Right_or_None :
@@ -90,7 +93,7 @@ Proof.
         + simpl in*. intro. apply (H0 H2).
 Qed.
 
-Goal True. idtac "==== Assumptions of result 3: Underivable_iff_Search_Returns_Some_Right_or_None ====". Abort.
+Goal True. idtac "==== Assumptions of result 4: Underivable_iff_Search_Returns_Some_Right_or_None ====". Abort.
 Print Assumptions Underivable_iff_Search_Returns_Some_Right_or_None.
 
 Definition decide (s : sequent) : {sequent_derivable s} + {~ sequent_derivable s}.
@@ -103,6 +106,6 @@ Proof.
         rewrite E in H. contradiction.
 Defined.
 
-Goal True. idtac "==== Assumptions of result 4: decide ====". Abort.
+Goal True. idtac "==== Assumptions of result 5: decide ====". Abort.
 Print Assumptions decide.
 
