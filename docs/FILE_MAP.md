@@ -96,7 +96,7 @@ for reference but is **not** on the build path; see
 
 | File | Role |
 |---|---|
-| [`src/Global_Results.v`](../src/Global_Results.v) | the four headline theorems; each followed by `Print Assumptions` — see [KEY_RESULTS.md](KEY_RESULTS.md) |
+| [`src/Global_Results.v`](../src/Global_Results.v) | the five headline results; each followed by `Print Assumptions` — see [KEY_RESULTS.md](KEY_RESULTS.md) |
 
 ## `ocaml/`
 
