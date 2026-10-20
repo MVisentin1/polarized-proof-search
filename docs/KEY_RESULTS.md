@@ -1,7 +1,7 @@
 # Key results — a guided read of `Global_Results.v`
 
 [`src/Global_Results.v`](../src/Global_Results.v) is the file to open first. It
-imports the whole development and states four theorems, each followed by
+imports the whole development and states five results, each followed by
 `Print Assumptions`. There is no `Admitted` anywhere in `src/`, and no
 classical-logic axioms (they were removed in commit `b677fa0`). Two axioms
 remain:
@@ -31,15 +31,19 @@ read:
 | Item | Axioms reported |
 |---|---|
 | `try_decide_sequent` (the extracted function) | none — *Closed under the global context* |
-| result 1 — `LJFPS_Sound_And_Complete_To_LJF` | `proof_irrelevance` only |
+| result 1a — `LJFPS_Sound_With_Respect_To_LJF` | to confirm on rebuild (see below) |
+| result 1b — `LJFPS_Complete_With_Respect_To_LJF` | `proof_irrelevance` only (expected, through `LJFPS_Completeness.v`; confirm on rebuild) |
 | result 2 — `Derivable_iff_Search_Returns_Some_left` | `functional_extensionality_dep` only |
 | result 3 — `Underivable_iff_Search_Returns_Some_Right_or_None` | `functional_extensionality_dep` only |
 | result 4 — `decide` | `functional_extensionality_dep` only |
 
-Neither axiom is used everywhere: the spec-equivalence result needs only proof
-irrelevance (through `pndctx_eq` / `pndctx_list_mk_commute`), and the three
+Neither axiom is used everywhere: the spec-equivalence results need at most
+proof irrelevance (through `pndctx_eq`, used in
+[`LJFPS_Completeness.v`](../src/metatheory/LJFPS/LJFPS_Completeness.v)), and the three
 procedure results need only functional extensionality (through the `Equations`
-well-founded definitions). Rebuild to confirm.
+well-founded definitions). Rebuild to confirm; in particular, result 1a has
+not been checked separately since the result was split, and its soundness
+chain may need no axiom at all.
 
 ---
 
@@ -58,7 +62,8 @@ with its Rocq name and file. Paths are relative to `src/`.
 | Theorem 6 | Exchange in LJF-O | `LJFO_exchange_ordered` | `metatheory/LJFO/LJFO_Exchange.v` |
 | Theorem 7 | Soundness of LJF-PS w.r.t. LJF-O | `LJFPS_soundness` (uses `LJFO_structural_cons_weakening`) | `metatheory/LJFPS/LJFPS_Soundness.v` |
 | Theorem 8 | Completeness of LJF-PS w.r.t. LJF-O | `LJFPS_completeness` | `metatheory/LJFPS/LJFPS_Completeness.v` |
-| Theorems 9, 10 | Soundness and completeness of LJF-PS w.r.t. LJF | `LJFPS_Sound_And_Complete_To_LJF` (result 1 below) | `Global_Results.v` |
+| Theorem 9 | Soundness of LJF-PS w.r.t. LJF | `LJFPS_Sound_With_Respect_To_LJF` (result 1a below) | `Global_Results.v` |
+| Theorem 10 | Completeness of LJF-PS w.r.t. LJF | `LJFPS_Complete_With_Respect_To_LJF` (result 1b below) | `Global_Results.v` |
 | Theorem 11 | Enumeration of the search space | `get_all_focus_decision_iff_subsequent`, with `get_all_subsets` | `proofsearch/Focus_Decision_Set.v`, `stdLib/Subsets.v` |
 | Definitions 12, 13; Theorem 14 | Search configuration, termination measure, termination | the `Equations … by wf` obligations of `search`, with `stack_length_bound` | `proofsearch/Search_Procedure.v`, `proofsearch/Focus_Decision_Set.v` |
 | Theorem 15 | Completeness of LJF-N w.r.t. LJF-PS | `LJFn_completeness` (uses `LJFn_monotone`) | `metatheory/LJFn/LJFn_Completeness.v` |
@@ -74,21 +79,30 @@ with its Rocq name and file. Paths are relative to `src/`.
 
 ---
 
-## 1. `LJFPS_Sound_And_Complete_To_LJF`
+## 1. `LJFPS_Sound_With_Respect_To_LJF` and `LJFPS_Complete_With_Respect_To_LJF`
 
 ```coq
-(forall C L K, bct C L K <-> ufcL (pndctx_list C) L K Unbracketed) /\
-(forall C L K, ept C L K <-> ufcL (pndctx_list C) L K Bracketed)   /\
-(forall C N K, lfc C N K <-> lfcL (pndctx_list C) N K)             /\
-(forall C K,   rfc C K   <-> rfcL (pndctx_list C) K)
+(* 1a — Theorem 9 of the report *)
+(forall C L K, bct C L K -> ufcL (pndctx_list C) L K Unbracketed) /\
+(forall C L K, ept C L K -> ufcL (pndctx_list C) L K Bracketed)   /\
+(forall C N K, lfc C N K -> lfcL (pndctx_list C) N K)             /\
+(forall C K,   rfc C K   -> rfcL (pndctx_list C) K)
+
+(* 1b — Theorem 10 of the report *)
+(forall C L K, ufcL C L K Unbracketed -> bct (mk_pndctx C) L K) /\
+(forall C L K, ufcL C L K Bracketed   -> ept (mk_pndctx C) L K) /\
+(forall C N K, lfcL C N K -> lfc (mk_pndctx C) N K)              /\
+(forall C K,   rfcL C K   -> rfc (mk_pndctx C) K)
 ```
 
-The search-oriented calculus **LJFPS** ([`LJFPS_Rules.v`](../src/rules/LJFPS_Rules.v))
-proves exactly what the **LJF** specification
-([`LJF_Rules.v`](../src/rules/LJF_Rules.v)) proves.
+Together these say the search-oriented calculus **LJFPS**
+([`LJFPS_Rules.v`](../src/rules/LJFPS_Rules.v)) proves exactly what the **LJF**
+specification ([`LJF_Rules.v`](../src/rules/LJF_Rules.v)) proves. Soundness
+starts from a `pndctx` and reads its underlying list with `pndctx_list`;
+completeness starts from a raw LJF context and builds the `pndctx` with
+`mk_pndctx` (deduplicate, keep permeable formulas).
 
-It is assembled by composing the three rungs between them, each direction
-separately:
+Each is assembled by composing the three rungs between them:
 
 ```
   bct C L K
@@ -97,20 +111,16 @@ separately:
      │  LJFO_soundness       (LJFO_Soundness.v)
   bct4 … L K
      │  LJF4_soundness       (LJF4_Soundness.v)
-  ufcL … L K Unbracketed          ← "sound to the spec"
+  ufcL … L K Unbracketed          ← 1a: "sound to the spec"
 
-  ufcL … L K Unbracketed
+  ufcL C L K Unbracketed
      │  LJF4_completeness    (LJF4_Completeness.v)
-  bct4 … L K
+  bct4 C L K
      │  LJFO_completeness    (LJFO_Completeness.v)
-  bctO … L K
-     │  LJFPS_completeness   (LJFPS_Completeness.v)  — via mk_pndctx
-  bct C L K                       ← "complete w.r.t. the spec"
+  bctO C L K
+     │  LJFPS_completeness   (LJFPS_Completeness.v)
+  bct (mk_pndctx C) L K           ← 1b: "complete w.r.t. the spec"
 ```
-
-The completeness leg uses `pndctx_list_mk_commute` (`C = mk_pndctx (pndctx_list C)`)
-to line the `pndctx` back up after `LJFPS_completeness` rebuilds it from a raw
-list.
 
 > Note the direction of the claim: LJF is the **trusted spec**. The
 > LJF ↔ LJ (ordinary intuitionistic logic) equivalence is Liang & Miller's

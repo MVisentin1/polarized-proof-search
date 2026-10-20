@@ -168,10 +168,13 @@ them to justify its "not derivable" branches. (`LJFPS_Exchange.v` proves
 permuting `pndctx_list` preserves derivability, but is not on the build path —
 the search-completeness chain uses the height-indexed version instead.)
 
-> **[`src/Global_Results.v`](../src/Global_Results.v) — result 1:**
-> `LJFPS_Sound_And_Complete_To_LJF` chains rungs 1–3 in both directions to get
-> `bct C L K ↔ ufcL (pndctx_list C) L K Unbracketed` and the `ept`/`lfc`/`rfc`
-> analogues. This is the bridge from the search calculus back to the spec.
+> **[`src/Global_Results.v`](../src/Global_Results.v) — results 1a and 1b:**
+> `LJFPS_Sound_With_Respect_To_LJF` chains the soundness bridges of rungs 1–3
+> to get `bct C L K → ufcL (pndctx_list C) L K Unbracketed` and the
+> `ept`/`lfc`/`rfc` analogues. `LJFPS_Complete_With_Respect_To_LJF` chains the
+> completeness bridges to get `ufcL C L K Unbracketed → bct (mk_pndctx C) L K`
+> and the analogues. Together they are the bridge between the search calculus
+> and the spec.
 
 ## Rung 4 — LJF-N: index derivations by height
 

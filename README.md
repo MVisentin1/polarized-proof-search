@@ -13,7 +13,7 @@ out and point from each result in the report to its Rocq statement
 writes the calculi as LJF-4, LJF-O, LJF-PS, LJF-N and LJF-H; in the code they
 are the file and judgment suffixes `4`, `O`, `PS`, `n` and `h`.
 
-Everything compiles with no `Admitted`. The four headline results in
+Everything compiles with no `Admitted`. The five headline results in
 [`src/Global_Results.v`](src/Global_Results.v) each end with a
 `Print Assumptions`; the classical-logic axioms earlier versions relied on were
 removed (commit `b677fa0`). What remains is two axioms: `proof_irrelevance`
@@ -87,7 +87,8 @@ See **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** for the full tour.
 
 | Theorem | Statement |
 |---|---|
-| `LJFPS_Sound_And_Complete_To_LJF` | the search-oriented calculus LJFPS is inter-derivable with the LJF spec |
+| `LJFPS_Sound_With_Respect_To_LJF` | every LJFPS derivation gives an LJF derivation (over `pndctx_list C`) |
+| `LJFPS_Complete_With_Respect_To_LJF` | every LJF derivation gives an LJFPS derivation (over `mk_pndctx C`) |
 | `Derivable_iff_Search_Returns_Some_left` | `sequent_derivable s ↔ try_decide_sequent s` returns a verified proof |
 | `Underivable_iff_Search_Returns_Some_Right_or_None` | the negative side |
 | `decide` | `∀ s, {sequent_derivable s} + {~ sequent_derivable s}` — full decidability |
