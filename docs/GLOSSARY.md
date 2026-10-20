@@ -8,14 +8,15 @@ concern) pair.
 
 | Root | Mnemonic | Meaning |
 |---|---|---|
-| `bct` | *bracket* | asynchronous phase, goal not yet bracket-checked (the `Unbracketed` mode of the spec). Right rules for negative connectives, `boxR` to enter `ept`. |
-| `ept` | *expand* | asynchronous phase past the `boxR` boundary; the goal is `bracketable`. Left rules decompose the linear context; `boxL` moves permeable formulas into the unrestricted context; once the linear context is empty, ends by choosing a focus (`Lf`/`Rf`). |
+| `bct` | *bracketing* | the **bracketing phase** (right-asynchronous work): goal not yet bracket-checked (the `Unbracketed` mode of the spec). Right rules for negative connectives, `boxR` to enter `ept`. |
+| `ept` | *emptying* | the **emptying phase** (left-asynchronous work), past the `boxR` boundary; the goal is `bracketable`. Left rules decompose the linear context; `boxL` moves permeable formulas into the unrestricted context; once the linear context is empty, ends by choosing a focus (`Lf`/`Rf`). |
 | `lfc` | *left focus* | focus is on a chosen formula of the unrestricted context; chase it through negative connectives until it matches the goal or releases. |
 | `rfc` | *right focus* | focus is on the goal; chase it through positive connectives until it matches the context or releases. |
 
-(`lfc` / `rfc` are unambiguous; `bct` / `ept` are the author's abbreviations for
-the two asynchronous judgments — the mnemonics above are a reading aid, not a
-claim about the intended expansion.)
+The phase names *bracketing*, *emptying*, *left focus* and *right focus* are
+the ones used in the report and in *Mechanizing LJF*: the bracketing phase
+decomposes the goal until it reaches a bracketable formula, and the emptying
+phase decomposes the linear context until it is empty.
 
 In the spec ([`LJF_Rules.v`](../src/rules/LJF_Rules.v)) `bct` and `ept` are one
 relation `ufcL C L K state` with `state ∈ {Bracketed, Unbracketed}`:
@@ -23,17 +24,18 @@ relation `ufcL C L K state` with `state ∈ {Bracketed, Unbracketed}`:
 
 ## Calculus suffixes
 
-| Suffix | Calculus | What it adds over the previous rung |
+| Suffix | Calculus (report name) | What it adds over the previous rung |
 |---|---|---|
 | `L` (`ufcL`, `lfcL`, `rfcL`) | **LJF** | the specification; `state` flag, `Permutation` left rules |
-| `4` (`bct4`, …) | **LJF4** | `state` replaced by two separate judgments |
-| `O` (`bctO`, …) | **LJFO** | linear context consumed in fixed order (head-first) |
-| *(none)* (`bct`, `ept`, `lfc`, `rfc`) | **LJFPS** | unrestricted context is a `pndctx` (finite dedup'd permeable set) |
-| `n` (`bctn n`, …) | **LJFn** | explicit `nat` derivation-height index |
-| `h` (`bcth Hs`, …) | **LJFh** | `hist` of visited focus points; no revisits |
+| `4` (`bct4`, …) | **LJF-4** | `state` replaced by two separate judgments; no star rules |
+| `O` (`bctO`, …) | **LJF-O** | linear context consumed in fixed order (head-first) |
+| *(none)* (`bct`, `ept`, `lfc`, `rfc`) | **LJF-PS** | unrestricted context is a `pndctx` (finite dedup'd permeable set) |
+| `n` (`bctn n`, …) | **LJF-N** | explicit `nat` derivation-height index |
+| `h` (`bcth Hs`, …) | **LJF-H** | `hist` of visited focus points; no revisits |
 
-Mnemonic for the middle: **4** judgments split out, **O**rdered context,
-**P**roof **S**earch context, **n**-height, **h**istory.
+Mnemonic for the middle: **4** phases (bracketing, emptying, left focus, right
+focus), **O**rdered context, **P**roof **S**earch context, **N** for height,
+**H**istory.
 
 ## Polarity vocabulary (this development's specifics)
 
@@ -89,8 +91,8 @@ and the atoms are both. `permeable_ctx C := Forall permeable C`.
 | `sequent` | `Sbct C L K` / `Sept C L K` / `Slfc C N K` / `Srfc C K` — a judgment goal as data |
 | `sequent_derivable s` | the corresponding LJFPS proposition |
 | `subsequent S S0` | every formula in `S` is a subformula of `S0`, in the correct polarity bucket |
-| `hist` | `list (pndctx * o)` — visited focus points (LJFh); called `stack` in `search` |
-| `get_all_focus_decision init` | finite superset of all reachable focus points = subsets(permeable subformulas) × bracketable subformulas |
+| `hist` | `list (pndctx * o)` — visited focus points (LJFh); called `stack` in `search`, and the *history stack* in the report |
+| `get_all_focus_decision init` | the report's FD(S₀): finite superset of all reachable focus points = subsets(permeable subformulas) × bracketable subformulas |
 | `phase_ranking` / `phase_measure` | 2nd / 3rd components of the termination triple |
 | `pterm` | first-order proof term, one constructor per LJFPS rule (`pbct_boxR`, `pept_Lf`, …). In sort `Type`, so it survives extraction — the `Prop` derivation would erase to `()` |
 | `verify p seq` | a `Prop`: `p` is a valid LJFPS derivation of `seq`. `verify_soundness` links it to `sequent_derivable`; checked once in Rocq, never at OCaml runtime |

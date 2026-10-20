@@ -43,6 +43,37 @@ well-founded definitions). Rebuild to confirm.
 
 ---
 
+## Report ↔ mechanization
+
+Each numbered result of the report *A Verified Proof Search Procedure for LJF*,
+with its Rocq name and file. Paths are relative to `src/`.
+
+| Report | Statement | Rocq name | File |
+|---|---|---|---|
+| Theorem 1 | Soundness of LJF-4 w.r.t. LJF | `LJF4_soundness` | `metatheory/LJF4/LJF4_Soundness.v` |
+| Theorem 2 | Completeness of LJF-4 w.r.t. LJF | `LJF4_completeness` | `metatheory/LJF4/LJF4_Completeness.v` |
+| Theorem 3 | Soundness of LJF-O w.r.t. LJF-4 | `LJFO_soundness` | `metatheory/LJFO/LJFO_Soundness.v` |
+| Theorem 4 | Completeness of LJF-O w.r.t. LJF-4 | `LJFO_completeness` | `metatheory/LJFO/LJFO_Completeness.v` |
+| Lemma 5 | Admissibility of `[]l` in LJF-O | `eager_boxL` | `metatheory/LJFO/LJFO_Exchange.v` |
+| Theorem 6 | Exchange in LJF-O | `LJFO_exchange_ordered` | `metatheory/LJFO/LJFO_Exchange.v` |
+| Theorem 7 | Soundness of LJF-PS w.r.t. LJF-O | `LJFPS_soundness` (uses `LJFO_structural_cons_weakening`) | `metatheory/LJFPS/LJFPS_Soundness.v` |
+| Theorem 8 | Completeness of LJF-PS w.r.t. LJF-O | `LJFPS_completeness` | `metatheory/LJFPS/LJFPS_Completeness.v` |
+| Theorems 9, 10 | Soundness and completeness of LJF-PS w.r.t. LJF | `LJFPS_Sound_And_Complete_To_LJF` (result 1 below) | `Global_Results.v` |
+| Theorem 11 | Enumeration of the search space | `get_all_focus_decision_iff_subsequent`, with `get_all_subsets` | `proofsearch/Focus_Decision_Set.v`, `stdLib/Subsets.v` |
+| Definitions 12, 13; Theorem 14 | Search configuration, termination measure, termination | the `Equations … by wf` obligations of `search`, with `stack_length_bound` | `proofsearch/Search_Procedure.v`, `proofsearch/Focus_Decision_Set.v` |
+| Theorem 15 | Completeness of LJF-N w.r.t. LJF-PS | `LJFn_completeness` (uses `LJFn_monotone`) | `metatheory/LJFn/LJFn_Completeness.v` |
+| Theorem 16 | Minimal-height theorem | `LJFn_find_min_height`, `min_height_exists` (with the bounded decider `LJFn_decider`) | `metatheory/LJFn/LJFn_MinimalHeight.v` |
+| Definition 17 | History bounded by `n` | `hist_height_bound` | `metatheory/LJFh/LJFh_Completeness.v` |
+| Theorem 18 | Completeness of LJF-H w.r.t. LJF-N | `LJFh_completeness` | `metatheory/LJFh/LJFh_Completeness.v` |
+| Theorem 19 | Completeness of LJF-H w.r.t. LJF-PS | `LJFh_completeness_alt` | `metatheory/LJFh/LJFh_Completeness.v` |
+| Theorem 20 | Completeness of search w.r.t. LJF-H | `search_complete` | `proofsearch/Search_Completeness.v` |
+| Theorem 21 | Soundness and completeness of search w.r.t. LJF-PS | `Derivable_iff_Search_Returns_Some_left` (result 2) | `Global_Results.v` |
+| Theorem 22 | Contrapositive of Theorem 21 | `Underivable_iff_Search_Returns_Some_Right_or_None` (result 3) | `Global_Results.v` |
+| — | Decision procedure | `decide` (result 4) | `Global_Results.v` |
+| — | Type-sorted proof terms | `pterm`, `verify`, `verify_soundness` | `proofsearch/ProofTerms.v`, `proofsearch/ProofTerms_Soundness.v` |
+
+---
+
 ## 1. `LJFPS_Sound_And_Complete_To_LJF`
 
 ```coq

@@ -30,7 +30,7 @@ re-checks the emitted `pterm` against the LJFPS rules directly.
                               ▼
         LJFn_Rules.v          bctn / eptn / lfcn / rfcn   add an explicit derivation-height index
                               |
-                              | LJFPS_Completeness        (completeness only — no soundness needed)
+                              | LJFh_Completeness         (completeness only — no soundness needed)
                               ▼
         LJFh_Rules.v          bcth / epth / lfch / rfch   carry a history; forbid revisiting a focus point
                               |  
@@ -47,8 +47,8 @@ The four judgments carried through every layer:
 
 | Judgment | Reads as | Phase |
 |---|---|---|
-| `bct C L K` | from `C` (unrestricted) and `L` (linear), goal `K` is provable | asynchronous, unbracketed
-| `ept C L K` | same, but `K` is `bracketable` and we are past the `boxR` boundary | asynchronous, bracketed |
+| `bct C L K` | from `C` (unrestricted) and `L` (linear), goal `K` is provable | bracketing (right-asynchronous) |
+| `ept C L K` | same, but `K` is `bracketable` and we are past the `boxR` boundary | emptying (left-asynchronous) |
 | `lfc C N K` | with left focus on `N ∈ C`, reach `K` | focused (left) |
 | `rfc C K` | with right focus on `K` | focused (right) |
 
@@ -102,20 +102,22 @@ close to the paper and makes no concession to executability.
 > construct one, and no proof can either. The imprecision is confined to the
 > spec layer.
 
-## Rung 1 — LJF4: separate the two async modes
+## Rung 1 — LJF-4: separate the two async modes
 
 **File:** [`src/rules/LJF4_Rules.v`](../src/rules/LJF4_Rules.v) ·
 **bridges:** [`LJF4_Soundness.v`](../src/metatheory/LJF4/LJF4_Soundness.v),
 [`LJF4_Completeness.v`](../src/metatheory/LJF4/LJF4_Completeness.v)
 
-`4` = *4 judgments*. Replace the `state` parameter by two separate mutually-inductive judgments:
-`bct4` (was `Unbracketed`) and `ept4` (was `Bracketed`). The `…_star`
+`4` = *four phases*: bracketing, emptying, left focus, right focus (report:
+**LJF-4**, introduced in the COMP 527 work). Replace the `state` parameter by two
+separate mutually-inductive judgments: `bct4`, the bracketing phase (was
+`Unbracketed`), and `ept4`, the emptying phase (was `Bracketed`). The `…_star`
 duplicates disappear. `LJF4_soundness` erases the split back to `ufcL`;
 `LJF4_completeness` rebuilds it and needs the `admissibility_*_star` lemmas
 (that each left rule is admissible in `bct4`) together with the linear/structural
 exchange lemmas in [`LJF4_Exchange.v`](../src/metatheory/LJF4/LJF4_Exchange.v).
 
-## Rung 2 — LJFO: fix the order of the linear context
+## Rung 2 — LJF-O: fix the order of the linear context
 
 **File:** [`src/rules/LJFO_Rules.v`](../src/rules/LJFO_Rules.v) ·
 **bridges:** [`LJFO_Soundness.v`](../src/metatheory/LJFO/LJFO_Soundness.v),
@@ -133,7 +135,7 @@ conclusion along a permutation.
 (`LJFO_Contraction.v` proves the two contraction lemma but is not currently on
 the build path — see [FILE_MAP.md](FILE_MAP.md#not-on-the-build-path).)
 
-## Rung 3 — LJFPS: the unrestricted context becomes a finite set
+## Rung 3 — LJF-PS: the unrestricted context becomes a finite set
 
 **File:** [`src/rules/LJFPS_Rules.v`](../src/rules/LJFPS_Rules.v) ·
 **bridges:** [`LJFPS_Soundness.v`](../src/metatheory/LJFPS/LJFPS_Soundness.v),
@@ -171,7 +173,7 @@ the search-completeness chain uses the height-indexed version instead.)
 > `bct C L K ↔ ufcL (pndctx_list C) L K Unbracketed` and the `ept`/`lfc`/`rfc`
 > analogues. This is the bridge from the search calculus back to the spec.
 
-## Rung 4 — LJFn: index derivations by height
+## Rung 4 — LJF-N: index derivations by height
 
 **File:** [`src/rules/LJFn_Rules.v`](../src/rules/LJFn_Rules.v) ·
 **bridge:** [`LJFn_Completeness.v`](../src/metatheory/LJFn/LJFn_Completeness.v)
@@ -197,10 +199,19 @@ and is set arbitrarily at the leafs. Purely a proof device.
   [`LJFn_Bracketable.v`](../src/metatheory/LJFn/LJFn_Bracketable.v),
   [`LJFn_Exchange.v`](../src/metatheory/LJFn/LJFn_Exchange.v)).
 
-## Rung 5 — LJFh: forbid revisiting a focus decision
+## Rung 5 — LJF-H: forbid revisiting a focus decision
 
 **File:** [`src/rules/LJFh_Rules.v`](../src/rules/LJFh_Rules.v) ·
 **bridge:** [`LJFh_Completeness.v`](../src/metatheory/LJFh/LJFh_Completeness.v)
+
+**Why a history, rather than a decreasing measure.** Dyckhoff's G4ip decides
+propositional intuitionistic logic with a weight measure that every premise
+decreases, by removing the principal formula from the context. That is not
+available here: left focus (`Lf`) keeps the focused formula in the structural
+context, so the context never shrinks. A G4ip-style variant of LJF might admit
+such a measure, but its derivations would no longer be LJF derivations. The
+history-based argument keeps every rule an instance of an LJF rule, so the
+derivations the search returns are LJF derivations.
 
 `h` = *history*. The judgments carry `Hs : hist = list (pndctx * o)`. The
 rules that pick a new focus formula on an empty linear context — `epth_Lf`
