@@ -31,14 +31,14 @@ read:
 | Item | Axioms reported |
 |---|---|
 | `try_decide_sequent` (the extracted function) | none — *Closed under the global context* |
-| result 1a — `LJFPS_Sound_With_Respect_To_LJF` | none — *Closed under the global context* |
-| result 1b — `LJFPS_Complete_With_Respect_To_LJF` | `proof_irrelevance` only |
-| result 2 — `Derivable_iff_Search_Returns_Some_left` | `functional_extensionality_dep` only |
-| result 3 — `Underivable_iff_Search_Returns_Some_Right_or_None` | `functional_extensionality_dep` only |
-| result 4 — `decide` | `functional_extensionality_dep` only |
+| result 1 — `LJFPS_Sound_With_Respect_To_LJF` | none — *Closed under the global context* |
+| result 2 — `LJFPS_Complete_With_Respect_To_LJF` | `proof_irrelevance` only |
+| result 3 — `Derivable_iff_Search_Returns_Some_left` | `functional_extensionality_dep` only |
+| result 4 — `Underivable_iff_Search_Returns_Some_Right_or_None` | `functional_extensionality_dep` only |
+| result 5 — `decide` | `functional_extensionality_dep` only |
 
 Neither axiom is used everywhere. Soundness of LJF-PS with respect to LJF
-(result 1a) is axiom-free. Completeness (result 1b) needs only proof
+(result 1) is axiom-free. Completeness (result 2) needs only proof
 irrelevance, through `pndctx_eq` in
 [`LJFPS_Completeness.v`](../src/metatheory/LJFPS/LJFPS_Completeness.v), since
 it builds a `pndctx` from a raw context with `mk_pndctx`. The three procedure
@@ -62,8 +62,8 @@ with its Rocq name and file. Paths are relative to `src/`.
 | Theorem 6 | Exchange in LJF-O | `LJFO_exchange_ordered` | `metatheory/LJFO/LJFO_Exchange.v` |
 | Theorem 7 | Soundness of LJF-PS w.r.t. LJF-O | `LJFPS_soundness` (uses `LJFO_structural_cons_weakening`) | `metatheory/LJFPS/LJFPS_Soundness.v` |
 | Theorem 8 | Completeness of LJF-PS w.r.t. LJF-O | `LJFPS_completeness` | `metatheory/LJFPS/LJFPS_Completeness.v` |
-| Theorem 9 | Soundness of LJF-PS w.r.t. LJF | `LJFPS_Sound_With_Respect_To_LJF` (result 1a below) | `Global_Results.v` |
-| Theorem 10 | Completeness of LJF-PS w.r.t. LJF | `LJFPS_Complete_With_Respect_To_LJF` (result 1b below) | `Global_Results.v` |
+| Theorem 9 | Soundness of LJF-PS w.r.t. LJF | `LJFPS_Sound_With_Respect_To_LJF` (result 1 below) | `Global_Results.v` |
+| Theorem 10 | Completeness of LJF-PS w.r.t. LJF | `LJFPS_Complete_With_Respect_To_LJF` (result 2 below) | `Global_Results.v` |
 | Theorem 11 | Enumeration of the search space | `get_all_focus_decision_iff_subsequent`, with `get_all_subsets` | `proofsearch/Focus_Decision_Set.v`, `stdLib/Subsets.v` |
 | Definitions 12, 13; Theorem 14 | Search configuration, termination measure, termination | the `Equations … by wf` obligations of `search`, with `stack_length_bound` | `proofsearch/Search_Procedure.v`, `proofsearch/Focus_Decision_Set.v` |
 | Theorem 15 | Completeness of LJF-N w.r.t. LJF-PS | `LJFn_completeness` (uses `LJFn_monotone`) | `metatheory/LJFn/LJFn_Completeness.v` |
@@ -72,23 +72,23 @@ with its Rocq name and file. Paths are relative to `src/`.
 | Theorem 18 | Completeness of LJF-H w.r.t. LJF-N | `LJFh_completeness` | `metatheory/LJFh/LJFh_Completeness.v` |
 | Theorem 19 | Completeness of LJF-H w.r.t. LJF-PS | `LJFh_completeness_alt` | `metatheory/LJFh/LJFh_Completeness.v` |
 | Theorem 20 | Completeness of search w.r.t. LJF-H | `search_complete` | `proofsearch/Search_Completeness.v` |
-| Theorem 21 | Soundness and completeness of search w.r.t. LJF-PS | `Derivable_iff_Search_Returns_Some_left` (result 2) | `Global_Results.v` |
-| Theorem 22 | Contrapositive of Theorem 21 | `Underivable_iff_Search_Returns_Some_Right_or_None` (result 3) | `Global_Results.v` |
-| — | Decision procedure | `decide` (result 4) | `Global_Results.v` |
+| Theorem 21 | Soundness and completeness of search w.r.t. LJF-PS | `Derivable_iff_Search_Returns_Some_left` (result 3) | `Global_Results.v` |
+| Theorem 22 | Contrapositive of Theorem 21 | `Underivable_iff_Search_Returns_Some_Right_or_None` (result 4) | `Global_Results.v` |
+| — | Decision procedure | `decide` (result 5) | `Global_Results.v` |
 | — | Type-sorted proof terms | `pterm`, `verify`, `verify_soundness` | `proofsearch/ProofTerms.v`, `proofsearch/ProofTerms_Soundness.v` |
 
 ---
 
-## 1. `LJFPS_Sound_With_Respect_To_LJF` and `LJFPS_Complete_With_Respect_To_LJF`
+## 1–2. `LJFPS_Sound_With_Respect_To_LJF` and `LJFPS_Complete_With_Respect_To_LJF`
 
 ```coq
-(* 1a — Theorem 9 of the report *)
+(* result 1 — Theorem 9 of the report *)
 (forall C L K, bct C L K -> ufcL (pndctx_list C) L K Unbracketed) /\
 (forall C L K, ept C L K -> ufcL (pndctx_list C) L K Bracketed)   /\
 (forall C N K, lfc C N K -> lfcL (pndctx_list C) N K)             /\
 (forall C K,   rfc C K   -> rfcL (pndctx_list C) K)
 
-(* 1b — Theorem 10 of the report *)
+(* result 2 — Theorem 10 of the report *)
 (forall C L K, ufcL C L K Unbracketed -> bct (mk_pndctx C) L K) /\
 (forall C L K, ufcL C L K Bracketed   -> ept (mk_pndctx C) L K) /\
 (forall C N K, lfcL C N K -> lfc (mk_pndctx C) N K)              /\
@@ -111,7 +111,7 @@ Each is assembled by composing the three rungs between them:
      │  LJFO_soundness       (LJFO_Soundness.v)
   bct4 … L K
      │  LJF4_soundness       (LJF4_Soundness.v)
-  ufcL … L K Unbracketed          ← 1a: "sound to the spec"
+  ufcL … L K Unbracketed          ← result 1: "sound to the spec"
 
   ufcL C L K Unbracketed
      │  LJF4_completeness    (LJF4_Completeness.v)
@@ -119,14 +119,14 @@ Each is assembled by composing the three rungs between them:
      │  LJFO_completeness    (LJFO_Completeness.v)
   bctO C L K
      │  LJFPS_completeness   (LJFPS_Completeness.v)
-  bct (mk_pndctx C) L K           ← 1b: "complete w.r.t. the spec"
+  bct (mk_pndctx C) L K           ← result 2: "complete w.r.t. the spec"
 ```
 
 > Note the direction of the claim: LJF is the **trusted spec**. The
 > LJF ↔ LJ (ordinary intuitionistic logic) equivalence is Liang & Miller's
 > theorem and is *not* re-done here.
 
-## 2. `Derivable_iff_Search_Returns_Some_left`
+## 3. `Derivable_iff_Search_Returns_Some_left`
 
 ```coq
 forall s : sequent, sequent_derivable s <-> returns_some_proof (try_decide_sequent s)
@@ -158,7 +158,7 @@ comes with `V : verify p s`, so no trust in `search` itself is required — and
 this is the *only* soundness leg below LJFPS: the LJFn / LJFh rungs are used
 completeness-only.
 
-## 3. `Underivable_iff_Search_Returns_Some_Right_or_None`
+## 4. `Underivable_iff_Search_Returns_Some_Right_or_None`
 
 ```coq
 forall s, ~ sequent_derivable s <->
@@ -173,15 +173,15 @@ The negative counterpart. `try_decide_sequent` has three outcomes:
 | `Some (inr H)` | underivable, with `H : ~ sequent_derivable s` |
 | `None` | underivable, but the search revisited a focus decision before a full refutation could be assembled — no witness. Still sound by this theorem. |
 
-## 4. `decide`
+## 5. `decide`
 
 ```coq
 Definition decide (s : sequent) : {sequent_derivable s} + {~ sequent_derivable s}.
 ```
 
-Packs results 2 and 3 into a single decision. `left` unwraps `verify_soundness`
+Packs results 3 and 4 into a single decision. `left` unwraps `verify_soundness`
 on the returned `pterm`; `right` uses the returned refutation, or — in the
-`None` case — result 2 contrapositively.
+`None` case — result 3 contrapositively.
 
 ---
 

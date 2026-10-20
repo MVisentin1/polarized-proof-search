@@ -168,7 +168,7 @@ them to justify its "not derivable" branches. (`LJFPS_Exchange.v` proves
 permuting `pndctx_list` preserves derivability, but is not on the build path —
 the search-completeness chain uses the height-indexed version instead.)
 
-> **[`src/Global_Results.v`](../src/Global_Results.v) — results 1a and 1b:**
+> **[`src/Global_Results.v`](../src/Global_Results.v) — results 1 and 2:**
 > `LJFPS_Sound_With_Respect_To_LJF` chains the soundness bridges of rungs 1–3
 > to get `bct C L K → ufcL (pndctx_list C) L K Unbracketed` and the
 > `ept`/`lfc`/`rfc` analogues. `LJFPS_Complete_With_Respect_To_LJF` chains the
@@ -285,7 +285,7 @@ leg from LJFh (or LJFn) back to LJFPS would be redundant.
   `search_complete`: `bcth/epth/lfch/rfch` (rung 5) ⇒ `search` returns
   `Some (inl _)`.
 
-> **[`src/Global_Results.v`](../src/Global_Results.v) — results 2–4:**
+> **[`src/Global_Results.v`](../src/Global_Results.v) — results 3–5:**
 > `Derivable_iff_Search_Returns_Some_left` composes
 > `LJFn_completeness → LJFh_completeness_alt → search_complete` forward and
 > `verify_soundness` backward;
