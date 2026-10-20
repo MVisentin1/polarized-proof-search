@@ -13,31 +13,37 @@ From LJF Require Import ProofTerms ProofTerms_Soundness ProofTerms_Completeness.
 Goal True. idtac "==== Assumptions of the extracted decision function try_decide_sequent ====". Abort.
 Print Assumptions try_decide_sequent .
 
-Theorem LJFPS_Sound_And_Complete_To_LJF :
-    (forall {C: pndctx} {L: octx} {K: o}, bct C L K <-> ufcL (pndctx_list C) L K Unbracketed) /\
-    (forall {C: pndctx} {L: octx} {K: o}, ept C L K <-> ufcL (pndctx_list C) L K Bracketed) /\
-    (forall {C: pndctx} {N K: o}, lfc C N K <-> lfcL (pndctx_list C) N K) /\
-    (forall {C: pndctx} {K: o}, rfc C K <-> rfcL (pndctx_list C) K).
+
+Theorem LJFPS_Sound_With_Respect_To_LJF :
+    (forall {C: pndctx} {L: octx} {K: o}, bct C L K -> ufcL (pndctx_list C) L K Unbracketed) /\
+    (forall {C: pndctx} {L: octx} {K: o}, ept C L K -> ufcL (pndctx_list C) L K Bracketed) /\
+    (forall {C: pndctx} {N K: o}, lfc C N K -> lfcL (pndctx_list C) N K) /\
+    (forall {C: pndctx} {K: o}, rfc C K -> rfcL (pndctx_list C) K).
 Proof.
     destruct LJF4_soundness as [S4b [S4e [S4l S4r]]].
     destruct LJFO_soundness as [SOb [SOe [SOl SOr]]].
     destruct LJFPS_soundness as [SPb [SPe [SPl SPr]]].
+    repeat split ; intros.
+    - apply (S4b (pndctx_list C) L K (SOb (pndctx_list C) L K (SPb C L K H))).
+    - apply (S4e (pndctx_list C) L K (SOe (pndctx_list C) L K (SPe C L K H))).
+    - apply (S4l (pndctx_list C) N K (SOl (pndctx_list C) N K (SPl C N K H))).
+    - apply (S4r (pndctx_list C) K (SOr (pndctx_list C) K (SPr C K H))).
+Qed. 
+
+Theorem LJFPS_Complete_With_Respect_To_LJF :
+    (forall {C: octx} {L: octx} {K: o}, ufcL C L K Unbracketed -> bct (mk_pndctx C) L K) /\
+    (forall {C: octx} {L: octx} {K: o}, ufcL C L K Bracketed -> ept (mk_pndctx C) L K) /\
+    (forall {C: octx} {N K: o}, lfcL C N K -> lfc (mk_pndctx C) N K) /\
+    (forall {C: octx} {K: o}, rfcL C K -> rfc (mk_pndctx C) K).
+Proof.
     destruct LJF4_completeness as [C4u [C4l C4r]].
     destruct LJFO_completeness as [COb [COe [COl COr]]].
     destruct LJFPS_completeness as [CPb [CPe [CPl CPr]]].
     repeat split ; intros.
-    - apply (S4b (pndctx_list C) L K (SOb (pndctx_list C) L K (SPb C L K H))).
-    - specialize (pndctx_list_mk_commute C) ; intro ; rewrite H0.
-        apply (CPb (pndctx_list C) L K (COb (pndctx_list C) L K (C4u (pndctx_list C) L K Unbracketed H))).
-    - apply (S4e (pndctx_list C) L K (SOe (pndctx_list C) L K (SPe C L K H))).
-    - specialize (pndctx_list_mk_commute C) ; intro ; rewrite H0.
-        apply (CPe (pndctx_list C) L K (COe (pndctx_list C) L K (C4u (pndctx_list C) L K Bracketed H))).
-    - apply (S4l (pndctx_list C) N K (SOl (pndctx_list C) N K (SPl C N K H))).
-    - specialize (pndctx_list_mk_commute C) ; intro ; rewrite H0.
-        apply (CPl (pndctx_list C) N K (COl (pndctx_list C) N K (C4l (pndctx_list C) N K H))).
-    - apply (S4r (pndctx_list C) K (SOr (pndctx_list C) K (SPr C K H))).
-    - specialize (pndctx_list_mk_commute C) ; intro ; rewrite H0.
-        apply (CPr (pndctx_list C) K (COr (pndctx_list C) K (C4r (pndctx_list C) K H))).
+    - apply (CPb C L K (COb C L K (C4u C L K Unbracketed H))).
+    - apply (CPe C L K (COe C L K (C4u C L K Bracketed H))).
+    - apply (CPl C N K (COl C N K (C4l C N K H))).
+    - apply (CPr C K (COr C K (C4r C K H))).
 Qed. 
 
 Goal True. idtac "==== Assumptions of result 1: LJFPS_Sound_And_Complete_To_LJF ====". Abort.
