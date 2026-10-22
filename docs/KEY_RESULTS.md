@@ -70,7 +70,7 @@ with its Rocq name and file. Paths are relative to `src/`.
 | Theorem 16 | Minimal-height theorem | `LJFn_find_min_height`, `min_height_exists` (with the bounded decider `LJFn_decider`) | `metatheory/LJFn/LJFn_MinimalHeight.v` |
 | Definition 17 | History bounded by `n` | `hist_height_bound` | `metatheory/LJFh/LJFh_Completeness.v` |
 | Theorem 18 | Completeness of LJF-H w.r.t. LJF-N | `LJFh_completeness` | `metatheory/LJFh/LJFh_Completeness.v` |
-| Theorem 19 | Completeness of LJF-H w.r.t. LJF-PS | `LJFh_completeness_alt` | `metatheory/LJFh/LJFh_Completeness.v` |
+| Theorem 19 | Completeness of LJF-H w.r.t. LJF-PS | not a standalone lemma: folded into `Derivable_iff_Search_Returns_Some_left`, which composes `LJFn_completeness` with `LJFh_completeness_alt` (Theorem 18 with `n` quantified inside) at the empty history | `Global_Results.v` |
 | Theorem 20 | Completeness of search w.r.t. LJF-H | `search_complete` | `proofsearch/Search_Completeness.v` |
 | Theorem 21 | Soundness and completeness of search w.r.t. LJF-PS | `Derivable_iff_Search_Returns_Some_left` (result 3) | `Global_Results.v` |
 | Theorem 22 | Contrapositive of Theorem 21 | `Underivable_iff_Search_Returns_Some_Right_or_None` (result 4) | `Global_Results.v` |

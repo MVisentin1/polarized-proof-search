@@ -67,8 +67,11 @@ total Rocq function:
   focus decisions along a branch. They justify pruning repeated focus decisions,
   which is what makes the search terminate.
 
-Every rule of LJF-4, LJF-O and LJF-PS is an instance of an LJF rule, so the
-derivations the search returns are LJF derivations.
+Every rule of LJF-4, LJF-O and LJF-PS is an instance of an LJF rule (up to
+`[]l`, which concludes `C ⊲ Γ` rather than `C, Γ`), so the `pterm`s the search
+returns correspond rule for rule to LJF derivations. Because derivations live
+in `Prop`, this correspondence is visible in the proofs but is not itself a
+mechanized theorem.
 
     LJF  ⇄  LJF4  ⇄  LJFO  ⇄  LJFPS  ──→  LJFn  ──→  LJFh  ──→  search()
                                   ▲                                 |
@@ -166,6 +169,12 @@ These follow the Future Work section of the report.
   search, and compare the two ways of comparing contexts.
 - **Polarization.** Look for a direct simulation, inside LJF, between two
   polarity assignments of the same formula.
+- **Embedding other systems in LJF.** Liang & Miller show that LJT and
+  uniform proofs, LJQ′, LJ and the classical focused calculus LKF can be
+  hosted in LJF (Sections 7 and 8 of their paper). Mechanizing these embeddings
+  could extend the decision procedure to those systems, in particular to
+  classical propositional logic, without changing the search itself. Not yet
+  explored in detail.
 
 Smaller items in the code itself:
 
@@ -199,7 +208,8 @@ That earlier solver survives here, adapted from LJF4 to LJFPS, as
 extent of the team-phase work. It is unverified, does not terminate on
 many sequents, and is off the build path.
 
-Everything past the team phase is my own. That is the verified decision procedure with its
+Everything past the team phase is my own. That is the mechanized proof of the
+completeness of LJF-4 with respect to LJF, the verified decision procedure with its
 `pterm` / `verify` certificates, the further intermediate calculi (LJFO, LJFPS,
 LJFn, LJFh) and their metatheory, the termination measures, and the soundness / completeness proofs
 linking every rung.
