@@ -214,7 +214,9 @@ available here: left focus (`Lf`) keeps the focused formula in the structural
 context, so the context never shrinks. A G4ip-style variant of LJF might admit
 such a measure, but its derivations would no longer be LJF derivations. The
 history-based argument keeps every rule an instance of an LJF rule, so the
-derivations the search returns are LJF derivations.
+`pterm`s the search returns correspond rule for rule to LJF derivations (a
+correspondence visible in the proofs, not a mechanized theorem, since
+derivations live in `Prop`).
 
 `h` = *history*. The judgments carry `Hs : hist = list (pndctx * o)`. The
 rules that pick a new focus formula on an empty linear context — `epth_Lf`
