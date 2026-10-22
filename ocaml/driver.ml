@@ -109,11 +109,6 @@ let print_pterm ?(indent = "  ") (p : pterm) =
 (* Examples                                                           *)
 (* ------------------------------------------------------------------ *)
 
-let empty_ctx : pndctx = []
-
-let p0 = Atom (Pos, 0)
-let p1 = Atom (Pos, 1)
-let p2 = Atom (Pos, 2)
 
 let show name seq =
   Printf.printf "%-8s %s\n" (name ^ ":") (string_of_sequent seq);
@@ -127,5 +122,23 @@ let show name seq =
      Printf.printf "  => not derivable  (search revisited a focus decision, no witness)\n");
   print_newline ()
 
+let p0 = Atom (Pos, 0)
+let p1 = Atom (Pos, 1)
+let p2 = Atom (Pos, 2)
+let n0 = Atom (Neg, 0)
+let n1 = Atom (Neg, 1)
+let n2 = Atom (Neg, 2)
+let neg a = Imp (a, FF)
+let iff a b = AndN (Imp (a, b), Imp (b, a))
+let thm name k = show name (Sbct ([], [], k))
+
 let () =
-  show "currying" (Sbct (empty_ctx, [Imp (AndP (p0, p1), p2)], Imp (p0, Imp (p1, p2))));
+  thm "currying-pos" (Imp (Imp (AndP (p0, p1), p2), Imp (p0, Imp (p1, p2))));
+  thm "currying-neg" (Imp (Imp (AndP (n0, n1), n2), Imp (n0, Imp (n1, n2))));
+  thm "ex-middle" (Or (p0, Imp (p0, FF)));
+  thm "ex-middle-constructive" (Imp (Imp (Or (p0, Imp (p0, FF)), FF), FF));
+  thm "peirce" (Imp (Imp (Imp (p0, p1), p0), p0));
+  thm "peirce-constructive" (neg (neg (Imp (Imp (Imp (p0, p1), p0), p0))));
+
+  thm "triple-neg" (Imp (neg (neg (neg p0)), neg p0));
+  thm "case-split" (iff (Imp (Or (p0, p1), p2)) (AndP (Imp (p0, p2), Imp (p1, p2))));
